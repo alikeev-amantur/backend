@@ -5,14 +5,15 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ViewSetMixin
 
 from .models import Establishment
-from .serializers import EstablishmentSerializer
+from .serializers import EstablishmentSerializer, \
+    EstablishmentCreateUpdateSerializer
 
 
 class EstablishmentPagination(PageNumberPagination):
     """
     Pagination for establishment
     """
-    page_size = 7
+    page_size = 10
 
 
 class EstablishmentListView(ListAPIView):
@@ -27,10 +28,11 @@ class EstablishmentListView(ListAPIView):
 class EstablishmentCreateView(CreateAPIView):
     """
     Establishment create view (should be only for admin)
-    TODO: add permissions only for admin, add validation
+    Contains validation for phone_number and location fields
+    TODO: add permissions only for admin
     """
     queryset = Establishment.objects.all()
-    serializer_class = EstablishmentSerializer
+    serializer_class = EstablishmentCreateUpdateSerializer
 
 
 class EstablishmentViewSet(ViewSetMixin,
@@ -42,7 +44,13 @@ class EstablishmentViewSet(ViewSetMixin,
     Retrieve - for all users
     Update - only for establishment partner (owner) or admin
     Delete - only for admin
-    TODO: implement permission for each user group. Add validation for update
+    Contains validation for phone_number and location fields
+    TODO: implement permission for each user group.
     """
     queryset = Establishment.objects.all()
-    serializer_class = EstablishmentSerializer
+
+    def get_serializer_class(self):
+        if self.action in ('update', 'partial_update'):
+            return EstablishmentCreateUpdateSerializer
+        else:
+            return EstablishmentSerializer
