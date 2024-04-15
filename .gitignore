@@ -9,6 +9,7 @@
 *.sqlite3-journal
 __pycache__/
 settings/local.py
+/happyhours/settings/local.py
 media
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
@@ -156,8 +157,6 @@ logs/
 
 # Migration files (Generally not recommended to ignore)
 # <django-project-name>/migrations/
-
-
 
 # Let's Encrypt (Traefik)
 letsencrypt/
