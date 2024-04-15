@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') 
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # dependencies
     "corsheaders",
     "rest_framework",
+    "drf_spectacular",
     # apps
     "apps.user.apps.UserConfig",
     "apps.beverage.apps.BeverageConfig",
@@ -117,11 +118,24 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Bishkek"
 
 USE_I18N = True
 
 USE_TZ = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PERMISSION_CLASSES': [],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Happy Hours',
+    'DESCRIPTION': 'Happy Hours API',
+    'VERSION': '0.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
