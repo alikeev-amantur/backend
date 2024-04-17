@@ -43,7 +43,6 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """
         Update existing Establishment instance.
-        Validating phone number. Modifying location field
         :param instance:
         :param validated_data:
         :return:

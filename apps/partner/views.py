@@ -1,12 +1,15 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import (
     ListAPIView, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ViewSetMixin
 
+from .filters import EstablishmentFilter
 from .models import Establishment
-from .serializers import EstablishmentSerializer, \
-    EstablishmentCreateUpdateSerializer
+from .serializers import (
+    EstablishmentSerializer, EstablishmentCreateUpdateSerializer
+)
 
 
 class EstablishmentPagination(PageNumberPagination):
@@ -23,6 +26,8 @@ class EstablishmentListView(ListAPIView):
     queryset = Establishment.objects.all().order_by('id')
     serializer_class = EstablishmentSerializer
     pagination_class = EstablishmentPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = EstablishmentFilter
 
 
 class EstablishmentCreateView(CreateAPIView):

@@ -160,3 +160,8 @@ logs/
 
 # Let's Encrypt (Traefik)
 letsencrypt/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
