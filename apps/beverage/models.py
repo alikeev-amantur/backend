@@ -1,8 +1,6 @@
 from django.db import models
 
-
-# class Establishment(models.Model):
-#     name = models.CharField(max_length=100)
+from apps.partner.models import Establishment
 
 
 class Category(models.Model):
@@ -22,16 +20,12 @@ class Beverage(models.Model):
     description = models.TextField()
     availability_status = models.BooleanField(default=True)
     category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='beverages'
+        Category, on_delete=models.SET_NULL, null=True, related_name="beverages"
     )
-    # establishment = models.ForeignKey(
-    #     Establishment,
-    #     on_delete=models.CASCADE,
-    #     related_name='beverages'
-    # )
+
+    establishment = models.ForeignKey(
+        Establishment, on_delete=models.CASCADE, related_name="beverages"
+    )
 
     def __str__(self):
         return self.name
@@ -39,4 +33,4 @@ class Beverage(models.Model):
     class Meta:
         verbose_name = "Beverage"
         verbose_name_plural = "Beverages"
-        ordering = ['name']
+        ordering = ["name"]
