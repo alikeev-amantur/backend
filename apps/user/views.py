@@ -16,10 +16,16 @@ User = get_user_model()
 
 
 class TokenObtainView(TokenObtainPairView):
+    """
+    Token Obtaining view
+    """
     serializer_class = TokenObtainSerializer
 
 
 class ClientRegisterView(CreateAPIView):
+    """
+    Individual Client Register View
+    """
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = ClientRegisterSerializer
@@ -29,12 +35,18 @@ class UserViewSet(ViewSetMixin,
                   RetrieveAPIView,
                   UpdateAPIView,
                   DestroyAPIView):
+    """
+    User viewset with Owner permission
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsUserOwner]
 
 
 class CreatePartner(CreateAPIView):
+    """
+    Individual Partner Register View
+    """
     queryset = User.objects.all()
     serializer_class = PartnerCreateSerializer
     permission_classes = [IsAdminUser]

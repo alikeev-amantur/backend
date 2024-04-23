@@ -8,6 +8,9 @@ User = get_user_model()
 
 
 class TokenObtainSerializer(TokenObtainPairSerializer):
+    """
+    Token Obtaining Serializer
+    """
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -16,6 +19,9 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
 
 
 class ClientRegisterSerializer(serializers.ModelSerializer):
+    """
+    Individual register view for client user
+    """
     password = serializers.CharField(
         write_only=True, required=True, min_length=8
     )
@@ -35,6 +41,11 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
+        """
+        Validating passwords form user input
+        :param attrs:
+        :return:
+        """
         password = attrs.get('password')
         password_confirm = attrs.get('password_confirm')
         if password != password_confirm:
@@ -42,6 +53,11 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """
+        Creating user with client role
+        :param validated_data:
+        :return:
+        """
         user = User.objects.create_user(
             email=validated_data['email'],
             role='client'
@@ -52,6 +68,9 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Basic user serializer
+    """
     email = serializers.EmailField(read_only=True)
 
     class Meta:
@@ -65,6 +84,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PartnerCreateSerializer(serializers.ModelSerializer):
+    """
+    Individual create view for partner user
+    """
     password = serializers.CharField(
         write_only=True, required=True, min_length=8
     )
@@ -85,6 +107,11 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
+        """
+        Validating passwords from user input
+        :param attrs:
+        :return:
+        """
         password = attrs.get('password')
         password_confirm = attrs.get('password_confirm')
         if password != password_confirm:
@@ -92,6 +119,11 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """
+        Creating user with partner role
+        :param validated_data:
+        :return:
+        """
         user = User.objects.create_user(
             email=validated_data['email'], name=validated_data['name'],
             role='partner'
