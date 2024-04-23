@@ -7,7 +7,7 @@ from rest_framework.viewsets import ViewSetMixin
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import (
-    UserSerializer, TokenObtainSerializer, RegisterSerializer,
+    UserSerializer, TokenObtainSerializer, ClientRegisterSerializer,
     PartnerCreateSerializer
 )
 from happyhours.permissions import IsUserOwner
@@ -19,10 +19,10 @@ class TokenObtainView(TokenObtainPairView):
     serializer_class = TokenObtainSerializer
 
 
-class RegisterView(CreateAPIView):
+class ClientRegisterView(CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
-    serializer_class = RegisterSerializer
+    serializer_class = ClientRegisterSerializer
 
 
 class UserViewSet(ViewSetMixin,

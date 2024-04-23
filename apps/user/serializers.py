@@ -15,7 +15,7 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
         return token
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class ClientRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True, required=True, min_length=8
     )
@@ -44,6 +44,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(
             email=validated_data['email'],
+            role='client'
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -51,24 +52,23 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(read_only=True)
+
     class Meta:
         model = User
         fields = (
             'id',
+            'email',
             'name',
             'avatar',
         )
-
-    def create(self, validated_data):
-        validated_data['is_partner'] = True
-        user = User.objects.create_user(**validated_data)
-        return user
 
 
 class PartnerCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True, required=True, min_length=8
     )
+    password_confirm = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())]
@@ -81,12 +81,20 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
             'email',
             'name',
             'password',
+            'password_confirm',
         )
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        password_confirm = attrs.get('password_confirm')
+        if password != password_confirm:
+            raise serializers.ValidationError('Passwords do not match')
+        return attrs
 
     def create(self, validated_data):
         user = User.objects.create_user(
             email=validated_data['email'], name=validated_data['name'],
-            is_partner=True
+            role='partner'
         )
         user.set_password(validated_data['password'])
         user.save()

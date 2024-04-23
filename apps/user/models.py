@@ -2,6 +2,13 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+ROLE_CHOICES = (
+    ('admin', 'Admin'),
+    ('client', 'Client'),
+    ('partner', 'Partner'),
+    ('staff', 'Staff'),
+)
+
 
 class UserManager(BaseUserManager):
     def _create_user(self, email, password, **extra_fields):
@@ -20,13 +27,14 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'admin')
         return self._create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser):
     """
     Represents user of happy hours app
-    Client, Partner, Admin
+    Client, Partner, Admin (superuser), Staff (happy hours admin)
     """
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255, blank=True, null=True)
@@ -34,10 +42,10 @@ class User(AbstractUser):
     avatar = models.ImageField(
         blank=True, null=True, upload_to='client_avatars/'
     )
-    is_partner = models.BooleanField(default=False)
-    is_blocked_partner = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+    role = models.CharField(max_length=15, choices=ROLE_CHOICES)
 
     objects = UserManager()
 
@@ -46,5 +54,4 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        return f'Partner: {self.email}' if self.is_partner \
-            else f'Client: {self.email}'
+        return f'{self.role}: {self.email}'
