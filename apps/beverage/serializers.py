@@ -5,7 +5,7 @@ from ..partner.models import Establishment
 
 class CategorySerializer(serializers.ModelSerializer):
     beverages = serializers.HyperlinkedRelatedField(
-        many=True, read_only=True, view_name="beverage-detail"
+        many=True, read_only=True, view_name="v1:beverage-detail"
     )
 
     class Meta:
@@ -15,7 +15,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class BeverageSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source="category.name")
-    establishment_name = serializers.ReadOnlyField(source="establishment.name")
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), write_only=True, source="category"
     )
@@ -33,9 +32,9 @@ class BeverageSerializer(serializers.ModelSerializer):
             "availability_status",
             "category_name",
             "category_id",
-            "establishment_name",
             "establishment_id",
         ]
+
 
     def validate_price(self, value):
         """

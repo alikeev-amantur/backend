@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (
-    EstablishmentListView, EstablishmentCreateView, EstablishmentViewSet
+    EstablishmentListView, EstablishmentCreateView, EstablishmentViewSet, MenuView
 )
 
 urlpatterns = [
@@ -13,4 +13,5 @@ urlpatterns = [
         'patch': 'partial_update',
         'delete': 'destroy',
     })),
+    path('menu/<int:id>/', MenuView.as_view())
 ]
