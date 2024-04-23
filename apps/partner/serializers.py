@@ -2,21 +2,24 @@ from rest_framework import serializers
 
 from .models import Establishment
 from .utils import phone_number_validation
+from ..beverage.serializers import BeverageSerializer
 
 
 class EstablishmentSerializer(serializers.ModelSerializer):
     """
     Main serializer for Establishment model
     """
+
     class Meta:
         model = Establishment
         fields = (
             'id',
             'name',
-            'location_char',
+            'location',
             'description',
             'phone_number',
             'logo',
+            'address',
             'owner',
         )
 
@@ -40,10 +43,11 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
-            'location_char',
+            'location',
             'description',
             'phone_number',
             'logo',
+            'address',
             'owner',
         )
 
@@ -70,3 +74,11 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class MenuSerializer(serializers.ModelSerializer):
+    beverages = BeverageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Establishment
+        fields = ['id', 'name', 'location', 'description', 'phone_number', 'address', 'logo', 'beverages']

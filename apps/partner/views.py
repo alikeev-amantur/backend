@@ -3,13 +3,12 @@ from rest_framework.generics import (
     ListAPIView, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 )
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSetMixin
 
 from .filters import EstablishmentFilter
 from .models import Establishment
 from .serializers import (
-    EstablishmentSerializer, EstablishmentCreateUpdateSerializer
+    EstablishmentSerializer, EstablishmentCreateUpdateSerializer, MenuSerializer
 )
 
 
@@ -60,3 +59,11 @@ class EstablishmentViewSet(ViewSetMixin,
             return EstablishmentCreateUpdateSerializer
         else:
             return EstablishmentSerializer
+
+
+class MenuView(RetrieveAPIView):
+    """accessing menu via qr code"""
+    queryset = Establishment.objects.all()
+    serializer_class = MenuSerializer
+    lookup_field = 'id'
+
