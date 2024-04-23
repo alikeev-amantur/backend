@@ -50,4 +50,3 @@ class CreatePartner(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = PartnerCreateSerializer
     permission_classes = [IsAdminUser]
-
