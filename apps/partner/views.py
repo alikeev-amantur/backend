@@ -59,7 +59,7 @@ class EstablishmentCreateView(CreateAPIView):
 
     def perform_create(self, serializer):
         establishment = serializer.save()
-        domain = self.request.build_absolute_uri("/")[:-1]
+        domain = self.request.build_absolute_uri("/")
         filename, qr_code_data = generate_qr_code(establishment, domain)
         qr_code = QRCode(establishment=establishment)
         qr_code.qr_code_image.save(filename, ContentFile(qr_code_data), save=False)

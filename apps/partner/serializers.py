@@ -57,6 +57,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
 
 
 class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
+    qr_code = QRCodeSerializer(read_only=True)
     class Meta:
         model = Establishment
         fields = (
@@ -68,6 +69,7 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
             "logo",
             "address",
             "owner",
+            'qr_code',
         )
 
     def create(self, validated_data):
