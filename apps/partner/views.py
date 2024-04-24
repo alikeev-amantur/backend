@@ -16,6 +16,7 @@ from .serializers import (
     EstablishmentSerializer,
     EstablishmentCreateUpdateSerializer,
     MenuSerializer,
+    QRCodeSerializer,
 )
 from .utils import generate_qr_code
 
