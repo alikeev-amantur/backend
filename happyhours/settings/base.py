@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # dependencies
     "corsheaders",
+    'django_filters',
     "rest_framework",
     "drf_spectacular",
     'rest_framework_simplejwt.token_blacklist',
@@ -48,7 +49,6 @@ INSTALLED_APPS = [
     "apps.beverage.apps.BeverageConfig",
     "apps.partner.apps.PartnerConfig",
     "apps.order.apps.OrderConfig",
-    "apps.qr_code.apps.QrCodeConfig",
 ]
 
 MIDDLEWARE = [
@@ -133,6 +133,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'PAGE_SIZE': 10,
     'DEFAULT_PERMISSION_CLASSES': [],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
