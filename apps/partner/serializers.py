@@ -13,27 +13,26 @@ class EstablishmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Establishment
         fields = (
-            'id',
-            'name',
-            'location',
-            'description',
-            'phone_number',
-            'logo',
-            'address',
-            'owner',
+            "id",
+            "name",
+            "location",
+            "description",
+            "phone_number",
+            "logo",
+            "address",
+            "owner",
         )
 
     def get_image_url(self, obj):
-        request = self.context.get('request')
-        if obj.logo != '':
+        request = self.context.get("request")
+        if obj.logo != "":
             return request.build_absolute_uri(obj.logo.url)
-        else:
-            return ''
+        return ""
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['logo'] = self.get_image_url(instance)
-        representation['owner'] = instance.owner.username
+        representation["logo"] = self.get_image_url(instance)
+        representation["owner"] = instance.owner.username
         return representation
 
 
@@ -41,14 +40,14 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Establishment
         fields = (
-            'id',
-            'name',
-            'location',
-            'description',
-            'phone_number',
-            'logo',
-            'address',
-            'owner',
+            "id",
+            "name",
+            "location",
+            "description",
+            "phone_number",
+            "logo",
+            "address",
+            "owner",
         )
 
     def create(self, validated_data):
@@ -81,4 +80,13 @@ class MenuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Establishment
-        fields = ['id', 'name', 'location', 'description', 'phone_number', 'address', 'logo', 'beverages']
+        fields = [
+            "id",
+            "name",
+            "location",
+            "description",
+            "phone_number",
+            "address",
+            "logo",
+            "beverages",
+        ]
