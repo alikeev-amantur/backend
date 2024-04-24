@@ -8,6 +8,7 @@ from rest_framework.generics import (
     DestroyAPIView,
 )
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSetMixin
 
 from .filters import EstablishmentFilter
@@ -19,6 +20,10 @@ from .serializers import (
     QRCodeSerializer,
 )
 from .utils import generate_qr_code
+from happyhours.permissions import (
+    IsAdmin,
+    IsPartnerOwner,
+)
 
 
 class EstablishmentPagination(PageNumberPagination):
@@ -45,11 +50,12 @@ class EstablishmentCreateView(CreateAPIView):
     """
     Establishment create view (should be only for admin)
     Contains validation for phone_number and location fields
-    TODO: add permissions only for admin
+    Permissions only for admin
     """
 
     queryset = Establishment.objects.all()
     serializer_class = EstablishmentCreateUpdateSerializer
+    permission_classes = [IsAdmin]
 
     def perform_create(self, serializer):
         establishment = serializer.save()
@@ -69,7 +75,7 @@ class EstablishmentViewSet(
     Update - only for establishment partner (owner) or admin
     Delete - only for admin
     Contains validation for phone_number and location fields
-    TODO: implement permission for each user group.
+    Permission for each user group.
     """
 
     queryset = Establishment.objects.all()
@@ -78,6 +84,15 @@ class EstablishmentViewSet(
         if self.action in ("update", "partial_update"):
             return EstablishmentCreateUpdateSerializer
         return EstablishmentSerializer
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            permissions = [IsAuthenticated]
+        elif self.action in ('update', 'partial_update'):
+            permissions = [IsPartnerOwner]
+        else:
+            permissions = [IsAdmin]
+        return [permission() for permission in permissions]
 
 
 class MenuView(RetrieveAPIView):

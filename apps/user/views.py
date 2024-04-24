@@ -2,16 +2,18 @@ from django.contrib.auth import get_user_model
 from rest_framework.generics import (
     RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView, ListAPIView
 )
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ViewSetMixin
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+from happyhours.permissions import (
+    IsUserOwner, IsPartnerAndAdmin, IsNotAuthenticated
+)
+
 
 from .serializers import (
     UserSerializer, TokenObtainSerializer, ClientRegisterSerializer,
     PartnerCreateSerializer
-)
-from happyhours.permissions import (
-    IsUserOwner, IsPartnerStaff, IsNotAuthenticated, IsBlockedUser
 )
 
 User = get_user_model()
@@ -57,4 +59,4 @@ class CreatePartner(CreateAPIView):
 class ClientListView(ListAPIView):
     queryset = User.objects.all().filter(role='client').order_by('id')
     serializer_class = UserSerializer
-    permission_classes = [IsPartnerStaff]
+    permission_classes = [IsPartnerAndAdmin]

@@ -52,7 +52,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["logo"] = self.get_image_url(instance)
-        representation["owner"] = instance.owner.username
+        representation["owner"] = instance.owner.email
         return representation
 
 

@@ -17,4 +17,4 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD if [ "$ENVIRONMENT" = "production" ] ; then gunicorn --workers=3 --bind 0.0.0.0:8000 happyhours.wsgi:application; else python manage.py runserver 0.0.0.0:8000; fi

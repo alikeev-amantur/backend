@@ -3,10 +3,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 ROLE_CHOICES = (
-    ('admin', 'Admin'),
     ('client', 'Client'),
     ('partner', 'Partner'),
-    ('staff', 'Staff'),
+    ('admin', 'Admin'),
 )
 
 
@@ -27,14 +26,13 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('role', 'admin')
         return self._create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser):
     """
     Represents user of happy hours app
-    Client, Partner, Admin (superuser), Staff (happy hours admin)
+    Client, Partner, Admin (happyhours admin)
     """
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255, blank=True, null=True)
