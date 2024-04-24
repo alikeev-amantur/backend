@@ -16,6 +16,7 @@ from .serializers import (
     EstablishmentSerializer,
     EstablishmentCreateUpdateSerializer,
     MenuSerializer,
+    QRCodeSerializer,
 )
 from .utils import generate_qr_code
 
@@ -76,7 +77,6 @@ class EstablishmentViewSet(
     def get_serializer_class(self):
         if self.action in ("update", "partial_update"):
             return EstablishmentCreateUpdateSerializer
-
         return EstablishmentSerializer
 
 

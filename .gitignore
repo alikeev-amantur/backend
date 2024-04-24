@@ -165,3 +165,4 @@ local-manage.py
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+qr_codes/
