@@ -1,14 +1,33 @@
 from rest_framework import serializers
 
-from .models import Establishment
+from .models import Establishment, QRCode
 from .utils import phone_number_validation
 from ..beverage.serializers import BeverageSerializer
+
+
+class QRCodeSerializer(serializers.ModelSerializer):
+    qr_code_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = QRCode
+        fields = [
+            "id",
+            "qr_code_image",
+        ]
+
+    def get_qr_code_image(self, obj):
+        request = self.context.get("request")
+        if obj.qr_code_image and request:
+            return request.build_absolute_uri(obj.qr_code_image.url)
+        return None
 
 
 class EstablishmentSerializer(serializers.ModelSerializer):
     """
     Main serializer for Establishment model
     """
+
+    qr_code = QRCodeSerializer(read_only=True)
 
     class Meta:
         model = Establishment
@@ -21,6 +40,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
             "logo",
             "address",
             "owner",
+            "qr_code",
         )
 
     def get_image_url(self, obj):
