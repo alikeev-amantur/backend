@@ -20,6 +20,6 @@ COPY . .
 
 CMD if [ "$ENVIRONMENT" = "production" ] ;then  python production-manage.py migrate --noinput && \
     python production-manage.py collectstatic --noinput  && \
-    python production-manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); email='$SUPERUSER_EMAIL'; password='$SUPERUSER_PASSWORD'; user=User.objects.filter(email=email).first(); if not user: User.objects.create_superuser(email=email, password=password);" && \
+    python production-manage.py  createcustomsuperuser "$SUPERUSER_EMAIL" "$SUPERUSER_PASSWORD" && \
     gunicorn --workers=3 --bind 0.0.0.0:8000 happyhours.wsgi:application; \
 else python manage.py runserver 0.0.0.0:8000; fi
