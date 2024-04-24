@@ -55,7 +55,7 @@ class EstablishmentCreateView(CreateAPIView):
 
     queryset = Establishment.objects.all()
     serializer_class = EstablishmentCreateUpdateSerializer
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin]
 
     def perform_create(self, serializer):
         establishment = serializer.save()
