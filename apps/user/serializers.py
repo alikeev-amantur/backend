@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.response import Response
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -79,6 +79,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'name',
+            'date_of_birth',
             'avatar',
         )
 

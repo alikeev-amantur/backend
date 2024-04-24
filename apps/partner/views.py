@@ -76,7 +76,6 @@ class EstablishmentViewSet(
     def get_serializer_class(self):
         if self.action in ("update", "partial_update"):
             return EstablishmentCreateUpdateSerializer
-
         return EstablishmentSerializer
 
 
