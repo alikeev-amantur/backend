@@ -18,5 +18,8 @@ RUN pip install --upgrade pip \
 COPY . .
 
 
-
-CMD if [ "$ENVIRONMENT" = "production" ] ; then gunicorn --workers=3 --bind 0.0.0.0:8000 happyhours.wsgi:application; else python manage.py runserver 0.0.0.0:8000; fi
+CMD if [ "$ENVIRONMENT" = "production" ] ; then python production-manage.py migrate --noinput && \
+    python production-manage.py collectstatic --noinput  && \
+    echo "from django.contrib.auth import get_user_model; User = get_user_model(); email='$SUPERUSER_EMAIL'; password='$SUPERUSER_PASSWORD'; user=User.objects.filter(email=email).first(); if not user: User.objects.create_superuser(email, email, password);" | python manage.py shell && \
+    gunicorn --workers=3 --bind 0.0.0.0:8000 happyhours.wsgi:application;\
+    else python manage.py runserver 0.0.0.0:8000; fi
