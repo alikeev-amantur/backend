@@ -8,6 +8,9 @@ User = get_user_model()
 
 
 class TokenObtainSerializer(TokenObtainPairSerializer):
+    """
+    Token Obtaining Serializer
+    """
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -15,7 +18,10 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
         return token
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class ClientRegisterSerializer(serializers.ModelSerializer):
+    """
+    Individual register view for client user
+    """
     password = serializers.CharField(
         write_only=True, required=True, min_length=8
     )
@@ -35,6 +41,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
+        """
+        Validating passwords form user input
+        :param attrs:
+        :return:
+        """
         password = attrs.get('password')
         password_confirm = attrs.get('password_confirm')
         if password != password_confirm:
@@ -42,8 +53,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """
+        Creating user with client role
+        :param validated_data:
+        :return:
+        """
         user = User.objects.create_user(
             email=validated_data['email'],
+            role='client'
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -51,24 +68,29 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Basic user serializer
+    """
+    email = serializers.EmailField(read_only=True)
+
     class Meta:
         model = User
         fields = (
             'id',
+            'email',
             'name',
             'avatar',
         )
 
-    def create(self, validated_data):
-        validated_data['is_partner'] = True
-        user = User.objects.create_user(**validated_data)
-        return user
-
 
 class PartnerCreateSerializer(serializers.ModelSerializer):
+    """
+    Individual create view for partner user
+    """
     password = serializers.CharField(
         write_only=True, required=True, min_length=8
     )
+    password_confirm = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())]
@@ -81,12 +103,30 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
             'email',
             'name',
             'password',
+            'password_confirm',
         )
 
+    def validate(self, attrs):
+        """
+        Validating passwords from user input
+        :param attrs:
+        :return:
+        """
+        password = attrs.get('password')
+        password_confirm = attrs.get('password_confirm')
+        if password != password_confirm:
+            raise serializers.ValidationError('Passwords do not match')
+        return attrs
+
     def create(self, validated_data):
+        """
+        Creating user with partner role
+        :param validated_data:
+        :return:
+        """
         user = User.objects.create_user(
             email=validated_data['email'], name=validated_data['name'],
-            is_partner=True
+            role='partner'
         )
         user.set_password(validated_data['password'])
         user.save()
