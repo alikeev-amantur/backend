@@ -11,6 +11,7 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
     """
     Token Obtaining Serializer
     """
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -105,6 +106,7 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
             'name',
             'password',
             'password_confirm',
+            'max_establishments'
         )
 
     def validate(self, attrs):
@@ -127,9 +129,9 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
         """
         user = User.objects.create_user(
             email=validated_data['email'], name=validated_data['name'],
+            max_establishments=validated_data['max_establishments'],
             role='partner'
         )
         user.set_password(validated_data['password'])
         user.save()
         return user
-

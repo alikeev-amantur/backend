@@ -10,7 +10,6 @@ from happyhours.permissions import (
     IsUserOwner, IsPartnerAndAdmin, IsNotAuthenticated
 )
 
-
 from .serializers import (
     UserSerializer, TokenObtainSerializer, ClientRegisterSerializer,
     PartnerCreateSerializer
