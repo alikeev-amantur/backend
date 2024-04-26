@@ -21,5 +21,5 @@ urlpatterns = [
             }
         ),
     ),
-    path("menu/<int:id>/", MenuView.as_view()),
+    path("menu/<int:pk>/", MenuView.as_view()),
 ]
