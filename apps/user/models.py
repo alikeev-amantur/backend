@@ -44,8 +44,10 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     role = models.CharField(max_length=15, choices=ROLE_CHOICES)
-    max_establishments = models.PositiveIntegerField(default=1,
-                                                     help_text="Maximum number of establishments this user can own")
+    max_establishments = models.PositiveIntegerField(
+        default=1,
+        help_text="Maximum number of establishments this user can own"
+    )
 
     objects = UserManager()
 
