@@ -25,7 +25,7 @@ from drf_spectacular.views import (
 
 v1_api = (
     [
-        path('beverage', include('apps.beverage.urls')),
+        path('beverage/', include('apps.beverage.urls')),
         # path('order/', include('apps.order.urls')),
         path('partner/', include('apps.partner.urls')),
         # path('qr_code/', include('apps.qr_code.urls')),
