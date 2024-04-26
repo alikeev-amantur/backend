@@ -20,6 +20,8 @@ class Establishment(models.Model):
         upload_to="establishment_logos/",
     )
     owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    happyhours_start = models.TimeField(null=True, blank=True)
+    happyhours_end = models.TimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 

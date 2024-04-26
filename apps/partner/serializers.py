@@ -39,6 +39,8 @@ class EstablishmentSerializer(serializers.ModelSerializer):
             "phone_number",
             "logo",
             "address",
+            "happyhours_start",
+            "happyhours_end",
             "owner",
             "qr_code",
         )
@@ -68,6 +70,8 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
             "phone_number",
             "logo",
             "address",
+            "happyhours_start",
+            "happyhours_end",
             "owner",
             'qr_code',
         )
@@ -110,5 +114,7 @@ class MenuSerializer(serializers.ModelSerializer):
             "phone_number",
             "address",
             "logo",
+            "happyhours_start",
+            "happyhours_end",
             "beverages",
         ]

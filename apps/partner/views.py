@@ -1,4 +1,5 @@
 from django.core.files.base import ContentFile
+from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
     ListAPIView,
@@ -10,7 +11,6 @@ from rest_framework.generics import (
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSetMixin
-
 
 from .models import Establishment, QRCode
 from .serializers import (
@@ -25,20 +25,23 @@ from happyhours.permissions import (
 )
 
 
+@extend_schema(tags=['Establishments'])
 class EstablishmentListView(ListAPIView):
     """
     List all establishments.
     For partners, only list their own establishments.
     """
     serializer_class = EstablishmentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        if user.roles == 'partner':
+        if user.role == 'partner':
             return Establishment.objects.filter(owner=user)
         return Establishment.objects.all()
 
 
+@extend_schema(tags=['Establishments'])
 class EstablishmentCreateView(CreateAPIView):
     """
     Establishment create view (should be only for admin)
@@ -63,6 +66,7 @@ class EstablishmentCreateView(CreateAPIView):
         qr_code.save()
 
 
+@extend_schema(tags=['Establishments'])
 class EstablishmentViewSet(
     ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 ):
@@ -92,9 +96,11 @@ class EstablishmentViewSet(
         return [permission() for permission in permissions]
 
 
+@extend_schema(tags=['Establishments'])
 class MenuView(RetrieveAPIView):
-    """accessing menu via qr code"""
+    """Establishment's menu"""
 
     queryset = Establishment.objects.all()
     serializer_class = MenuSerializer
     lookup_field = "id"
+    permission_classes = [IsAuthenticated]

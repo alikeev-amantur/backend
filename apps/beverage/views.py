@@ -6,10 +6,18 @@ from .models import Category, Beverage
 from .serializers import CategorySerializer, BeverageSerializer
 
 
-@extend_schema(tags=["Beverages"])
+@extend_schema(tags=["Categories"])
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+    def get_permissions(self):
+
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [IsAdmin]
+        return [permission() for permission in permission_classes]
 
 
 @extend_schema(tags=["Beverages"])
@@ -30,9 +38,7 @@ class BeverageViewSet(viewsets.ModelViewSet):
     serializer_class = BeverageSerializer
 
     def get_permissions(self):
-        """
-        Instantiates and returns the list of permissions that this view requires.
-        """
+
         if self.action == 'retrieve':
             permission_classes = [permissions.IsAuthenticated]
         elif self.action in ['create', 'update', 'destroy']:
