@@ -1,5 +1,5 @@
 from django.core.files.base import ContentFile
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
@@ -7,43 +7,36 @@ from rest_framework.generics import (
     UpdateAPIView,
     DestroyAPIView,
 )
-from rest_framework.pagination import PageNumberPagination
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSetMixin
 
-from .filters import EstablishmentFilter
+
 from .models import Establishment, QRCode
 from .serializers import (
     EstablishmentSerializer,
     EstablishmentCreateUpdateSerializer,
     MenuSerializer,
-    QRCodeSerializer,
 )
 from .utils import generate_qr_code
 from happyhours.permissions import (
     IsAdmin,
-    IsPartnerOwner,
+    IsPartnerOwner, IsPartnerUser,
 )
-
-
-class EstablishmentPagination(PageNumberPagination):
-    """
-    Pagination for establishment
-    """
-
-    page_size = 10
 
 
 class EstablishmentListView(ListAPIView):
     """
-    List all establishments. Ordered by id
+    List all establishments.
+    For partners, only list their own establishments.
     """
-
-    queryset = Establishment.objects.all().order_by("id")
     serializer_class = EstablishmentSerializer
-    pagination_class = EstablishmentPagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = EstablishmentFilter
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.roles == 'partner':
+            return Establishment.objects.filter(owner=user)
+        return Establishment.objects.all()
 
 
 class EstablishmentCreateView(CreateAPIView):
@@ -55,11 +48,15 @@ class EstablishmentCreateView(CreateAPIView):
 
     queryset = Establishment.objects.all()
     serializer_class = EstablishmentCreateUpdateSerializer
-    permission_classes = [IsAdmin]
+
+    permission_classes = [IsPartnerUser]
 
     def perform_create(self, serializer):
+        user = self.request.user
+        if user.max_establishments <= Establishment.objects.filter(owner=user).count():
+            raise PermissionDenied('This partner has reached their maximum number of establishments.')
         establishment = serializer.save()
-        domain = self.request.build_absolute_uri("/")[:-1]
+        domain = self.request.build_absolute_uri("/")
         filename, qr_code_data = generate_qr_code(establishment, domain)
         qr_code = QRCode(establishment=establishment)
         qr_code.qr_code_image.save(filename, ContentFile(qr_code_data), save=False)

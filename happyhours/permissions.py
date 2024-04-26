@@ -16,10 +16,13 @@ class IsPartnerUser(permissions.BasePermission):
 
 class IsPartnerOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return bool(
-            (obj.owner == request.user and request.user.role == 'partner')
-            or (request.user.role == 'admin') or request.user.is_superuser
-        )
+        direct_owner = hasattr(obj, 'owner') and obj.owner == request.user
+
+        establishment_owner = hasattr(obj, 'establishment') and \
+                              hasattr(obj.establishment, 'owner') and \
+                              obj.establishment.owner == request.user
+
+        return bool(direct_owner or establishment_owner or request.user.is_superuser)
 
 
 class IsAdmin(permissions.BasePermission):
