@@ -1,9 +1,12 @@
 from django.contrib.auth import get_user_model
+from rest_framework import status
 from rest_framework.generics import (
     RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView, ListAPIView
 )
 from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from happyhours.permissions import (
@@ -32,6 +35,19 @@ class ClientRegisterView(CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [IsNotAuthenticated]
     serializer_class = ClientRegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        token = RefreshToken.for_user(user)
+        data = serializer.data
+        data["tokens"] = {"refresh": str(token),
+                          "access": str(token.access_token)}
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
 
 class UserViewSet(ViewSetMixin,

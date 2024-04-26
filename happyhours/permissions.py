@@ -15,6 +15,9 @@ class IsPartnerUser(permissions.BasePermission):
 
 
 class IsPartnerOwner(permissions.BasePermission):
+    """
+    Check if user with Partner role is owner of establishment or beverage
+    """
     def has_object_permission(self, request, view, obj):
         direct_owner = hasattr(obj, 'owner') and obj.owner == request.user
 
