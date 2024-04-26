@@ -1,3 +1,6 @@
+from drf_spectacular.utils import (
+    extend_schema_field,
+)
 from rest_framework import serializers
 
 from .models import Establishment, QRCode
@@ -15,6 +18,7 @@ class QRCodeSerializer(serializers.ModelSerializer):
             "qr_code_image",
         ]
 
+    @extend_schema_field(serializers.URLField())
     def get_qr_code_image(self, obj):
         request = self.context.get("request")
         if obj.qr_code_image and request:
@@ -39,6 +43,8 @@ class EstablishmentSerializer(serializers.ModelSerializer):
             "phone_number",
             "logo",
             "address",
+            "happyhours_start",
+            "happyhours_end",
             "owner",
             "qr_code",
         )
@@ -58,6 +64,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
 
 class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
     qr_code = QRCodeSerializer(read_only=True)
+
     class Meta:
         model = Establishment
         fields = (
@@ -68,8 +75,10 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
             "phone_number",
             "logo",
             "address",
+            "happyhours_start",
+            "happyhours_end",
             "owner",
-            'qr_code',
+            "qr_code",
         )
 
     def create(self, validated_data):
@@ -110,5 +119,7 @@ class MenuSerializer(serializers.ModelSerializer):
             "phone_number",
             "address",
             "logo",
+            "happyhours_start",
+            "happyhours_end",
             "beverages",
         ]

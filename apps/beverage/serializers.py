@@ -35,7 +35,6 @@ class BeverageSerializer(serializers.ModelSerializer):
             "establishment_id",
         ]
 
-
     def validate_price(self, value):
         """
         Check that the price is not negative.
