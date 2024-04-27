@@ -1,37 +1,45 @@
-version: '3.9'
+version: '3.8'
 
 services:
   db:
     image: postgres:14
     volumes:
       - postgres_data:/var/lib/postgresql/data
-#    env_file:
-#      - ./.env.dev
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn happyhours.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
-      - .:/code
       - static_volume:/code/static
     ports:
       - "8000:8000"
     depends_on:
       - db
-#    env_file:
-#      - ./.env.dev
     environment:
-      - DEBUG=${DEBUG}
-      - SECRET_KEY=${SECRET_KEY}
-      - DB_HOST=db
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_PORT=${DB_PORT}
-      - ENVIRONMENT=development
+      DB_HOST: db
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PORT: 5432
+    restart: unless-stopped
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_volume:/usr/share/nginx/html:ro
+      - ./config/nginx:/etc/nginx/conf.d
+    depends_on:
+      - web
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   static_volume:
+

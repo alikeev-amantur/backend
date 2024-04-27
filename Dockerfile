@@ -17,9 +17,5 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
-
-CMD if [ "$ENVIRONMENT" = "production" ] ;then  python production-manage.py migrate --noinput && \
-    python production-manage.py collectstatic --noinput  && \
-    python production-manage.py  createcustomsuperuser "$SUPERUSER_EMAIL" "$SUPERUSER_PASSWORD" && \
-    gunicorn --workers=3 --bind 0.0.0.0:8000 happyhours.wsgi:application; \
-else python manage.py runserver 0.0.0.0:8000; fi
+RUN python production-manage.py collectstatic --noinput
+CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8000", "happyhours.wsgi:application"]
