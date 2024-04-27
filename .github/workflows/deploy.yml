@@ -8,6 +8,13 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      DEBUG: ${{ secrets.DEBUG }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
@@ -16,14 +23,6 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.11'
-    - name: Set Environment Variables for Django
-      run: | 
-        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" 
-        echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}" 
-        echo "DEBUG=${{ secrets.DEBUG }}" 
-        echo "DB_NAME=${{ secrets.DB_NAME }}" 
-        echo "DB_USER=${{ secrets.DB_USER }}" 
-        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" 
       
     - name: Install Dependencies
       run: |
@@ -60,14 +59,16 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
-                  docker load < /home/ubuntu/happyhours-app.tar.gz
-                  echo "ALLOWED_HOSTS='${{ secrets.ALLOWED_HOSTS }}'" > /home/ubuntu/.env
-                  echo "SECRET_KEY='${{ secrets.SECRET_KEY }}'" >> /home/ubuntu/.env
-                  echo "DB_NAME='${{ secrets.DB_NAME }}'" >> /home/ubuntu/.env
-                  echo "DB_USER='${{ secrets.DB_USER }}'" >> /home/ubuntu/.env
-                  echo "DB_PASSWORD='${{ secrets.DB_PASSWORD }}'" >> /home/ubuntu/.env
-                  echo "DB_HOST='db'" >> /home/ubuntu/.env
-                  echo "DB_PORT='${{ secrets.DB_PORT }}'" >> /home/ubuntu/.env
-                  cd /home/ubuntu
-                  docker-compose -f docker-compose.yml up -d --force-recreate
-                  docker-compose -f /home/ubuntu/docker-compose.yml run web python production-manage.py migrate --noinput
+                    docker load < /home/ubuntu/happyhours-app.tar.gz
+                    echo "ALLOWED_HOSTS='${{ secrets.ALLOWED_HOSTS }}'" > /home/ubuntu/.env
+                    echo "SECRET_KEY='${{ secrets.SECRET_KEY }}'" >> /home/ubuntu/.env
+                    echo "DEBUG='${{ secrets.DEBUG }}'" >> /home/ubuntu/.env
+                    echo "DB_NAME='${{ secrets.DB_NAME }}'" >> /home/ubuntu/.env
+                    echo "DB_USER='${{ secrets.DB_USER }}'" >> /home/ubuntu/.env
+                    echo "DB_PASSWORD='${{ secrets.DB_PASSWORD }}'" >> /home/ubuntu/.env
+                    echo "DB_HOST='db'" >> /home/ubuntu/.env
+                    echo "DB_PORT='${{ secrets.DB_PORT }}'" >> /home/ubuntu/.env
+                    cd /home/ubuntu
+                    docker-compose -f docker-compose.yml up -d --force-recreate
+                    docker-compose -f /home/ubuntu/docker-compose.yml exec web python production-manage.py collectstatic --noinput
+                    docker-compose -f /home/ubuntu/docker-compose.yml exec web python production-manage.py migrate --noinput
