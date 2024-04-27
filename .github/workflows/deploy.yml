@@ -52,7 +52,14 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
-          docker load < /home/ubuntu/happyhours-app.tar.gz
-          docker-compose -f /home/ubuntu/docker-compose.yml down
-          docker-compose -f /home/ubuntu/docker-compose.yml up -d --force-recreate
-          docker-compose -f /home/ubuntu/docker-compose.yml run web python production-manage.py migrate --noinput
+                  docker load < /home/ubuntu/happyhours-app.tar.gz
+                  echo "ALLOWED_HOSTS='${{ secrets.ALLOWED_HOSTS }}'" > /home/ubuntu/.env
+                  echo "SECRET_KEY='${{ secrets.SECRET_KEY }}'" >> /home/ubuntu/.env
+                  echo "DB_NAME='${{ secrets.DB_NAME }}'" >> /home/ubuntu/.env
+                  echo "DB_USER='${{ secrets.DB_USER }}'" >> /home/ubuntu/.env
+                  echo "DB_PASSWORD='${{ secrets.DB_PASSWORD }}'" >> /home/ubuntu/.env
+                  echo "DB_HOST='db'" >> /home/ubuntu/.env
+                  echo "DB_PORT='${{ secrets.DB_PORT }}'" >> /home/ubuntu/.env
+                  cd /home/ubuntu
+                  docker-compose -f docker-compose.yml up -d --force-recreate
+                  docker-compose -f /home/ubuntu/docker-compose.yml run web python production-manage.py migrate --noinput
