@@ -5,7 +5,8 @@ from rest_framework_simplejwt.views import (
 
 from .views import (
     UserViewSet, ClientRegisterView, CreatePartner, ClientListView,
-    TokenObtainView
+    TokenObtainView, ClientPasswordForgotPageView, ClientPasswordResetView,
+    ClientPasswordChangeView
 )
 
 urlpatterns = [
@@ -24,4 +25,16 @@ urlpatterns = [
         'patch': 'partial_update',
         'delete': 'destroy',
     })),
+    path(
+        'password_forgot/', ClientPasswordForgotPageView.as_view(),
+        name='password-forgot-page'
+    ),
+    path(
+        'password_reset/', ClientPasswordResetView.as_view(),
+        name='password-reset'
+    ),
+    path(
+        'password_change/', ClientPasswordChangeView.as_view(),
+        name='password-change'
+    ),
 ]

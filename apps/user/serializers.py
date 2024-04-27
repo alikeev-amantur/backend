@@ -67,6 +67,69 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+        )
+
+    def validate(self, attrs):
+        try:
+            user = User.objects.filter(email=attrs.get('email'))
+        except User.DoesNotExist:
+            raise serializers.ValidationError('User does not exist')
+        return attrs
+
+
+class ClientPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    reset_code = serializers.CharField(max_length=4, required=True)
+
+    class Meta:
+        fields = (
+            'email',
+            'reset_code',
+        )
+
+    def validate(self, attrs):
+        try:
+            queryset = User.objects.filter(email=attrs.get('email'))
+        except User.DoesNotExist:
+            raise serializers.ValidationError('User does not exist')
+        return attrs
+
+
+class ClientPasswordChangeSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(
+        write_only=True, min_length=8, required=True
+    )
+    password_confirm = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'password',
+            'password_confirm',
+        )
+
+    def validate(self, attrs):
+        """
+        Validating passwords form user input
+        :param attrs:
+        :return:
+        """
+        password = attrs.get('password')
+        password_confirm = attrs.get('password_confirm')
+        if password != password_confirm:
+            raise serializers.ValidationError('Passwords do not match')
+        return attrs
+
+
 class UserSerializer(serializers.ModelSerializer):
     """
     Basic user serializer
