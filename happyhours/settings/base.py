@@ -129,12 +129,13 @@ AUTH_USER_MODEL = "user.User"
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_LIMIT': 10,
+    'MAX_LIMIT': 100,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'PAGE_SIZE': 10,
     'DEFAULT_PERMISSION_CLASSES': [],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
@@ -142,8 +143,8 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Happy Hours',
     'DESCRIPTION': 'Happy Hours API',
-    'VERSION': '0.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False
 }
 
 SIMPLE_JWT = {

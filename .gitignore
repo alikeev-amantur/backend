@@ -166,3 +166,5 @@ local-manage.py
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 qr_codes/
+happyhours.pem
+
