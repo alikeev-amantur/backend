@@ -23,14 +23,14 @@ jobs:
             cd /home/ubuntu/reviro/backend
             # Pull latest changes
             git pull origin main
-            # Set environment variables
-            export ALLOWED_HOSTS='${{ secrets.ALLOWED_HOSTS }}'
-            export DB_HOST='${{ secrets.DB_HOST }}'
-            export DB_NAME='${{ secrets.DB_NAME }}'
-            export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
-            export DB_PORT='${{ secrets.DB_PORT }}'
-            export DB_USER='${{ secrets.DB_USER }}'
-            export SECRET_KEY='${{ secrets.SECRET_KEY }}'
+#            # Set environment variables
+#            export ALLOWED_HOSTS='${{ secrets.ALLOWED_HOSTS }}'
+#            export DB_HOST='${{ secrets.DB_HOST }}'
+#            export DB_NAME='${{ secrets.DB_NAME }}'
+#            export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
+#            export DB_PORT='${{ secrets.DB_PORT }}'
+#            export DB_USER='${{ secrets.DB_USER }}'
+#            export SECRET_KEY='${{ secrets.SECRET_KEY }}'
             # Use Docker Compose to rebuild and restart the application
             docker-compose down
             docker-compose up --build -d
