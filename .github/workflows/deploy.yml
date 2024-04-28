@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Deploy to EC2
 
 on:
   push:
@@ -6,69 +6,34 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    env:
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      DEBUG: ${{ secrets.DEBUG }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.11'
-      
-    - name: Install Dependencies
-      run: |
-        pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
-    - name: Run Collectstatic
-      run: |
-        python production-manage.py collectstatic --noinput
-
-    - name: Build Docker Image
-      run: |
-        docker build -t happyhours-app .
-
-    - name: Save Docker Image
-      run: |
-        docker save happyhours-app | gzip > happyhours-app.tar.gz
-
-    - name: Transfer Docker Image to EC2
-      uses: appleboy/scp-action@v0.1.1
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        port: 22
-        source: "happyhours-app.tar.gz"
-        target: "/home/ubuntu/"
-
-    - name: Load Docker Image on EC2
-      uses: appleboy/ssh-action@v0.1.4
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        port: 22
-        script: |
-                    docker load < /home/ubuntu/happyhours-app.tar.gz
-                    echo "ALLOWED_HOSTS='${{ secrets.ALLOWED_HOSTS }}'" > /home/ubuntu/.env
-                    echo "SECRET_KEY='${{ secrets.SECRET_KEY }}'" >> /home/ubuntu/.env
-                    echo "DEBUG='${{ secrets.DEBUG }}'" >> /home/ubuntu/.env
-                    echo "DB_NAME='${{ secrets.DB_NAME }}'" >> /home/ubuntu/.env
-                    echo "DB_USER='${{ secrets.DB_USER }}'" >> /home/ubuntu/.env
-                    echo "DB_PASSWORD='${{ secrets.DB_PASSWORD }}'" >> /home/ubuntu/.env
-                    echo "DB_HOST='db'" >> /home/ubuntu/.env
-                    echo "DB_PORT='${{ secrets.DB_PORT }}'" >> /home/ubuntu/.env
-                    cd /home/ubuntu
-                    docker-compose -f docker-compose.yml up -d --force-recreate
-                    docker-compose -f /home/ubuntu/docker-compose.yml exec web python production-manage.py collectstatic --noinput
-                    docker-compose -f /home/ubuntu/docker-compose.yml exec web python production-manage.py migrate --noinput
+      - name: Deploy to EC2
+        run: |
+          ssh -o "StrictHostKeyChecking=no" ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ubuntu/reviro/backend
+            # Pull latest changes
+            git pull origin main
+            # Set environment variables
+            export ALLOWED_HOSTS='${{ secrets.ALLOWED_HOSTS }}'
+            export DB_HOST='${{ secrets.DB_HOST }}'
+            export DB_NAME='${{ secrets.DB_NAME }}'
+            export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
+            export DB_PORT='${{ secrets.DB_PORT }}'
+            export DB_USER='${{ secrets.DB_USER }}'
+            export SECRET_KEY='${{ secrets.SECRET_KEY }}'
+            # Use Docker Compose to rebuild and restart the application
+            docker-compose down
+            docker-compose up --build -d
+            # Run migrations
+            docker-compose exec web python manage.py migrate
+          EOF
