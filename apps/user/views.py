@@ -23,7 +23,7 @@ from .serializers import (
     ClientPasswordResetSerializer, ClientPasswordChangeSerializer
 )
 from .utils import generate_reset_code, datetime_serializer, \
-    datetime_deserializer
+    datetime_deserializer, send_reset_code_email
 
 User = get_user_model()
 
@@ -67,7 +67,6 @@ class ClientPasswordChangeView(GenericAPIView):
         user = User.objects.get(email=serializer.validated_data['email'])
         user.set_password(serializer.validated_data['password'])
         user.save()
-        print('work?')
         return Response(
             'Password successfully changed', status=status.HTTP_200_OK
         )
@@ -110,10 +109,12 @@ class ClientPasswordForgotPageView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         reset_code = generate_reset_code()
+        user = serializer.validated_data['email']
         request.session['reset_code'] = str(reset_code)
         time_now = datetime.datetime.now()
         request.session['reset_code_create_time'] = (
             datetime_serializer(time_now))
+        send_reset_code_email(user, reset_code)
         return Response('Success', status=status.HTTP_200_OK)
 
 
@@ -140,9 +141,8 @@ class ClientPasswordResetView(GenericAPIView):
                     email=serializer.validated_data['email']
                 )
                 token = RefreshToken.for_user(user)
-                del request.session['reset_code']
-                del request.session['reset_code_create_time']
-                print(request.session['reset_code'])
+                request.session['reset_code'] = ''
+                request.session['reset_code_create_time'] = ''
                 return Response(
                     {'refresh': str(token), 'access': str(token.access_token)}
                 )
