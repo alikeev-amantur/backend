@@ -133,7 +133,7 @@ cython_debug/
 .DS_Store
 # Environment variables
 .env
-.env.*
+.env.dev
 
 # Virtual Environments
 venv/
