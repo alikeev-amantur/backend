@@ -25,6 +25,7 @@ jobs:
             git pull origin main
             # Set environment variables
             export ALLOWED_HOSTS='${{ secrets.ALLOWED_HOSTS }}'
+            export DEBUG ='${{ secrets.DEBUG }}'
             export DB_HOST='${{ secrets.DB_HOST }}'
             export DB_NAME='${{ secrets.DB_NAME }}'
             export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
