@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
 
-from happyhours.permissions import IsPartnerOwner, IsAdmin
+from happyhours.permissions import IsPartnerOwner, IsAdmin, IsPartnerUser
 from .models import Category, Beverage
 from .serializers import CategorySerializer, BeverageSerializer
 
@@ -63,8 +63,8 @@ class BeverageViewSet(viewsets.ModelViewSet):
 
         if self.action == "retrieve":
             permission_classes = [permissions.IsAuthenticated]
-        elif self.action in ["create", "update", "destroy"]:
+        elif self.action in ["update", "destroy"]:
             permission_classes = [IsPartnerOwner]
         else:
-            permission_classes = [permissions.IsAuthenticated]
+            permission_classes = [IsPartnerUser]
         return [permission() for permission in permission_classes]

@@ -35,6 +35,12 @@ class BeverageSerializer(serializers.ModelSerializer):
             "establishment_id",
         ]
 
+    def validate_establishment_id(self, value):
+        user = self.context['request'].user
+        if value.owner != user:
+            raise serializers.ValidationError("User does not own this establishment.")
+        return value
+
     def validate_price(self, value):
         """
         Check that the price is not negative.
