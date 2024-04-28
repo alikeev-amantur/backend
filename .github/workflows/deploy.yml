@@ -35,5 +35,5 @@ jobs:
             docker-compose down
             docker-compose up --build -d
             # Run migrations
-            docker-compose exec web python manage.py migrate
+            docker-compose exec web python production-manage.py migrate
           EOF
