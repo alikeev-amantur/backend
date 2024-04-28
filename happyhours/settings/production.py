@@ -16,7 +16,7 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
-
+DEBUG = False
 STATIC_URL = '/static/'
 STATIC_ROOT = '/code/static'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
