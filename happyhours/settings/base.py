@@ -145,16 +145,18 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Happy Hours API',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    'COMPONENTS': {
-            'securitySchemes': {
-                'bearerAuth': {
-                    'type': 'http',
-                    'scheme': 'bearer',
-                    'bearerFormat': 'JWT',
-                },
-            },
-        },
-    'SECURITY': [{'bearerAuth': []}],
+    'SERVERS': [{'url': 'http://16.170.203.161', 'description': 'Production server'}],
+    "PARSER_WHITELIST": ["rest_framework.parsers.JSONParser"],
+    # 'SECURITY': [{'jwtAuth': []}],
+    # 'COMPONENTS': {
+    #         'securitySchemes': {
+    #             'jwtAuth': {
+    #                 'type': 'http',
+    #                 'scheme': 'bearer',
+    #                 'bearerFormat': 'JWT'
+    #             },
+    #         },
+    #     },
 }
 
 SIMPLE_JWT = {

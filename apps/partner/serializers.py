@@ -81,12 +81,21 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
             "qr_code",
         )
 
+    def validate_owner(self, value):
+        """
+        Validate that the owner is the authenticated user.
+        """
+        user = self.context['request'].user
+        if value != user:
+            raise serializers.ValidationError("You are not allowed to set the owner to another user.")
+        return value
+
     def create(self, validated_data):
         """
         Create and return a new `Establishment` instance.
-        :param validated_data:
-        :return:
         """
+        user = self.context['request'].user
+        validated_data['owner'] = user
         phone_number_validation(validated_data)
         establishment = Establishment.objects.create(**validated_data)
         return establishment
