@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from .models import Order, Establishment
 import datetime
@@ -9,30 +10,22 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ['id', 'establishment', 'beverage', 'client', 'order_date']
         read_only_fields = ['establishment']
 
-    def validate_beverage(self, value):
-        # Assuming business rules to check beverage availability or other conditions
-        if not value.availability_status:
-            raise serializers.ValidationError("This beverage is currently not available.")
-        return value
+    def get_default_establishment(self, beverage):
+        # Get the establishment associated with the beverage
+        return beverage.establishment
 
     def validate_order_date(self, value):
-        # Check if the order is within happy hours
-        current_time = value.time()
-        if self.instance:
-            establishment = self.instance.establishment
-        else:
-            establishment = self.initial_data['beverage'].establishment
-
-        if not (establishment.happy_hours_start <= current_time <= establishment.happy_hours_end):
+        current_time = timezone.now()
+        establishment = self.get_default_establishment(self.initial_data['beverage'])
+        if not (establishment.happy_hours_start <= current_time.time() <= establishment.happy_hours_end):
             raise serializers.ValidationError("You can only place an order during happy hours.")
         return value
 
-    def validate_client_and_order_date_for_hourly_limit(self, data):
+    def validate_order_per_hour(self, client):
         # Ensure one order per hour at any establishment
-        client = data['client']
-        order_date = data['order_date']
-        hour_start = datetime.datetime.combine(order_date.date(),
-                                               order_date.time().replace(minute=0, second=0, microsecond=0))
+        current_time = timezone.now()
+        hour_start = datetime.datetime.combine(current_time.date(),
+                                               current_time.time().replace(minute=0, second=0, microsecond=0))
         hour_end = hour_start + datetime.timedelta(hours=1)
 
         existing_order_same_hour = Order.objects.filter(
@@ -43,13 +36,11 @@ class OrderSerializer(serializers.ModelSerializer):
         if existing_order_same_hour:
             raise serializers.ValidationError("You can only place one order per hour at any establishment.")
 
-    def validate_client_and_order_date_for_daily_limit(self, data):
+    def validate_order_per_day(self, client, establishment):
         # Ensure one order per day per establishment
-        client = data['client']
-        establishment = data['establishment']
-        order_date = data['order_date']
-        today_min = datetime.datetime.combine(order_date.date(), datetime.time.min)
-        today_max = datetime.datetime.combine(order_date.date(), datetime.time.max)
+        current_time = timezone.now()
+        today_min = datetime.datetime.combine(current_time.date(), datetime.time.min)
+        today_max = datetime.datetime.combine(current_time.date(), datetime.time.max)
 
         existing_order_same_day = Order.objects.filter(
             client=client,
@@ -61,8 +52,16 @@ class OrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You can only place one order per establishment per day.")
 
     def validate(self, data):
-        self.validate_client_and_order_date_for_hourly_limit(data)
-        self.validate_client_and_order_date_for_daily_limit(data)
+        # Automate providing client and establishment
+        data['client'] = self.context['request'].user
+        data['establishment'] = self.get_default_establishment(data['beverage'])
+
+        client = data['client']
+        establishment = data['establishment']
+
+        self.validate_order_per_hour(client)
+        self.validate_order_per_day(client, establishment)
+
         return data
 
 

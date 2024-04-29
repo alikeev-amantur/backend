@@ -19,7 +19,6 @@ from .views import (
 TokenBlacklistView = extend_schema(tags=["Users"])(TokenBlacklistView)
 TokenRefreshView = extend_schema(tags=["Users"])(TokenRefreshView)
 
-
 urlpatterns = [
     path("token/", TokenObtainView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
@@ -36,7 +35,7 @@ urlpatterns = [
                 "patch": "partial_update",
                 "delete": "destroy",
             }
-        ),
+        ), name="user-detail",
     ),
     path(
         'password_forgot/', ClientPasswordForgotPageView.as_view(),
