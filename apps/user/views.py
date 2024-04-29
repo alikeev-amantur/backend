@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth import get_user_model
 
 from drf_spectacular.utils import extend_schema
@@ -8,8 +10,9 @@ from rest_framework.generics import (
     DestroyAPIView,
     CreateAPIView,
     ListAPIView,
+    GenericAPIView,
 )
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -22,7 +25,12 @@ from .serializers import (
     TokenObtainSerializer,
     ClientRegisterSerializer,
     PartnerCreateSerializer,
+    ClientPasswordForgotPageSerializer,
+    ClientPasswordResetSerializer,
+    ClientPasswordChangeSerializer
 )
+from .utils import generate_reset_code, datetime_serializer, \
+    datetime_deserializer, send_reset_code_email
 
 User = get_user_model()
 
@@ -61,6 +69,22 @@ class ClientRegisterView(CreateAPIView):
 
 
 @extend_schema(tags=["Users"])
+class ClientPasswordChangeView(GenericAPIView):
+    serializer_class = ClientPasswordChangeSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.get(email=serializer.validated_data['email'])
+        user.set_password(serializer.validated_data['password'])
+        user.save()
+        return Response(
+            'Password successfully changed', status=status.HTTP_200_OK
+        )
+
+
+@extend_schema(tags=["Users"])
 class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     """
     User viewset with Owner permission
@@ -87,3 +111,52 @@ class ClientListView(ListAPIView):
     queryset = User.objects.all().filter(role="client").order_by("id")
     serializer_class = UserSerializer
     permission_classes = [IsPartnerAndAdmin]
+
+
+@extend_schema(tags=["Users"])
+class ClientPasswordForgotPageView(GenericAPIView):
+    serializer_class = ClientPasswordForgotPageSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reset_code = generate_reset_code()
+        user = serializer.validated_data['email']
+        request.session['reset_code'] = str(reset_code)
+        time_now = datetime.datetime.now()
+        request.session['reset_code_create_time'] = (
+            datetime_serializer(time_now))
+        send_reset_code_email(user, reset_code)
+        return Response('Success', status=status.HTTP_200_OK)
+
+
+@extend_schema(tags=["Users"])
+class ClientPasswordResetView(GenericAPIView):
+    serializer_class = ClientPasswordResetSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        reset_code = serializer.validated_data['reset_code']
+
+        if ('reset_code' in request.session
+                and 'reset_code_create_time' in request.session):
+            stored_code = request.session['reset_code']
+            stored_code_date = datetime_deserializer(
+                request.session['reset_code_create_time']
+            )
+            passed_time = datetime.datetime.now()
+
+            if (stored_code == reset_code and
+                    (passed_time - stored_code_date).total_seconds() < 600):
+                user = User.objects.get(
+                    email=serializer.validated_data['email']
+                )
+                token = RefreshToken.for_user(user)
+                request.session['reset_code'] = ''
+                request.session['reset_code_create_time'] = ''
+                return Response(
+                    {'refresh': str(token), 'access': str(token.access_token)}
+                )
+        return Response('Invalid code', status=status.HTTP_400_BAD_REQUEST)

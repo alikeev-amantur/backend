@@ -11,6 +11,9 @@ from .views import (
     CreatePartner,
     ClientListView,
     TokenObtainView,
+    ClientPasswordForgotPageView,
+    ClientPasswordResetView,
+    ClientPasswordChangeView
 )
 
 TokenBlacklistView = extend_schema(tags=["Users"])(TokenBlacklistView)
@@ -34,5 +37,17 @@ urlpatterns = [
                 "delete": "destroy",
             }
         ),
+    ),
+    path(
+        'password_forgot/', ClientPasswordForgotPageView.as_view(),
+        name='password-forgot-page'
+    ),
+    path(
+        'password_reset/', ClientPasswordResetView.as_view(),
+        name='password-reset'
+    ),
+    path(
+        'password_change/', ClientPasswordChangeView.as_view(),
+        name='password-change'
     ),
 ]
