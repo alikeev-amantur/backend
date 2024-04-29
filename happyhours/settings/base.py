@@ -144,6 +144,9 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Happy Hours',
     'DESCRIPTION': 'Happy Hours API',
     'VERSION': '1.0.0',
+    'SERVER': [
+            {'url': 'http://16.170.203.161', 'description': 'Production server'},
+        ],
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENTS': {
             'securitySchemes': {
