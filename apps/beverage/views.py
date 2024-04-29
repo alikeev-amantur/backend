@@ -49,6 +49,7 @@ class BeverageViewSet(viewsets.ModelViewSet):
     ### Fields:
     - `price`: The price of the beverage. Must be a non-negative number.
     - `category_name`: The name of the category to which the beverage belongs (read-only).
+    - `establishment_name` : The name of the establishment to which the beverage belongs (read-only).
     - `category_id`: The ID of the category to which the beverage should be linked (write-only).
     - `establishment_id`: The ID of the establishment where the beverage is served (write-only).
 
@@ -60,11 +61,12 @@ class BeverageViewSet(viewsets.ModelViewSet):
     serializer_class = BeverageSerializer
 
     def get_permissions(self):
-
-        if self.action == "retrieve":
+        if self.action in ["list", "retrieve"]:
             permission_classes = [permissions.IsAuthenticated]
-        elif self.action in ["update", "destroy"]:
+        elif self.action == "create":
+            permission_classes = [IsPartnerUser]
+        elif self.action in ["update", "partial_update", "destroy"]:
             permission_classes = [IsPartnerOwner]
         else:
-            permission_classes = [IsPartnerUser]
+            permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
