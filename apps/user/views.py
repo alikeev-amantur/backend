@@ -33,7 +33,10 @@ from .serializers import (
     ClientPasswordForgotPageSerializer,
     ClientPasswordResetSerializer,
     ClientPasswordChangeSerializer,
-    AdminLoginSerializer
+    AdminLoginSerializer,
+    ClientListSerializer,
+    PartnerListSerializer,
+    BlockUserSerializer
 )
 from .utils import (
     generate_reset_code,
@@ -127,8 +130,30 @@ class CreatePartner(CreateAPIView):
 @extend_schema(tags=["Users"])
 class ClientListView(ListAPIView):
     queryset = User.objects.all().filter(role="client").order_by("id")
-    serializer_class = UserSerializer
+    serializer_class = ClientListSerializer
     permission_classes = [IsPartnerAndAdmin]
+
+
+@extend_schema(tags=["Users"])
+class PartnerListView(ListAPIView):
+    queryset = User.objects.all().filter(role="partner").order_by("id")
+    serializer_class = PartnerListSerializer
+    permission_classes = [IsAdmin]
+
+
+@extend_schema(tags=["Users"])
+class BlockUserView(GenericAPIView):
+    queryset = User.objects.all()
+    serializer_class = BlockUserSerializer
+    permission_classes = [IsAdmin]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.get(email=serializer.validated_data["email"])
+        user.is_blocked = True
+        user.save()
+        return Response("Successful", status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=["Users"])
