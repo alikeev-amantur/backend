@@ -15,6 +15,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class BeverageSerializer(serializers.ModelSerializer):
     category_name = serializers.ReadOnlyField(source="category.name")
+    establishment_name = serializers.ReadOnlyField(source="establishment.name")
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), write_only=True, source="category"
     )
@@ -31,6 +32,7 @@ class BeverageSerializer(serializers.ModelSerializer):
             "description",
             "availability_status",
             "category_name",
+            "establishment_name"
             "category_id",
             "establishment_id",
         ]
