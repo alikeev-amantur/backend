@@ -133,7 +133,7 @@ cython_debug/
 .DS_Store
 # Environment variables
 .env
-.env.dev
+.env.*
 
 # Virtual Environments
 venv/
@@ -166,3 +166,5 @@ local-manage.py
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 qr_codes/
+happyhours.pem
+

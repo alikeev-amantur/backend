@@ -129,7 +129,9 @@ AUTH_USER_MODEL = "user.User"
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_LIMIT': 10,
+    'MAX_LIMIT': 100,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -142,8 +144,18 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Happy Hours',
     'DESCRIPTION': 'Happy Hours API',
-    'VERSION': '0.0.0',
+    'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENTS': {
+            'securitySchemes': {
+                'bearerAuth': {
+                    'type': 'http',
+                    'scheme': 'bearer',
+                    'bearerFormat': 'JWT',
+                },
+            },
+        },
+    'SECURITY': [{'bearerAuth': []}],
 }
 
 SIMPLE_JWT = {

@@ -1,7 +1,8 @@
 import datetime
-import json
 
 from django.contrib.auth import get_user_model
+
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import (
     RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView, ListAPIView,
@@ -28,17 +29,21 @@ from .utils import generate_reset_code, datetime_serializer, \
 User = get_user_model()
 
 
+@extend_schema(tags=["Users"])
 class TokenObtainView(TokenObtainPairView):
     """
     Token Obtaining view
     """
+
     serializer_class = TokenObtainSerializer
 
 
+@extend_schema(tags=["Users"])
 class ClientRegisterView(CreateAPIView):
     """
     Individual Client Register View
     """
+
     queryset = User.objects.all()
     permission_classes = [IsNotAuthenticated]
     serializer_class = ClientRegisterSerializer
@@ -57,6 +62,7 @@ class ClientRegisterView(CreateAPIView):
         )
 
 
+@extend_schema(tags=["Users"])
 class ClientPasswordChangeView(GenericAPIView):
     serializer_class = ClientPasswordChangeSerializer
     permission_classes = [IsAuthenticated]
@@ -72,6 +78,7 @@ class ClientPasswordChangeView(GenericAPIView):
         )
 
 
+@extend_schema(tags=["Users"])
 class UserViewSet(ViewSetMixin,
                   RetrieveAPIView,
                   UpdateAPIView,
@@ -79,20 +86,24 @@ class UserViewSet(ViewSetMixin,
     """
     User viewset with Owner permission
     """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsUserOwner]
 
 
+@extend_schema(tags=["Users"])
 class CreatePartner(CreateAPIView):
     """
     Individual Partner Register View
     """
+
     queryset = User.objects.all()
     serializer_class = PartnerCreateSerializer
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(tags=["Users"])
 class ClientListView(ListAPIView):
     """
     List of clients for partner (or admin?)
@@ -102,6 +113,7 @@ class ClientListView(ListAPIView):
     permission_classes = [IsPartnerAndAdmin]
 
 
+@extend_schema(tags=["Users"])
 class ClientPasswordForgotPageView(GenericAPIView):
     serializer_class = ClientPasswordForgotPageSerializer
 
@@ -118,6 +130,7 @@ class ClientPasswordForgotPageView(GenericAPIView):
         return Response('Success', status=status.HTTP_200_OK)
 
 
+@extend_schema(tags=["Users"])
 class ClientPasswordResetView(GenericAPIView):
     serializer_class = ClientPasswordResetSerializer
 
