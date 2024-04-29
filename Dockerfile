@@ -17,5 +17,5 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
-RUN python production-manage.py collectstatic --noinput
+
 CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8000", "happyhours.wsgi:application"]
