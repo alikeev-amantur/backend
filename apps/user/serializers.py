@@ -14,7 +14,7 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['email'] = user.email
+        token["email"] = user.email
         return token
 
 
@@ -22,22 +22,20 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
     """
     Individual register view for client user
     """
-    password = serializers.CharField(
-        write_only=True, required=True, min_length=8
-    )
+
+    password = serializers.CharField(write_only=True, required=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
     class Meta:
         model = User
         fields = (
-            'id',
-            'email',
-            'password',
-            'password_confirm',
+            "id",
+            "email",
+            "password",
+            "password_confirm",
         )
 
     def validate(self, attrs):
@@ -46,10 +44,10 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         :param attrs:
         :return:
         """
-        password = attrs.get('password')
-        password_confirm = attrs.get('password_confirm')
+        password = attrs.get("password")
+        password_confirm = attrs.get("password_confirm")
         if password != password_confirm:
-            raise serializers.ValidationError('Passwords do not match')
+            raise serializers.ValidationError("Passwords do not match")
         return attrs
 
     def create(self, validated_data):
@@ -58,11 +56,8 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         :param validated_data:
         :return:
         """
-        user = User.objects.create_user(
-            email=validated_data['email'],
-            role='client'
-        )
-        user.set_password(validated_data['password'])
+        user = User.objects.create_user(email=validated_data["email"], role="client")
+        user.set_password(validated_data["password"])
         user.save()
         return user
 
@@ -134,16 +129,17 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Basic user serializer
     """
+
     email = serializers.EmailField(read_only=True)
 
     class Meta:
         model = User
         fields = (
-            'id',
-            'email',
-            'name',
-            'date_of_birth',
-            'avatar',
+            "id",
+            "email",
+            "name",
+            "date_of_birth",
+            "avatar",
         )
 
 
@@ -151,24 +147,22 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
     """
     Individual create view for partner user
     """
-    password = serializers.CharField(
-        write_only=True, required=True, min_length=8
-    )
+
+    password = serializers.CharField(write_only=True, required=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
     class Meta:
         model = User
         fields = (
-            'id',
-            'email',
-            'name',
-            'password',
-            'password_confirm',
-            'max_establishments'
+            "id",
+            "email",
+            "name",
+            "password",
+            "password_confirm",
+            "max_establishments",
         )
 
     def validate(self, attrs):
@@ -177,10 +171,10 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
         :param attrs:
         :return:
         """
-        password = attrs.get('password')
-        password_confirm = attrs.get('password_confirm')
+        password = attrs.get("password")
+        password_confirm = attrs.get("password_confirm")
         if password != password_confirm:
-            raise serializers.ValidationError('Passwords do not match')
+            raise serializers.ValidationError("Passwords do not match")
         return attrs
 
     def create(self, validated_data):
@@ -190,10 +184,11 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
         :return:
         """
         user = User.objects.create_user(
-            email=validated_data['email'], name=validated_data['name'],
-            max_establishments=validated_data['max_establishments'],
-            role='partner'
+            email=validated_data["email"],
+            name=validated_data["name"],
+            max_establishments=validated_data["max_establishments"],
+            role="partner",
         )
-        user.set_password(validated_data['password'])
+        user.set_password(validated_data["password"])
         user.save()
         return user

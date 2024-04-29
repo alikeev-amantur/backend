@@ -5,8 +5,12 @@ from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import (
-    RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView, ListAPIView,
-    GenericAPIView
+    RetrieveAPIView,
+    UpdateAPIView,
+    DestroyAPIView,
+    CreateAPIView,
+    ListAPIView,
+    GenericAPIView,
 )
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -14,14 +18,16 @@ from rest_framework.viewsets import ViewSetMixin
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from happyhours.permissions import (
-    IsUserOwner, IsPartnerAndAdmin, IsNotAuthenticated
-)
+from happyhours.permissions import IsUserOwner, IsPartnerAndAdmin, IsNotAuthenticated
 
 from .serializers import (
-    UserSerializer, TokenObtainSerializer, ClientRegisterSerializer,
-    PartnerCreateSerializer, ClientPasswordForgotPageSerializer,
-    ClientPasswordResetSerializer, ClientPasswordChangeSerializer
+    UserSerializer,
+    TokenObtainSerializer,
+    ClientRegisterSerializer,
+    PartnerCreateSerializer,
+    ClientPasswordForgotPageSerializer,
+    ClientPasswordResetSerializer,
+    ClientPasswordChangeSerializer
 )
 from .utils import generate_reset_code, datetime_serializer, \
     datetime_deserializer, send_reset_code_email
@@ -79,10 +85,7 @@ class ClientPasswordChangeView(GenericAPIView):
 
 
 @extend_schema(tags=["Users"])
-class UserViewSet(ViewSetMixin,
-                  RetrieveAPIView,
-                  UpdateAPIView,
-                  DestroyAPIView):
+class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     """
     User viewset with Owner permission
     """
@@ -105,10 +108,7 @@ class CreatePartner(CreateAPIView):
 
 @extend_schema(tags=["Users"])
 class ClientListView(ListAPIView):
-    """
-    List of clients for partner (or admin?)
-    """
-    queryset = User.objects.all().filter(role='client').order_by('id')
+    queryset = User.objects.all().filter(role="client").order_by("id")
     serializer_class = UserSerializer
     permission_classes = [IsPartnerAndAdmin]
 
