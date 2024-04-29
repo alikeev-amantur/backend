@@ -32,7 +32,7 @@ class BeverageSerializer(serializers.ModelSerializer):
             "description",
             "availability_status",
             "category_name",
-            "establishment_name"
+            "establishment_name",
             "category_id",
             "establishment_id",
         ]
