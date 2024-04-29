@@ -13,7 +13,7 @@ from .views import (
     TokenObtainView,
     ClientPasswordForgotPageView,
     ClientPasswordResetView,
-    ClientPasswordChangeView
+    ClientPasswordChangeView, AdminLoginView
 )
 
 TokenBlacklistView = extend_schema(tags=["Users"])(TokenBlacklistView)
@@ -23,6 +23,7 @@ TokenRefreshView = extend_schema(tags=["Users"])(TokenRefreshView)
 urlpatterns = [
     path("token/", TokenObtainView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("token/admin/", AdminLoginView.as_view(), name="admin_login"),
     path("client_register/", ClientRegisterView.as_view(), name="client-register"),
     path("client_list/", ClientListView.as_view(), name="client-list"),
     path("logout/", TokenBlacklistView.as_view(), name="logout"),

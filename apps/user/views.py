@@ -27,10 +27,15 @@ from .serializers import (
     PartnerCreateSerializer,
     ClientPasswordForgotPageSerializer,
     ClientPasswordResetSerializer,
-    ClientPasswordChangeSerializer
+    ClientPasswordChangeSerializer,
+    AdminLoginSerializer
 )
-from .utils import generate_reset_code, datetime_serializer, \
-    datetime_deserializer, send_reset_code_email
+from .utils import (
+    generate_reset_code,
+    datetime_serializer,
+    datetime_deserializer,
+    send_reset_code_email
+)
 
 User = get_user_model()
 
@@ -42,6 +47,14 @@ class TokenObtainView(TokenObtainPairView):
     """
 
     serializer_class = TokenObtainSerializer
+
+
+@extend_schema(tags=["Users"])
+class AdminLoginView(TokenObtainView):
+    """
+    Individual login for Admin and superuser
+    """
+    serializer_class = AdminLoginSerializer
 
 
 @extend_schema(tags=["Users"])
