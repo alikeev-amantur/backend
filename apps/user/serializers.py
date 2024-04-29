@@ -17,6 +17,56 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
         token["email"] = user.email
         return token
 
+    def validate(self, attrs):
+        user = User.objects.get(email=attrs.get('email'))
+        if not user.is_blocked or user.is_superuser:
+            data = super().validate(attrs)
+            refresh = self.get_token(self.user)
+
+            data["refresh"] = str(refresh)
+            data["access"] = str(refresh.access_token)
+            return data
+        raise serializers.ValidationError("busta straight busta")
+
+
+class AdminLoginSerializer(TokenObtainPairSerializer):
+    """
+    Token Obtaining Serializer for admin, superuser
+    """
+
+    def validate(self, attrs):
+        user = User.objects.get(email=attrs.get('email'))
+        if user.role == 'admin' or user.is_superuser:
+            data = super().validate(attrs)
+            refresh = self.get_token(self.user)
+
+            data["refresh"] = str(refresh)
+            data["access"] = str(refresh.access_token)
+            return data
+        raise serializers.ValidationError("Not admin user")
+
+
+class BlockUserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for blocking users
+    """
+
+    email = serializers.EmailField()
+
+    class Meta:
+        model = User
+        fields = (
+            "email",
+        )
+
+    def validate(self, attrs):
+        try:
+            User.objects.filter(email=attrs.get('email'))
+        except User.DoesNotExist as user_not_exist:
+            raise serializers.ValidationError('User does not exists') \
+                from user_not_exist
+        return attrs
+
 
 class ClientRegisterSerializer(serializers.ModelSerializer):
     """
@@ -73,9 +123,10 @@ class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         try:
-            user = User.objects.filter(email=attrs.get('email'))
-        except User.DoesNotExist:
-            raise serializers.ValidationError('User does not exist')
+            User.objects.filter(email=attrs.get('email'))
+        except User.DoesNotExist as user_not_exist:
+            raise serializers.ValidationError('User does not exists') \
+                from user_not_exist
         return attrs
 
 
@@ -91,9 +142,10 @@ class ClientPasswordResetSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         try:
-            queryset = User.objects.filter(email=attrs.get('email'))
-        except User.DoesNotExist:
-            raise serializers.ValidationError('User does not exist')
+            User.objects.filter(email=attrs.get('email'))
+        except User.DoesNotExist as user_not_exist:
+            raise serializers.ValidationError('User does not exists') \
+                from user_not_exist
         return attrs
 
 
@@ -140,6 +192,38 @@ class UserSerializer(serializers.ModelSerializer):
             "name",
             "date_of_birth",
             "avatar",
+        )
+
+
+class ClientListSerializer(serializers.ModelSerializer):
+    """
+    Only for client list
+    """
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "name",
+            "date_of_birth",
+            "avatar",
+            "is_blocked",
+        )
+
+
+class PartnerListSerializer(serializers.ModelSerializer):
+    """
+    Only for partner list
+    """
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "name",
+            "max_establishments",
+            "is_blocked",
         )
 
 

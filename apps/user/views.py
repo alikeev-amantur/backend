@@ -12,13 +12,18 @@ from rest_framework.generics import (
     ListAPIView,
     GenericAPIView,
 )
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from happyhours.permissions import IsUserOwner, IsPartnerAndAdmin, IsNotAuthenticated
+from happyhours.permissions import (
+    IsUserOwner,
+    IsPartnerAndAdmin,
+    IsNotAuthenticated,
+    IsAdmin,
+)
 
 from .serializers import (
     UserSerializer,
@@ -27,10 +32,18 @@ from .serializers import (
     PartnerCreateSerializer,
     ClientPasswordForgotPageSerializer,
     ClientPasswordResetSerializer,
-    ClientPasswordChangeSerializer
+    ClientPasswordChangeSerializer,
+    AdminLoginSerializer,
+    ClientListSerializer,
+    PartnerListSerializer,
+    BlockUserSerializer
 )
-from .utils import generate_reset_code, datetime_serializer, \
-    datetime_deserializer, send_reset_code_email
+from .utils import (
+    generate_reset_code,
+    datetime_serializer,
+    datetime_deserializer,
+    send_reset_code_email
+)
 
 User = get_user_model()
 
@@ -42,6 +55,14 @@ class TokenObtainView(TokenObtainPairView):
     """
 
     serializer_class = TokenObtainSerializer
+
+
+@extend_schema(tags=["Users"])
+class AdminLoginView(TokenObtainView):
+    """
+    Individual login for Admin and superuser
+    """
+    serializer_class = AdminLoginSerializer
 
 
 @extend_schema(tags=["Users"])
@@ -103,14 +124,36 @@ class CreatePartner(CreateAPIView):
 
     queryset = User.objects.all()
     serializer_class = PartnerCreateSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin]
 
 
 @extend_schema(tags=["Users"])
 class ClientListView(ListAPIView):
     queryset = User.objects.all().filter(role="client").order_by("id")
-    serializer_class = UserSerializer
+    serializer_class = ClientListSerializer
     permission_classes = [IsPartnerAndAdmin]
+
+
+@extend_schema(tags=["Users"])
+class PartnerListView(ListAPIView):
+    queryset = User.objects.all().filter(role="partner").order_by("id")
+    serializer_class = PartnerListSerializer
+    permission_classes = [IsAdmin]
+
+
+@extend_schema(tags=["Users"])
+class BlockUserView(GenericAPIView):
+    queryset = User.objects.all()
+    serializer_class = BlockUserSerializer
+    permission_classes = [IsAdmin]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.get(email=serializer.validated_data["email"])
+        user.is_blocked = True
+        user.save()
+        return Response("Successful", status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=["Users"])
