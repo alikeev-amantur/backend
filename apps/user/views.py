@@ -12,13 +12,18 @@ from rest_framework.generics import (
     ListAPIView,
     GenericAPIView,
 )
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from happyhours.permissions import IsUserOwner, IsPartnerAndAdmin, IsNotAuthenticated
+from happyhours.permissions import (
+    IsUserOwner,
+    IsPartnerAndAdmin,
+    IsNotAuthenticated,
+    IsAdmin,
+)
 
 from .serializers import (
     UserSerializer,
@@ -116,7 +121,7 @@ class CreatePartner(CreateAPIView):
 
     queryset = User.objects.all()
     serializer_class = PartnerCreateSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdmin]
 
 
 @extend_schema(tags=["Users"])
