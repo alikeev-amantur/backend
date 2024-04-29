@@ -16,8 +16,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class BeverageSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(
         source="category.name",
-        read_only=True,
-        allow_null=True  # Ensure the serializer allows null values for category name
+        read_only=True
     )
     establishment_name = serializers.CharField(
         source="establishment.name",
@@ -27,8 +26,7 @@ class BeverageSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(),
         write_only=True,
         source="category",
-        allow_null=True,  # Allow null values for category ID
-        help_text="ID of the category to which this beverage belongs. Can be null if the beverage is uncategorized."
+        help_text="ID of the category to which this beverage belongs."
     )
     establishment_id = serializers.PrimaryKeyRelatedField(
         queryset=Establishment.objects.all(),

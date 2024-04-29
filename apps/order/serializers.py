@@ -1,22 +1,30 @@
 from rest_framework import serializers
-from .models import Order, Establishment, Beverage, User
+from .models import Order, Establishment
 import datetime
 
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['id', 'establishment', 'beverage', 'client', 'order_date', 'establihsment_name', 'beverage_name',
-                  'client_details']
+        fields = ['id', 'establishment', 'beverage', 'client', 'order_date']
+        read_only_fields = ['establishment']
+
+    def validate_beverage(self, value):
+        # Assuming business rules to check beverage availability or other conditions
+        if not value.availability_status:
+            raise serializers.ValidationError("This beverage is currently not available.")
+        return value
 
     def validate_order_date(self, value):
         # Check if the order is within happy hours
         current_time = value.time()
-        establishment_id = self.initial_data.get('establishment')
-        if establishment_id:
-            establishment = Establishment.objects.get(id=establishment_id)
-            if not (establishment.happy_hours_start <= current_time <= establishment.happy_hours_end):
-                raise serializers.ValidationError("You can only place an order during happy hours.")
+        if self.instance:
+            establishment = self.instance.establishment
+        else:
+            establishment = self.initial_data['beverage'].establishment
+
+        if not (establishment.happy_hours_start <= current_time <= establishment.happy_hours_end):
+            raise serializers.ValidationError("You can only place an order during happy hours.")
         return value
 
     def validate_client_and_order_date_for_hourly_limit(self, data):
@@ -56,3 +64,18 @@ class OrderSerializer(serializers.ModelSerializer):
         self.validate_client_and_order_date_for_hourly_limit(data)
         self.validate_client_and_order_date_for_daily_limit(data)
         return data
+
+
+class OrderHistorySerializer(serializers.ModelSerializer):
+    establishment_name = serializers.CharField(source='establishment.name', read_only=True)
+    beverage_name = serializers.CharField(source='beverage.name', read_only=True)
+    client_details = serializers.HyperlinkedRelatedField(
+        view_name='v1:user-detail',
+        read_only=True,
+        source='client'
+    )
+
+    class Meta:
+        model = Order
+        fields = ['id', 'order_date', 'establishment_name', 'beverage_name',
+                  'client_details']
