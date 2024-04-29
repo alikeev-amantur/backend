@@ -146,16 +146,17 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'SERVERS': [{'url': 'http://16.170.203.161', 'description': 'Production server'}],
-    'SECURITY': [{'jwtAuth': []}],
-    'COMPONENTS': {
-            'securitySchemes': {
-                'jwtAuth': {
-                    'type': 'http',
-                    'scheme': 'bearer',
-                    'bearerFormat': 'JWT'
-                },
-            },
-        },
+    "PARSER_WHITELIST": ["rest_framework.parsers.JSONParser"],
+    # 'SECURITY': [{'jwtAuth': []}],
+    # 'COMPONENTS': {
+    #         'securitySchemes': {
+    #             'jwtAuth': {
+    #                 'type': 'http',
+    #                 'scheme': 'bearer',
+    #                 'bearerFormat': 'JWT'
+    #             },
+    #         },
+    #     },
 }
 
 SIMPLE_JWT = {
