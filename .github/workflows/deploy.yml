@@ -32,6 +32,9 @@ jobs:
             export DB_PORT='${{ secrets.DB_PORT }}'
             export DB_USER='${{ secrets.DB_USER }}'
             export SECRET_KEY='${{ secrets.SECRET_KEY }}'
+            export GMAIL_USER='${{ secrets.GMAIL_USER }}'
+            export GMAIL_PASSWORD='${{ secrets.GMAIL_PASSWORD }}'
+            
             # Use Docker Compose to rebuild and restart the application
             docker-compose down
             docker-compose up --build -d
