@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Order
 import datetime
 
-from .schema_definitions import order_serializer_schema
+from .schema_definitions import order_serializer_schema, order_history_serializer_schema
 
 
 @order_serializer_schema
@@ -61,7 +61,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return data
 
 
-@order_serializer_schema
+@order_history_serializer_schema
 class OrderHistorySerializer(serializers.ModelSerializer):
     establishment_name = serializers.CharField(source='establishment.name', read_only=True)
     beverage_name = serializers.CharField(source='beverage.name', read_only=True)

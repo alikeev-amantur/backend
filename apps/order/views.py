@@ -20,7 +20,7 @@ class PlaceOrderView(generics.CreateAPIView):
         serializer.save(client=self.request.user, establishment=beverage.establishment)
 
 
-@extend_schema(tags=["Beverages"])
+@extend_schema(tags=["Orders"])
 class ClientOrderHistoryView(generics.ListAPIView):
     serializer_class = OrderHistorySerializer
     permission_classes = [IsAuthenticated]
@@ -29,7 +29,7 @@ class ClientOrderHistoryView(generics.ListAPIView):
         return Order.objects.filter(client=self.request.user)
 
 
-@extend_schema(tags=["Beverages"])
+@extend_schema(tags=["Orders"])
 class PartnerOrderHistoryView(generics.ListAPIView):
     serializer_class = OrderHistorySerializer
     permission_classes = [IsAuthenticated]
