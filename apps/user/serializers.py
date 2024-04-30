@@ -22,9 +22,13 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
         if not user.is_blocked or user.is_superuser:
             data = super().validate(attrs)
             refresh = self.get_token(self.user)
-
             data["refresh"] = str(refresh)
             data["access"] = str(refresh.access_token)
+            data["id"] = user.id
+            data["email"] = user.email
+            data["name"] = user.name
+            data["role"] = user.role
+            data["max_establishments"] = user.max_establishments
             return data
         raise serializers.ValidationError("busta straight busta")
 
@@ -42,6 +46,8 @@ class AdminLoginSerializer(TokenObtainPairSerializer):
 
             data["refresh"] = str(refresh)
             data["access"] = str(refresh.access_token)
+            data["id"] = user.id
+            data["email"] = user.email
             return data
         raise serializers.ValidationError("Not admin user")
 
