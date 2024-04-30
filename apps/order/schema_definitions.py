@@ -9,6 +9,9 @@ order_serializer_schema = extend_schema_serializer(
             description="Successful creation of an order during happy hours",
             value={
                 "beverage": 1,
+                "establishment": 1,  # This field is automated but included for clarity
+                "client": 1,  # This field is automated but included for clarity
+                "order_date": "2024-04-29T15:00:00Z"
             },
             request_only=True
         ),
