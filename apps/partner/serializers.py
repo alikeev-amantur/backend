@@ -4,6 +4,7 @@ from drf_spectacular.utils import (
 from rest_framework import serializers
 
 from .models import Establishment, QRCode
+from .schema_definitions import establishment_serializer_schema, menu_serializer_schema
 from .utils import phone_number_validation
 from ..beverage.serializers import BeverageSerializer
 
@@ -26,6 +27,7 @@ class QRCodeSerializer(serializers.ModelSerializer):
         return None
 
 
+@establishment_serializer_schema
 class EstablishmentSerializer(serializers.ModelSerializer):
     """
     Main serializer for Establishment model
@@ -62,6 +64,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
         return representation
 
 
+@establishment_serializer_schema
 class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
     qr_code = QRCodeSerializer(read_only=True)
 
@@ -115,6 +118,7 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
+@menu_serializer_schema
 class MenuSerializer(serializers.ModelSerializer):
     beverages = BeverageSerializer(many=True, read_only=True)
 

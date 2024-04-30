@@ -33,6 +33,7 @@ class OrderSerializer(serializers.ModelSerializer):
             order_date__range=(hour_start, hour_end)
         ).exists()
 
+
         if existing_order_same_hour:
             raise serializers.ValidationError("You can only place one order per hour at any establishment.")
 

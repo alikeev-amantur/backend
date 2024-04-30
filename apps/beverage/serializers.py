@@ -1,5 +1,7 @@
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 from .models import Beverage, Category
+from .schema_definitions import beverage_serializer_schema
 from ..partner.models import Establishment
 
 
@@ -13,6 +15,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "beverages"]
 
 
+@beverage_serializer_schema
 class BeverageSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(
         source="category.name",
@@ -48,19 +51,6 @@ class BeverageSerializer(serializers.ModelSerializer):
             "category_id",
             "establishment_id",
         ]
-        swagger_schema_fields = {
-            "examples": {
-                "id": 1,
-                "name": "Cola",
-                "price": 2.50,
-                "description": "Refreshing carbonated soft drink.",
-                "availability_status": "Available",
-                "category_name": "Soft Drinks",
-                "establishment_name": "Joe's Bar",
-                "category_id": 3,
-                "establishment_id": 5
-            }
-        }
 
     def validate_establishment_id(self, value):
         user = self.context['request'].user
