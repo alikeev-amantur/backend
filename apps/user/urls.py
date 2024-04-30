@@ -34,7 +34,7 @@ urlpatterns = [
     path("logout/", TokenBlacklistView.as_view(), name="logout"),
     path("create_partner/", CreatePartner.as_view(), name="create-partner"),
     path(
-        "<int:pk>/",
+        "",
         UserViewSet.as_view(
             {
                 "get": "retrieve",

@@ -92,6 +92,9 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
             "email",
             "password",
             "password_confirm",
+            "name",
+            "date_of_birth",
+            "avatar",
         )
 
     def validate(self, attrs):
@@ -101,7 +104,7 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         :return:
         """
         password = attrs.get("password")
-        password_confirm = attrs.get("password_confirm")
+        password_confirm = attrs.pop("password_confirm")
         if password != password_confirm:
             raise serializers.ValidationError("Passwords do not match")
         return attrs
@@ -112,7 +115,7 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         :param validated_data:
         :return:
         """
-        user = User.objects.create_user(email=validated_data["email"], role="client")
+        user = User.objects.create_user(role="client", **validated_data)
         user.set_password(validated_data["password"])
         user.save()
         return user

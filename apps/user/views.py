@@ -11,6 +11,7 @@ from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
     GenericAPIView,
+    get_object_or_404,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -108,12 +109,21 @@ class ClientPasswordChangeView(GenericAPIView):
 @extend_schema(tags=["Users"])
 class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     """
-    User viewset with Owner permission
+    User viewset with Owner permission. Does not usr ID, takes user from request
     """
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsUserOwner]
+
+    def get_object(self):
+        """
+
+        :return:
+        """
+        obj = get_object_or_404(self.queryset, id=self.request.user.id)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 @extend_schema(tags=["Users"])
