@@ -18,19 +18,21 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
-        user = User.objects.get(email=attrs.get('email'))
-        if not user.is_blocked or user.is_superuser:
-            data = super().validate(attrs)
-            refresh = self.get_token(self.user)
-            data["refresh"] = str(refresh)
-            data["access"] = str(refresh.access_token)
-            data["id"] = user.id
-            data["email"] = user.email
-            data["name"] = user.name
-            data["role"] = user.role
-            data["max_establishments"] = user.max_establishments
-            return data
-        raise serializers.ValidationError("busta straight busta")
+        try:
+            user = User.objects.get(email=attrs.get('email'))
+            if not user.is_blocked or user.is_superuser:
+                data = super().validate(attrs)
+                refresh = self.get_token(self.user)
+                data["refresh"] = str(refresh)
+                data["access"] = str(refresh.access_token)
+                data["id"] = user.id
+                data["email"] = user.email
+                data["name"] = user.name
+                data["role"] = user.role
+                data["max_establishments"] = user.max_establishments
+                return data
+        except User.DoesNotExist:
+            raise serializers.ValidationError("busta straight busta")
 
 
 class AdminLoginSerializer(TokenObtainPairSerializer):
@@ -39,17 +41,18 @@ class AdminLoginSerializer(TokenObtainPairSerializer):
     """
 
     def validate(self, attrs):
-        user = User.objects.get(email=attrs.get('email'))
-        if user.role == 'admin' or user.is_superuser:
-            data = super().validate(attrs)
-            refresh = self.get_token(self.user)
-
-            data["refresh"] = str(refresh)
-            data["access"] = str(refresh.access_token)
-            data["id"] = user.id
-            data["email"] = user.email
-            return data
-        raise serializers.ValidationError("Not admin user")
+        try:
+            user = User.objects.get(email=attrs.get('email'))
+            if user.role == 'admin' or user.is_superuser:
+                data = super().validate(attrs)
+                refresh = self.get_token(self.user)
+                data["refresh"] = str(refresh)
+                data["access"] = str(refresh.access_token)
+                data["id"] = user.id
+                data["email"] = user.email
+                return data
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Not admin user")
 
 
 class BlockUserSerializer(serializers.ModelSerializer):
@@ -66,12 +69,9 @@ class BlockUserSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
-        try:
-            User.objects.filter(email=attrs.get('email'))
-        except User.DoesNotExist as user_not_exist:
-            raise serializers.ValidationError('User does not exists') \
-                from user_not_exist
-        return attrs
+        if User.objects.filter(email=attrs.get("email")).exists():
+            return attrs
+        raise serializers.ValidationError('User does not exists')
 
 
 class ClientRegisterSerializer(serializers.ModelSerializer):
@@ -131,12 +131,9 @@ class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
-        try:
-            User.objects.filter(email=attrs.get('email'))
-        except User.DoesNotExist as user_not_exist:
-            raise serializers.ValidationError('User does not exists') \
-                from user_not_exist
-        return attrs
+        if User.objects.filter(email=attrs.get("email")).exists():
+            return attrs
+        raise serializers.ValidationError('User does not exists')
 
 
 class ClientPasswordResetSerializer(serializers.Serializer):
