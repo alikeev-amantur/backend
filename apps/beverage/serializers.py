@@ -17,26 +17,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 @beverage_serializer_schema
 class BeverageSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(
-        source="category.name",
-        read_only=True
-    )
-    establishment_name = serializers.CharField(
-        source="establishment.name",
-        read_only=True
-    )
-    category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(),
-        write_only=True,
-        source="category",
-        help_text="ID of the category to which this beverage belongs."
-    )
-    establishment_id = serializers.PrimaryKeyRelatedField(
-        queryset=Establishment.objects.all(),
-        write_only=True,
-        source="establishment",
-        help_text="ID of the establishment that offers this beverage."
-    )
 
     class Meta:
         model = Beverage
@@ -46,13 +26,18 @@ class BeverageSerializer(serializers.ModelSerializer):
             "price",
             "description",
             "availability_status",
-            "category_name",
-            "establishment_name",
-            "category_id",
-            "establishment_id",
+            "establishment",
+            "category"
         ]
 
-    def validate_establishment_id(self, value):
+    def to_representation(self, instance):
+        """Modify the output of the GET method to show names instead of IDs."""
+        ret = super().to_representation(instance)
+        ret['category'] = instance.category.name if instance.category else None
+        ret['establishment'] = instance.establishment.name if instance.establishment else None
+        return ret
+
+    def validate_establishment(self, value):
         user = self.context['request'].user
         if value.owner != user:
             raise serializers.ValidationError("User does not own this establishment.")
