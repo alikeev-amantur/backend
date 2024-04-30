@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
@@ -8,7 +8,12 @@ from apps.order.serializers import OrderSerializer, OrderHistorySerializer
 from apps.partner.models import Establishment
 
 
-@extend_schema(tags=["Orders"])
+@extend_schema(tags=["Orders"],
+               responses={
+                   201: OrderSerializer,
+                   400: OrderSerializer
+               }
+               )
 class PlaceOrderView(generics.CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer

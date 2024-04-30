@@ -1,4 +1,4 @@
-from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
+from drf_spectacular.utils import OpenApiExample, extend_schema_serializer, extend_schema
 
 beverage_serializer_schema = extend_schema_serializer(
     examples=[
@@ -49,7 +49,7 @@ beverage_serializer_schema = extend_schema_serializer(
             value={
                 "price": ["Ensure this value is greater than or equal to 0.01."]
             },
-            response_only=True
+            response_only=True, status_codes=['400'],
         )
     ]
 )
