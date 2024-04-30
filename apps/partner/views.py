@@ -142,5 +142,5 @@ class MenuView(RetrieveAPIView):
 
     queryset = Establishment.objects.all()
     serializer_class = MenuSerializer
-    lookup_field = "id"
+    # lookup_field = "id"
     permission_classes = [IsAuthenticated]
