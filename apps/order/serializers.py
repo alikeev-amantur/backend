@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import serializers
-from .models import Order, Establishment
+from .models import Order
 import datetime
 
 
@@ -8,7 +8,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'establishment', 'beverage', 'client', 'order_date']
-        read_only_fields = ['establishment']
+        read_only_fields = ['client', 'establishment']
 
     def get_default_establishment(self, beverage):
         # Get the establishment associated with the beverage
@@ -22,20 +22,12 @@ class OrderSerializer(serializers.ModelSerializer):
         return value
 
     def validate_order_per_hour(self, client):
-        # Ensure one order per hour at any establishment
-        current_time = timezone.now()
-        hour_start = datetime.datetime.combine(current_time.date(),
-                                               current_time.time().replace(minute=0, second=0, microsecond=0))
-        hour_end = hour_start + datetime.timedelta(hours=1)
+        # Get the current time and calculate one hour ago
+        one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
 
-        existing_order_same_hour = Order.objects.filter(
-            client=client,
-            order_date__range=(hour_start, hour_end)
-        ).exists()
-
-
-        if existing_order_same_hour:
-            raise serializers.ValidationError("You can only place one order per hour at any establishment.")
+        # Check if there are any existing orders from this client in the last hour
+        if Order.objects.filter(client=client, order_date__gte=one_hour_ago).exists():
+            raise serializers.ValidationError("You can only place one order per hour.")
 
     def validate_order_per_day(self, client, establishment):
         # Ensure one order per day per establishment
