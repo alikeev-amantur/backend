@@ -1,5 +1,5 @@
 # schema_definitions.py
-from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
+from drf_spectacular.utils import OpenApiExample, extend_schema_serializer, OpenApiResponse, extend_schema
 import datetime
 
 order_serializer_schema = extend_schema_serializer(
@@ -10,15 +10,24 @@ order_serializer_schema = extend_schema_serializer(
             value={
                 "beverage": 1,
             },
-            request_only=True
-        ),
+            request_only=True,
+        ), OpenApiExample(
+            name="Create Order Success",
+            description="Example of successfully creating an order during happy hours",
+            value={
+                "beverage": 1,
+                "establishment": 1,
+                "client": 1,
+                "order_date": "2024-04-29T15:00:00Z"
+            },
+            response_only=True, status_codes=['201']),
         OpenApiExample(
             name="Create Order Failure - Happy Hours",
             description="Failed attempt to create an order outside happy hours",
             value={
                 "detail": "You can only place an order during happy hours."
             },
-            response_only=True
+            response_only=True, status_codes=['400']
         ),
         OpenApiExample(
             name="Create Order Failure - Order Frequency",
@@ -26,7 +35,7 @@ order_serializer_schema = extend_schema_serializer(
             value={
                 "detail": "You can only place one order per hour and one order per establishment per day."
             },
-            response_only=True
+            response_only=True, status_codes=['400']
         )
     ]
 )
@@ -55,4 +64,15 @@ order_history_serializer_schema = extend_schema_serializer(
             response_only=True
         )
     ]
+)
+create_order_success = OpenApiExample(
+    name="Create Order Success",
+    description="Example of successfully creating an order during happy hours",
+    value={
+        "beverage": 1,
+        "establishment": 1,
+        "client": 1,
+        "order_date": "2024-04-29T15:00:00Z"
+    },
+    status_codes=['201']
 )

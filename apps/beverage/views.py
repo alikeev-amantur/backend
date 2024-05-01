@@ -41,23 +41,21 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-@extend_schema(tags=["Beverages"])
+@extend_schema(tags=["Beverages"],
+               responses=({
+                   200: BeverageSerializer,
+                   201: BeverageSerializer,
+                   400: BeverageSerializer
+               }))
 class BeverageViewSet(viewsets.ModelViewSet):
     """
     Beverage ViewSet that handles creating, retrieving, updating, and deleting beverage items.
-
-    ### Fields:
-    - `price`: The price of the beverage. Must be a non-negative number.
-    - `category_name`: The name of the category to which the beverage belongs (read-only).
-    - `establishment_name` : The name of the establishment to which the beverage belongs (read-only).
-    - `category_id`: The ID of the category to which the beverage should be linked (write-only).
-    - `establishment_id`: The ID of the establishment where the beverage is served (write-only).
 
     ### Validation:
     - The `price` field must be a non-negative number.
     """
 
-    queryset = Beverage.objects.all().select_related("category", "establishment")
+    queryset = Beverage.objects.all()
     serializer_class = BeverageSerializer
 
     def get_permissions(self):
