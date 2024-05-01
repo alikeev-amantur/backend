@@ -17,6 +17,8 @@ DATABASES = {
     }
 }
 DEBUG = False
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/code/media'
 STATIC_URL = '/static/'
 STATIC_ROOT = '/code/static'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
