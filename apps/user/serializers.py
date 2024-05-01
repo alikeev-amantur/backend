@@ -135,7 +135,7 @@ class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if User.objects.filter(email=attrs.get("email")).exists():
             return attrs
-        raise serializers.ValidationError('User does not exists')
+        raise serializers.ValidationError('User does not exist')
 
 
 class ClientPasswordResetSerializer(serializers.Serializer):
