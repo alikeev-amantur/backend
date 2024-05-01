@@ -1,4 +1,4 @@
-from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
+from drf_spectacular.utils import OpenApiExample, extend_schema_serializer, extend_schema
 
 beverage_serializer_schema = extend_schema_serializer(
     examples=[
@@ -10,8 +10,8 @@ beverage_serializer_schema = extend_schema_serializer(
                 "price": 2.50,
                 "description": "Refreshing carbonated soft drink.",
                 "availability_status": True,
-                "category_id": 1,
-                "establishment_id": 1
+                "category": 1,
+                "establishment": 1
             },
             request_only=True
         ),
@@ -24,8 +24,8 @@ beverage_serializer_schema = extend_schema_serializer(
                 "price": 2.50,
                 "description": "Refreshing carbonated soft drink.",
                 "availability_status": True,
-                "category_name": "Soft Drinks",
-                "establishment_name": "Joe's Bar"
+                "category": "Soft Drinks",
+                "establishment": "Joe's Bar"
             },
             response_only=True
         ),
@@ -38,8 +38,8 @@ beverage_serializer_schema = extend_schema_serializer(
                 "price": 3.00,
                 "description": "Extra refreshing carbonated soft drink.",
                 "availability_status": True,
-                "category_id": 1,
-                "establishment_id": 1
+                "category": 1,
+                "establishment": 1
             },
             request_only=True
         ),
@@ -49,7 +49,7 @@ beverage_serializer_schema = extend_schema_serializer(
             value={
                 "price": ["Ensure this value is greater than or equal to 0.01."]
             },
-            response_only=True
+            response_only=True, status_codes=['400'],
         )
     ]
 )
