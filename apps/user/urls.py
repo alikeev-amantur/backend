@@ -16,7 +16,7 @@ from .views import (
     ClientPasswordChangeView,
     AdminLoginView,
     PartnerListView,
-    BlockUserView
+    BlockUserView,
 )
 
 TokenBlacklistView = extend_schema(tags=["Users"])(TokenBlacklistView)
