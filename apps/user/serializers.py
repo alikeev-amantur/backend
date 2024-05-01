@@ -31,8 +31,9 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
                 data["role"] = user.role
                 data["max_establishments"] = user.max_establishments
                 return data
-        except User.DoesNotExist:
             raise serializers.ValidationError("busta straight busta")
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User does not exist")
 
 
 class AdminLoginSerializer(TokenObtainPairSerializer):
@@ -51,8 +52,9 @@ class AdminLoginSerializer(TokenObtainPairSerializer):
                 data["id"] = user.id
                 data["email"] = user.email
                 return data
-        except User.DoesNotExist:
             raise serializers.ValidationError("Not admin user")
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User does not exist")
 
 
 class BlockUserSerializer(serializers.ModelSerializer):
