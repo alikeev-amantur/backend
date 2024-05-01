@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiExample
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
@@ -7,6 +8,12 @@ from apps.order.serializers import OrderSerializer, OrderHistorySerializer
 from apps.partner.models import Establishment
 
 
+@extend_schema(tags=["Orders"],
+               responses={
+                   201: OrderSerializer,
+                   400: OrderSerializer
+               }
+               )
 class PlaceOrderView(generics.CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -18,6 +25,7 @@ class PlaceOrderView(generics.CreateAPIView):
         serializer.save(client=self.request.user, establishment=beverage.establishment)
 
 
+@extend_schema(tags=["Orders"])
 class ClientOrderHistoryView(generics.ListAPIView):
     serializer_class = OrderHistorySerializer
     permission_classes = [IsAuthenticated]
@@ -26,6 +34,7 @@ class ClientOrderHistoryView(generics.ListAPIView):
         return Order.objects.filter(client=self.request.user)
 
 
+@extend_schema(tags=["Orders"])
 class PartnerOrderHistoryView(generics.ListAPIView):
     serializer_class = OrderHistorySerializer
     permission_classes = [IsAuthenticated]

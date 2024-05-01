@@ -16,6 +16,7 @@ services:
     command: gunicorn happyhours.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
       - static_volume:/code/static
+      - ./media:/code/media
     ports:
       - "8000:8000"
     depends_on:
@@ -40,6 +41,7 @@ services:
     volumes:
       - static_volume:/code/static
       - ./config/nginx:/etc/nginx/conf.d
+      - ./media:/code/media
     depends_on:
       - web
     restart: unless-stopped

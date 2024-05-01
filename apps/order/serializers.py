@@ -3,7 +3,10 @@ from rest_framework import serializers
 from .models import Order
 import datetime
 
+from .schema_definitions import order_serializer_schema, order_history_serializer_schema
 
+
+@order_serializer_schema
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
@@ -14,12 +17,11 @@ class OrderSerializer(serializers.ModelSerializer):
         # Get the establishment associated with the beverage
         return beverage.establishment
 
-    def validate_order_date(self, value):
+    def validate_order_happyhours(self, establishment):
         current_time = timezone.now()
-        establishment = self.get_default_establishment(self.initial_data['beverage'])
-        if not (establishment.happy_hours_start <= current_time.time() <= establishment.happy_hours_end):
-            raise serializers.ValidationError("You can only place an order during happy hours.")
-        return value
+        if not (establishment.happyhours_start <= current_time.time() <= establishment.happyhours_end):
+            raise serializers.ValidationError(
+                "Order can only be placed during the establishment's designated happy hours.")
 
     def validate_order_per_hour(self, client):
         # Get the current time and calculate one hour ago
@@ -52,12 +54,14 @@ class OrderSerializer(serializers.ModelSerializer):
         client = data['client']
         establishment = data['establishment']
 
+        self.validate_order_happyhours(establishment)
         self.validate_order_per_hour(client)
         self.validate_order_per_day(client, establishment)
 
         return data
 
 
+@order_history_serializer_schema
 class OrderHistorySerializer(serializers.ModelSerializer):
     establishment_name = serializers.CharField(source='establishment.name', read_only=True)
     beverage_name = serializers.CharField(source='beverage.name', read_only=True)
