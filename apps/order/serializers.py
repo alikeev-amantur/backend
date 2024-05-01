@@ -18,8 +18,8 @@ class OrderSerializer(serializers.ModelSerializer):
         return beverage.establishment
 
     def validate_order_happyhours(self, establishment):
-        current_time = timezone.now()
-        if not (establishment.happyhours_start <= current_time.time() <= establishment.happyhours_end):
+        current_time = timezone.localtime().time()
+        if not (establishment.happyhours_start <= current_time <= establishment.happyhours_end):
             raise serializers.ValidationError(
                 "Order can only be placed during the establishment's designated happy hours.")
 
@@ -65,6 +65,7 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderHistorySerializer(serializers.ModelSerializer):
     establishment_name = serializers.CharField(source='establishment.name', read_only=True)
     beverage_name = serializers.CharField(source='beverage.name', read_only=True)
+
     # client_details = serializers.HyperlinkedRelatedField(
     #     view_name='v1:user-detail',
     #     read_only=True,
