@@ -41,7 +41,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-@extend_schema(tags=["Beverages"])
+@extend_schema(tags=["Beverages"],
+               responses=({
+                   200: BeverageSerializer,
+                   201: BeverageSerializer,
+                   400: BeverageSerializer
+               }))
 class BeverageViewSet(viewsets.ModelViewSet):
     """
     Beverage ViewSet that handles creating, retrieving, updating, and deleting beverage items.
