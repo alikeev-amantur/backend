@@ -1,7 +1,10 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
+from rest_framework.filters import SearchFilter
 
 from happyhours.permissions import IsPartnerOwner, IsAdmin, IsPartnerUser
+from .filters import BeverageFilter
 from .models import Category, Beverage
 from .serializers import CategorySerializer, BeverageSerializer
 
@@ -57,6 +60,9 @@ class BeverageViewSet(viewsets.ModelViewSet):
 
     queryset = Beverage.objects.all()
     serializer_class = BeverageSerializer
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    filterset_class = BeverageFilter
+    search_fields = ['name', 'category__name', 'establishment__name']
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
