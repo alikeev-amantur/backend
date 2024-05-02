@@ -167,4 +167,4 @@ local-manage.py
 !.elasticbeanstalk/*.global.yml
 qr_codes/
 happyhours.pem
-
+local-docker/

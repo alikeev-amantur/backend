@@ -1,12 +1,13 @@
 from django.core.files.base import ContentFile
 from drf_spectacular.utils import extend_schema
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import viewsets
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
     RetrieveAPIView,
     UpdateAPIView,
-    DestroyAPIView,
+    DestroyAPIView, get_object_or_404,
 )
 
 from rest_framework.permissions import IsAuthenticated
@@ -19,10 +20,13 @@ from happyhours.permissions import (
 from .serializers import (
     EstablishmentSerializer,
     EstablishmentCreateUpdateSerializer,
-    MenuSerializer,
+    # MenuSerializer,
 )
 from .utils import generate_qr_code
-from .models import Establishment, QRCode
+from .models import Establishment
+from ..beverage.models import Beverage
+from ..beverage.serializers import BeverageSerializer
+
 
 @extend_schema(tags=["Establishments"])
 class EstablishmentListView(ListAPIView):
@@ -58,21 +62,6 @@ class EstablishmentCreateView(CreateAPIView):
     """
     Creates a new establishment, restricted to partner users who can
      create up to their allowed limit.
-    This view also handles the generation of a QR code for each new establishment,
-     which is saved and linked
-    to the establishment for easy access and identification.
-
-    ### Fields:
-    - `name`: The name of the establishment.
-    - `location`: The geographic location of the establishment.
-    - `description`: A brief description of the establishment.
-    - `phone_number`: The contact phone number for the establishment.
-    - `logo`: A URL to the logo image for the establishment.
-    - `address`: The full address of the establishment.
-    - `happyhours_start`: The start time for happy hours.
-    - `happyhours_end`: The end time for happy hours.
-    - `owner`: The id of the partner user.
-    - `qr_code`: A URL to the QR code image for the establishment (read-only).
 
     ### Validation:
     - Ensures that the partner has not exceeded their limit of owned establishments.
@@ -82,8 +71,6 @@ class EstablishmentCreateView(CreateAPIView):
     - Restricted to authenticated partner users only.
 
     ### Business Logic:
-    - On successful creation, a QR code is generated and saved associated
-    with the establishment.
     - The creation will fail with a `Permission Denied` error
     if the user has reached their limit of establishments.
 
@@ -100,12 +87,13 @@ class EstablishmentCreateView(CreateAPIView):
             raise PermissionDenied(
                 "This partner has reached their maximum number of establishments."
             )
-        establishment = serializer.save()
-        domain = self.request.build_absolute_uri("/")
-        filename, qr_code_data = generate_qr_code(establishment, domain)
-        qr_code = QRCode(establishment=establishment)
-        qr_code.qr_code_image.save(filename, ContentFile(qr_code_data), save=False)
-        qr_code.save()
+        serializer.save()
+        # establishment = serializer.save()
+        # domain = self.request.build_absolute_uri("/")
+        # filename, qr_code_data = generate_qr_code(establishment, domain)
+        # qr_code = QRCode(establishment=establishment)
+        # qr_code.qr_code_image.save(filename, ContentFile(qr_code_data), save=False)
+        # qr_code.save()
 
 
 @extend_schema(tags=["Establishments"])
@@ -136,11 +124,21 @@ class EstablishmentViewSet(
 
 
 @extend_schema(tags=["Establishments"])
-class MenuView(RetrieveAPIView):
-    """Provides a detailed view of the menu for a specific establishment,
-    accessible to all authenticated users."""
+class MenuView(viewsets.ReadOnlyModelViewSet):
+    """
+    Provides a view of the menu for a specific establishment,
+    accessible to all authenticated users.
+    """
+    serializer_class = BeverageSerializer
 
-    queryset = Establishment.objects.all()
-    serializer_class = MenuSerializer
-    # lookup_field = "id"
-    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        establishment_id = self.kwargs.get("pk")
+        establishment = get_object_or_404(Establishment, id=establishment_id)
+        return Beverage.objects.filter(establishment=establishment).select_related("category", "establishment")
+
+    def list(self, request, *args, **kwargs):
+        if not self.get_queryset().exists():
+            raise NotFound(
+                "No beverages found for this establishment or establishment does not exist."
+            )
+        return super().list(request, *args, **kwargs)
