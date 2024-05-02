@@ -3,28 +3,28 @@ from drf_spectacular.utils import (
 )
 from rest_framework import serializers
 
-from .models import Establishment, QRCode
+from .models import Establishment
 from .schema_definitions import establishment_serializer_schema, menu_serializer_schema
 from .utils import phone_number_validation
 from ..beverage.serializers import BeverageSerializer
 
 
-class QRCodeSerializer(serializers.ModelSerializer):
-    qr_code_image = serializers.SerializerMethodField()
-
-    class Meta:
-        model = QRCode
-        fields = [
-            "id",
-            "qr_code_image",
-        ]
-
-    @extend_schema_field(serializers.URLField())
-    def get_qr_code_image(self, obj):
-        request = self.context.get("request")
-        if obj.qr_code_image and request:
-            return request.build_absolute_uri(obj.qr_code_image.url)
-        return None
+# class QRCodeSerializer(serializers.ModelSerializer):
+#     qr_code_image = serializers.SerializerMethodField()
+#
+#     class Meta:
+#         model = QRCode
+#         fields = [
+#             "id",
+#             "qr_code_image",
+#         ]
+#
+#     @extend_schema_field(serializers.URLField())
+#     def get_qr_code_image(self, obj):
+#         request = self.context.get("request")
+#         if obj.qr_code_image and request:
+#             return request.build_absolute_uri(obj.qr_code_image.url)
+#         return None
 
 
 @establishment_serializer_schema
@@ -33,7 +33,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
     Main serializer for Establishment model
     """
 
-    qr_code = QRCodeSerializer(read_only=True)
+    # qr_code = QRCodeSerializer(read_only=True)
 
     class Meta:
         model = Establishment
@@ -48,7 +48,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
             "happyhours_start",
             "happyhours_end",
             "owner",
-            "qr_code",
+            # "qr_code",
         )
 
     def get_image_url(self, obj):
@@ -66,7 +66,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
 
 @establishment_serializer_schema
 class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
-    qr_code = QRCodeSerializer(read_only=True)
+    # qr_code = QRCodeSerializer(read_only=True)
 
     class Meta:
         model = Establishment
@@ -81,7 +81,7 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
             "happyhours_start",
             "happyhours_end",
             "owner",
-            "qr_code",
+            # "qr_code",
         )
 
     def validate_owner(self, value):
@@ -118,21 +118,21 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
-@menu_serializer_schema
-class MenuSerializer(serializers.ModelSerializer):
-    beverages = BeverageSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Establishment
-        fields = [
-            "id",
-            "name",
-            "location",
-            "description",
-            "phone_number",
-            "address",
-            "logo",
-            "happyhours_start",
-            "happyhours_end",
-            "beverages",
-        ]
+# @menu_serializer_schema
+# class MenuSerializer(serializers.ModelSerializer):
+#     beverages = BeverageSerializer(many=True, read_only=True)
+#
+#     class Meta:
+#         model = Establishment
+#         fields = [
+#             "id",
+#             "name",
+#             "location",
+#             "description",
+#             "phone_number",
+#             "address",
+#             "logo",
+#             "happyhours_start",
+#             "happyhours_end",
+#             "beverages",
+#         ]

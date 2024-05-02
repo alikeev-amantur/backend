@@ -21,5 +21,5 @@ urlpatterns = [
             }
         ),
     ),
-    path("menu/<int:pk>/", MenuView.as_view()),
+    path("menu/<int:pk>/", MenuView.as_view({'get': 'list'})),
 ]
