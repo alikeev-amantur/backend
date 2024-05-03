@@ -75,9 +75,9 @@ user_profile_schema = extend_schema_serializer(
             value={
                 "id": 1,
                 "email": "customer@mail.com",
-                "name": "null",
-                "role": "client",
-                "max_establishments": 1
+                "name": "Customer Name",
+                "date_of_birth": "2020-01-01",
+                "avatar": "http://example.com/media/client_avatar/customer.jpg",
             },
             response_only=True
         ),

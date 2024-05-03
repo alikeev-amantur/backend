@@ -85,10 +85,16 @@ class BlockUserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             "email",
+            "is_blocked",
         )
 
     def validate(self, attrs):
         if User.objects.filter(email=attrs.get("email")).exists():
+            user = User.objects.get(email=attrs.get("email"))
+            if user.is_blocked == attrs.get("is_blocked"):
+                raise serializers.ValidationError(
+                    "You didn't change block state"
+                )
             return attrs
         raise serializers.ValidationError('User does not exists')
 
