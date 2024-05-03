@@ -105,10 +105,13 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
     Individual register view for client user
     """
 
-    password = serializers.CharField(write_only=True, required=True, min_length=8)
+    password = serializers.CharField(
+        write_only=True, required=True, min_length=8, max_length=255
+    )
     password_confirm = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(
-        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True, max_length=255,
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
     class Meta:
@@ -149,7 +152,7 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
 
 @user_password_forgot_schema
 class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField()
+    email = serializers.EmailField(max_length=255)
 
     class Meta:
         model = User
@@ -165,7 +168,7 @@ class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
 
 @user_password_reset_schema
 class ClientPasswordResetSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.EmailField(max_length=255)
     reset_code = serializers.CharField(max_length=4, required=True)
 
     class Meta:
@@ -186,7 +189,7 @@ class ClientPasswordResetSerializer(serializers.Serializer):
 @user_password_change_schema
 class ClientPasswordChangeSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-        write_only=True, min_length=8, required=True
+        write_only=True, min_length=8, required=True, max_length=255
     )
     password_confirm = serializers.CharField(required=True)
 
@@ -269,10 +272,13 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
     Individual create view for partner user
     """
 
-    password = serializers.CharField(write_only=True, required=True, min_length=8)
+    password = serializers.CharField(
+        write_only=True, required=True, min_length=8, max_length=255
+    )
     password_confirm = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(
-        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True, max_length=255,
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
     class Meta:
