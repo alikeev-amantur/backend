@@ -24,6 +24,7 @@ from happyhours.permissions import (
     IsPartnerAndAdmin,
     IsNotAuthenticated,
     IsAdmin,
+    IsAuthenticatedAndNotAdmin,
 )
 
 from .serializers import (
@@ -52,7 +53,18 @@ User = get_user_model()
 @extend_schema(tags=["Users"])
 class TokenObtainView(TokenObtainPairView):
     """
-    Token Obtaining view
+    User authorization. View responsible for creating valid refresh and access
+    tokens. Users of all roles can access this view. But admin have separated
+    view. Return not only tokens but a user's information
+    (id, email, name, role, max_establishments)
+
+    ### Access Control:
+    - All authenticated users can access this view.
+
+    ### Implementation Details:
+    - Serializer check if user exists in queryset. If not will throw an
+    exception. Additionally, checks if user does not have flag is_blocked. If
+    it is blocked, the user won't receive tokens
     """
 
     serializer_class = TokenObtainSerializer
@@ -61,7 +73,17 @@ class TokenObtainView(TokenObtainPairView):
 @extend_schema(tags=["Users"])
 class AdminLoginView(TokenObtainView):
     """
-    Individual login for Admin and superuser
+    Separated admin authorization. View responsible for creating valid refresh
+    and access tokens for admin role or superuser.
+    Return not only tokens but a user's information
+    (id, email, name, role, max_establishments)
+
+    ### Access Control:
+    - Only users with admin role or superuser
+
+    ### Implementation Details:
+    - Serializer check if user exists in queryset. If not will throw an
+    exception, checks if user has admin role or superuser
     """
     serializer_class = AdminLoginSerializer
 
@@ -69,7 +91,24 @@ class AdminLoginView(TokenObtainView):
 @extend_schema(tags=["Users"])
 class ClientRegisterView(CreateAPIView):
     """
-    Individual Client Register View
+    Client user creation. View responsible for creating user object with role
+    client. Only admin or superuser can access this view.
+    Returns tokens and the user's information
+
+    ### Fields:
+    - `email`: Email address of the client user
+    - `password`: Password of the client user
+    - `password_confirm` : Password confirmation
+    - `name`: Name of the client user
+    - `date_of_birth`: Birth date of client user
+    - `avatar`: Profile image of client user [Optional]
+
+    ### Access Control:
+    - Only unauthenticated users can access this view
+
+    ### Implementation Details:
+    - Obtains tokens in create function
+
     """
 
     queryset = User.objects.all()
@@ -82,6 +121,8 @@ class ClientRegisterView(CreateAPIView):
         user = serializer.save()
         token = RefreshToken.for_user(user)
         data = serializer.data
+        password = (serializer.validated_data.get('password'))
+        email = (serializer.validated_data.get('email'))
         data["tokens"] = {"refresh": str(token),
                           "access": str(token.access_token)}
         headers = self.get_success_headers(serializer.data)
@@ -92,13 +133,29 @@ class ClientRegisterView(CreateAPIView):
 
 @extend_schema(tags=["Users"])
 class ClientPasswordChangeView(GenericAPIView):
+    """
+    User password change creation. View responsible for changing password of
+    users (client, partner). Admin and superuser can not access this view.
+
+    ### Fields:
+    - `password`: Password of the user
+    - `password_confirm` : Password confirmation
+
+    ### Access Control:
+    - Only unauthenticated users (client or partner) can access this view
+
+    ### Implementation Details:
+    - Sets new password
+
+    """
+
     serializer_class = ClientPasswordChangeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedAndNotAdmin]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = User.objects.get(email=serializer.validated_data['email'])
+        user = User.objects.get(email=self.request.user.email)
         user.set_password(serializer.validated_data['password'])
         user.save()
         return Response(
