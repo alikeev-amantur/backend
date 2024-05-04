@@ -155,7 +155,7 @@ admin_block_user_schema = extend_schema_serializer(
             value={
                 "Successful"
             },
-            request_only=True
+            response_only=True
         ),
         OpenApiExample(
             name="Admin Block User Error",
