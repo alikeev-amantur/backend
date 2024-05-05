@@ -6,6 +6,11 @@ class IsUserOwner(permissions.BasePermission):
         return bool(obj == request.user or request.user.is_superuser)
 
 
+class IsUserObjectOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return bool(obj.user == request.user or request.user.is_superuser)
+
+
 class IsPartnerUser(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(

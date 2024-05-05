@@ -15,6 +15,7 @@ from happyhours.permissions import (
     IsAdmin,
     IsPartnerOwner,
     IsPartnerUser,
+    IsUserObjectOwner,
 )
 from .serializers import (
     EstablishmentSerializer,
@@ -49,7 +50,7 @@ class EstablishmentListView(ListAPIView):
     """
 
     serializer_class = EstablishmentSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -154,7 +155,6 @@ class MenuView(RetrieveAPIView):
 @extend_schema(tags=["Feedbacks"])
 class FeedbackListView(ListAPIView):
     serializer_class = FeedbackSerializer
-    permission_classes = []
 
     def get_queryset(self):
         establishment = self.request.resolver_match.kwargs['pk']
@@ -165,15 +165,26 @@ class FeedbackListView(ListAPIView):
 class FeedbackCreateView(CreateAPIView):
     queryset = Feedback.objects.all()
     serializer_class = FeedbackCreateUpdateSerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
+
+
+class FeedbackPermissions:
+    def get_permissions(self):
+        if self.action == "retrieve":
+            permissions = [IsAuthenticated]
+        elif self.action in ("update", "partial_update", "destroy"):
+            permissions = [IsUserObjectOwner]
+        else:
+            permissions = [IsAdmin]
+        return [permission() for permission in permissions]
 
 
 @extend_schema(tags=["Feedbacks"])
 class FeedbackViewSet(
-    ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+    FeedbackPermissions, ViewSetMixin, RetrieveAPIView, UpdateAPIView,
+    DestroyAPIView
 ):
     queryset = Feedback.objects.all()
-    permission_classes = []
 
     def get_serializer_class(self):
         if self.action == "update":
@@ -185,12 +196,13 @@ class FeedbackViewSet(
 class FeedbackAnswerCreate(CreateAPIView):
     queryset = FeedbackAnswer.objects.all()
     serializer_class = FeedbackAnswerCreateUpdateSerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
 
 @extend_schema(tags=["Feedbacks"])
 class FeedbackAnswerViewSet(
-    ViewSetMixin, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+    FeedbackPermissions, ViewSetMixin, RetrieveAPIView, UpdateAPIView,
+    DestroyAPIView
 ):
     queryset = FeedbackAnswer.objects.all()
 

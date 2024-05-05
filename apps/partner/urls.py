@@ -8,7 +8,8 @@ from .views import (
     FeedbackListView,
     FeedbackCreateView,
     FeedbackViewSet,
-    FeedbackAnswerCreate, FeedbackAnswerViewSet,
+    FeedbackAnswerCreate,
+    FeedbackAnswerViewSet,
 )
 
 urlpatterns = [
