@@ -44,7 +44,10 @@ This step builds the Docker images for the web service and sets up the database.
 `docker-compose build`
 5. **Run the containers**:
 This command starts all services defined in your docker-compose.yml file.
-`docker-compose up`
+`docker-compose up -d`
+6. **Collect statics and run migrations**:
+`docker-compose exec web py manage.py collectstatic`
+`docker-compose exec web py manage.py migrate`
 ### Services Defined in Docker Compose
 - **Web Service**: Runs the Django application using Gunicorn as the WSGI server.
 - **Database Service**: Uses a PostgreSQL database.
