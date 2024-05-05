@@ -3,9 +3,24 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from backend.apps.user.schema_definitions import (
+    client_registration_schema,
+    partner_creation_schema,
+    user_profile_schema,
+    client_partner_login,
+    admin_login_schema,
+    admin_block_user_schema,
+    user_password_forgot_schema,
+    user_password_reset_schema,
+    user_password_change_schema,
+    client_list_schema,
+    partner_list_schema,
+)
+
 User = get_user_model()
 
 
+@client_partner_login
 class TokenObtainSerializer(TokenObtainPairSerializer):
     """
     Token Obtaining Serializer
@@ -36,6 +51,7 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError("User does not exist")
 
 
+@admin_login_schema
 class AdminLoginSerializer(TokenObtainPairSerializer):
     """
     Token Obtaining Serializer for admin, superuser
@@ -57,6 +73,7 @@ class AdminLoginSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError("User does not exist")
 
 
+@admin_block_user_schema
 class BlockUserSerializer(serializers.ModelSerializer):
     """
     Serializer for blocking users
@@ -68,23 +85,33 @@ class BlockUserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             "email",
+            "is_blocked",
         )
 
     def validate(self, attrs):
         if User.objects.filter(email=attrs.get("email")).exists():
+            user = User.objects.get(email=attrs.get("email"))
+            if user.is_blocked == attrs.get("is_blocked"):
+                raise serializers.ValidationError(
+                    "You didn't change block state"
+                )
             return attrs
         raise serializers.ValidationError('User does not exists')
 
 
+@client_registration_schema
 class ClientRegisterSerializer(serializers.ModelSerializer):
     """
     Individual register view for client user
     """
 
-    password = serializers.CharField(write_only=True, required=True, min_length=8)
+    password = serializers.CharField(
+        write_only=True, required=True, min_length=8, max_length=255
+    )
     password_confirm = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(
-        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True, max_length=255,
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
     class Meta:
@@ -123,8 +150,9 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+@user_password_forgot_schema
 class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField()
+    email = serializers.EmailField(max_length=255)
 
     class Meta:
         model = User
@@ -138,8 +166,9 @@ class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError('User does not exist')
 
 
+@user_password_reset_schema
 class ClientPasswordResetSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.EmailField(max_length=255)
     reset_code = serializers.CharField(max_length=4, required=True)
 
     class Meta:
@@ -157,17 +186,16 @@ class ClientPasswordResetSerializer(serializers.Serializer):
         return attrs
 
 
+@user_password_change_schema
 class ClientPasswordChangeSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField()
     password = serializers.CharField(
-        write_only=True, min_length=8, required=True
+        write_only=True, min_length=8, required=True, max_length=255
     )
     password_confirm = serializers.CharField(required=True)
 
     class Meta:
         model = User
         fields = (
-            'email',
             'password',
             'password_confirm',
         )
@@ -185,6 +213,7 @@ class ClientPasswordChangeSerializer(serializers.ModelSerializer):
         return attrs
 
 
+@user_profile_schema
 class UserSerializer(serializers.ModelSerializer):
     """
     Basic user serializer
@@ -203,6 +232,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
+@client_list_schema
 class ClientListSerializer(serializers.ModelSerializer):
     """
     Only for client list
@@ -219,6 +249,7 @@ class ClientListSerializer(serializers.ModelSerializer):
         )
 
 
+@partner_list_schema
 class PartnerListSerializer(serializers.ModelSerializer):
     """
     Only for partner list
@@ -235,15 +266,19 @@ class PartnerListSerializer(serializers.ModelSerializer):
         )
 
 
+@partner_creation_schema
 class PartnerCreateSerializer(serializers.ModelSerializer):
     """
     Individual create view for partner user
     """
 
-    password = serializers.CharField(write_only=True, required=True, min_length=8)
+    password = serializers.CharField(
+        write_only=True, required=True, min_length=8, max_length=255
+    )
     password_confirm = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(
-        required=True, validators=[UniqueValidator(queryset=User.objects.all())]
+        required=True, max_length=255,
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
     class Meta:
