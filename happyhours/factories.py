@@ -1,12 +1,15 @@
 import factory
 from django.contrib.auth import get_user_model
+from django.contrib.gis.geos import Point
 from django.utils import timezone
 from apps.user.models import ROLE_CHOICES
 from apps.beverage.models import Category, Beverage
 from apps.order.models import Order
 from apps.partner.models import Establishment
+from faker import Faker
 
 User = get_user_model()
+fake = Faker()
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -44,7 +47,7 @@ class EstablishmentFactory(factory.django.DjangoModelFactory):
         model = Establishment
 
     name = factory.Faker('company')
-    location = factory.Faker('city')
+    location = factory.LazyFunction(lambda: Point(float(fake.longitude()), float(fake.latitude())))
     description = factory.Faker('paragraph')
     phone_number = factory.Faker('phone_number')
     address = factory.Faker('address')

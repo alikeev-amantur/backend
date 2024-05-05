@@ -28,7 +28,8 @@ from ..beverage.serializers import BeverageSerializer
 #         return None
 
 
-@establishment_serializer_schema
+
+# @establishment_serializer_schema
 class EstablishmentSerializer(GeoFeatureModelSerializer):
     """
     Main serializer for Establishment model
@@ -59,6 +60,7 @@ class EstablishmentSerializer(GeoFeatureModelSerializer):
             return request.build_absolute_uri(obj.logo.url)
         return ""
 
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["logo"] = self.get_image_url(instance)
@@ -66,7 +68,7 @@ class EstablishmentSerializer(GeoFeatureModelSerializer):
         return representation
 
 
-@establishment_serializer_schema
+# @establishment_serializer_schema
 class EstablishmentCreateUpdateSerializer(GeoFeatureModelSerializer):
     # qr_code = QRCodeSerializer(read_only=True)
 
