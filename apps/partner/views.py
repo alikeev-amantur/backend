@@ -20,10 +20,10 @@ from .serializers import (
     EstablishmentSerializer,
     EstablishmentCreateUpdateSerializer,
     MenuSerializer,
-    FeedbackCreateSerializer,
-    FeedbackListSerializer,
+    FeedbackCreateUpdateSerializer,
     FeedbackSerializer,
-    FeedbackAnswerCreateSerializer,
+    FeedbackAnswerCreateUpdateSerializer,
+    FeedbackAnswerSerializer,
 )
 from .utils import generate_qr_code
 from .models import Establishment, QRCode, Feedback, FeedbackAnswer
@@ -153,7 +153,7 @@ class MenuView(RetrieveAPIView):
 
 @extend_schema(tags=["Feedbacks"])
 class FeedbackListView(ListAPIView):
-    serializer_class = FeedbackListSerializer
+    serializer_class = FeedbackSerializer
     permission_classes = []
 
     def get_queryset(self):
@@ -164,21 +164,37 @@ class FeedbackListView(ListAPIView):
 @extend_schema(tags=["Feedbacks"])
 class FeedbackCreateView(CreateAPIView):
     queryset = Feedback.objects.all()
-    serializer_class = FeedbackCreateSerializer
+    serializer_class = FeedbackCreateUpdateSerializer
     permission_classes = []
 
 
 @extend_schema(tags=["Feedbacks"])
 class FeedbackViewSet(
-    ViewSetMixin, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+    ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 ):
     queryset = Feedback.objects.all()
     permission_classes = []
-    serializer_class = FeedbackSerializer
+
+    def get_serializer_class(self):
+        if self.action == "update":
+            return FeedbackAnswerCreateUpdateSerializer
+        return FeedbackSerializer
 
 
 @extend_schema(tags=["Feedbacks"])
 class FeedbackAnswerCreate(CreateAPIView):
     queryset = FeedbackAnswer.objects.all()
-    serializer_class = FeedbackAnswerCreateSerializer
+    serializer_class = FeedbackAnswerCreateUpdateSerializer
     permission_classes = []
+
+
+@extend_schema(tags=["Feedbacks"])
+class FeedbackAnswerViewSet(
+    ViewSetMixin, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+):
+    queryset = FeedbackAnswer.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == "update":
+            return FeedbackAnswerCreateUpdateSerializer
+        return FeedbackAnswerSerializer

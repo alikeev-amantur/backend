@@ -157,7 +157,7 @@ class FeedbackAnswerSerializer(serializers.ModelSerializer):
         return representation
 
 
-class FeedbackListSerializer(serializers.ModelSerializer):
+class FeedbackSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
     feedback_answers = FeedbackAnswerSerializer(many=True, read_only=True)
 
@@ -179,7 +179,7 @@ class FeedbackListSerializer(serializers.ModelSerializer):
         return representation
 
 
-class FeedbackCreateSerializer(serializers.ModelSerializer):
+class FeedbackCreateUpdateSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
@@ -198,17 +198,7 @@ class FeedbackCreateSerializer(serializers.ModelSerializer):
         return feedback
 
 
-class FeedbackSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Feedback
-        fields = (
-            "id",
-            "text",
-        )
-
-
-class FeedbackAnswerCreateSerializer(serializers.ModelSerializer):
+class FeedbackAnswerCreateUpdateSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
