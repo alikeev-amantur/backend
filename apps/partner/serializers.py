@@ -2,6 +2,7 @@ from drf_spectacular.utils import (
     extend_schema_field,
 )
 from rest_framework import serializers
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from .models import Establishment
 from .schema_definitions import establishment_serializer_schema, menu_serializer_schema
@@ -27,8 +28,8 @@ from ..beverage.serializers import BeverageSerializer
 #         return None
 
 
-@establishment_serializer_schema
-class EstablishmentSerializer(serializers.ModelSerializer):
+# @establishment_serializer_schema
+class EstablishmentSerializer(GeoFeatureModelSerializer):
     """
     Main serializer for Establishment model
     """
@@ -37,6 +38,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Establishment
+        geo_field = "location"
         fields = (
             "id",
             "name",
@@ -57,6 +59,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.logo.url)
         return ""
 
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["logo"] = self.get_image_url(instance)
@@ -64,12 +67,13 @@ class EstablishmentSerializer(serializers.ModelSerializer):
         return representation
 
 
-@establishment_serializer_schema
-class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
+# @establishment_serializer_schema
+class EstablishmentCreateUpdateSerializer(GeoFeatureModelSerializer):
     # qr_code = QRCodeSerializer(read_only=True)
 
     class Meta:
         model = Establishment
+        geo_field = "location"
         fields = (
             "id",
             "name",
@@ -83,6 +87,7 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
             "owner",
             # "qr_code",
         )
+
 
     def validate_owner(self, value):
         """
@@ -116,7 +121,6 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-
 
 # @menu_serializer_schema
 # class MenuSerializer(serializers.ModelSerializer):

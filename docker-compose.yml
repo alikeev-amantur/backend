@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:14
+    image: postgis/postgis:14-3.2
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:

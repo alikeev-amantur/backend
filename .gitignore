@@ -168,3 +168,4 @@ local-manage.py
 qr_codes/
 happyhours.pem
 local-docker/
+config/nginx/def.conf
