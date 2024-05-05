@@ -47,3 +47,11 @@ class IsPartnerAndAdmin(permissions.BasePermission):
 class IsNotAuthenticated(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(not request.user.is_authenticated)
+
+
+class IsAuthenticatedAndNotAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.user and request.user.is_authenticated and
+            request.user.role != 'admin' and not request.user.is_superuser
+        )
