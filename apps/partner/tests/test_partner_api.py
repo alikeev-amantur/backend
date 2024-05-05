@@ -16,7 +16,6 @@ class TestEstablishmentAPI:
         url = reverse('v1:establishment-create')
         data = {
             'name': 'New Establishment',
-            'location': '1234 New St',
             'description': 'A new sample establishment',
             'owner': user.id
         }

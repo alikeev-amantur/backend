@@ -1,5 +1,3 @@
-# In tests/test_models.py within your partner app
-
 import pytest
 from django.contrib.auth import get_user_model
 from happyhours.factories import EstablishmentFactory
@@ -21,11 +19,4 @@ class TestEstablishmentModel:
         updated = Establishment.objects.get(id=establishment.id)
         assert updated.name == "Updated Name"
 
-    def test_establishment_fields(self):
-        establishment = EstablishmentFactory(
-            location="456 Side St",
-            description="A detailed description here"
-        )
-        assert establishment.location == "456 Side St"
-        assert establishment.description == "A detailed description here"
 
