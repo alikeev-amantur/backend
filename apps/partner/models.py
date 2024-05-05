@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-
+from django.contrib.gis.db import models as geomodels
 User = get_user_model()
 
 
@@ -10,7 +10,7 @@ class Establishment(models.Model):
     """
 
     name = models.CharField(max_length=255)
-    location = models.CharField(max_length=255, blank=True, null=True)
+    location = geomodels.PointField(geography=True, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     address = models.CharField(max_length=255, null=True, blank=True)
@@ -29,11 +29,3 @@ class Establishment(models.Model):
         return "Establishment: " + self.name
 
 
-# class QRCode(models.Model):
-#     establishment = models.OneToOneField(
-#         Establishment, on_delete=models.CASCADE, related_name="qr_code"
-#     )
-#     qr_code_image = models.ImageField(upload_to="qr_codes/")
-#
-#     def __str__(self):
-#         return f"QR Code for {self.establishment.name}"
