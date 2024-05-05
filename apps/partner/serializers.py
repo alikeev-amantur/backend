@@ -1,32 +1,8 @@
-from drf_spectacular.utils import (
-    extend_schema_field,
-)
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 from .models import Establishment
-from .schema_definitions import establishment_serializer_schema, menu_serializer_schema
 from .utils import phone_number_validation
-from ..beverage.serializers import BeverageSerializer
-
-
-# class QRCodeSerializer(serializers.ModelSerializer):
-#     qr_code_image = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = QRCode
-#         fields = [
-#             "id",
-#             "qr_code_image",
-#         ]
-#
-#     @extend_schema_field(serializers.URLField())
-#     def get_qr_code_image(self, obj):
-#         request = self.context.get("request")
-#         if obj.qr_code_image and request:
-#             return request.build_absolute_uri(obj.qr_code_image.url)
-#         return None
-
 
 
 # @establishment_serializer_schema
@@ -35,8 +11,6 @@ class EstablishmentSerializer(GeoFeatureModelSerializer):
     Main serializer for Establishment model
     """
 
-    # qr_code = QRCodeSerializer(read_only=True)
-
     class Meta:
         model = Establishment
         geo_field = "location"
@@ -51,7 +25,6 @@ class EstablishmentSerializer(GeoFeatureModelSerializer):
             "happyhours_start",
             "happyhours_end",
             "owner",
-            # "qr_code",
         )
 
     def get_image_url(self, obj):
@@ -60,7 +33,6 @@ class EstablishmentSerializer(GeoFeatureModelSerializer):
             return request.build_absolute_uri(obj.logo.url)
         return ""
 
-
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["logo"] = self.get_image_url(instance)
@@ -68,11 +40,8 @@ class EstablishmentSerializer(GeoFeatureModelSerializer):
         return representation
 
 
-
 # @establishment_serializer_schema
 class EstablishmentCreateUpdateSerializer(GeoFeatureModelSerializer):
-    # qr_code = QRCodeSerializer(read_only=True)
-
     class Meta:
         model = Establishment
         geo_field = "location"
@@ -87,9 +56,7 @@ class EstablishmentCreateUpdateSerializer(GeoFeatureModelSerializer):
             "happyhours_start",
             "happyhours_end",
             "owner",
-            # "qr_code",
         )
-
 
     def validate_owner(self, value):
         """
@@ -123,22 +90,3 @@ class EstablishmentCreateUpdateSerializer(GeoFeatureModelSerializer):
 
         instance.save()
         return instance
-
-# @menu_serializer_schema
-# class MenuSerializer(serializers.ModelSerializer):
-#     beverages = BeverageSerializer(many=True, read_only=True)
-#
-#     class Meta:
-#         model = Establishment
-#         fields = [
-#             "id",
-#             "name",
-#             "location",
-#             "description",
-#             "phone_number",
-#             "address",
-#             "logo",
-#             "happyhours_start",
-#             "happyhours_end",
-#             "beverages",
-#         ]
