@@ -28,6 +28,7 @@ from ..beverage.serializers import BeverageSerializer
 #         return None
 
 
+
 # @establishment_serializer_schema
 class EstablishmentSerializer(GeoFeatureModelSerializer):
     """
@@ -65,6 +66,7 @@ class EstablishmentSerializer(GeoFeatureModelSerializer):
         representation["logo"] = self.get_image_url(instance)
         representation["owner"] = instance.owner.email
         return representation
+
 
 
 # @establishment_serializer_schema
