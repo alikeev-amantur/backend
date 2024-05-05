@@ -20,9 +20,14 @@ from .serializers import (
     EstablishmentSerializer,
     EstablishmentCreateUpdateSerializer,
     MenuSerializer,
+    FeedbackCreateSerializer,
+    FeedbackListSerializer,
+    FeedbackSerializer,
+    FeedbackAnswerCreateSerializer,
 )
 from .utils import generate_qr_code
-from .models import Establishment, QRCode
+from .models import Establishment, QRCode, Feedback, FeedbackAnswer
+
 
 @extend_schema(tags=["Establishments"])
 class EstablishmentListView(ListAPIView):
@@ -44,7 +49,7 @@ class EstablishmentListView(ListAPIView):
     """
 
     serializer_class = EstablishmentSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -144,3 +149,36 @@ class MenuView(RetrieveAPIView):
     serializer_class = MenuSerializer
     # lookup_field = "id"
     permission_classes = [IsAuthenticated]
+
+
+@extend_schema(tags=["Feedbacks"])
+class FeedbackListView(ListAPIView):
+    serializer_class = FeedbackListSerializer
+    permission_classes = []
+
+    def get_queryset(self):
+        establishment = self.request.resolver_match.kwargs['pk']
+        return Feedback.objects.filter(establishment=establishment)
+
+
+@extend_schema(tags=["Feedbacks"])
+class FeedbackCreateView(CreateAPIView):
+    queryset = Feedback.objects.all()
+    serializer_class = FeedbackCreateSerializer
+    permission_classes = []
+
+
+@extend_schema(tags=["Feedbacks"])
+class FeedbackViewSet(
+    ViewSetMixin, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+):
+    queryset = Feedback.objects.all()
+    permission_classes = []
+    serializer_class = FeedbackSerializer
+
+
+@extend_schema(tags=["Feedbacks"])
+class FeedbackAnswerCreate(CreateAPIView):
+    queryset = FeedbackAnswer.objects.all()
+    serializer_class = FeedbackAnswerCreateSerializer
+    permission_classes = []

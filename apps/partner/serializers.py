@@ -3,7 +3,7 @@ from drf_spectacular.utils import (
 )
 from rest_framework import serializers
 
-from .models import Establishment, QRCode
+from .models import Establishment, QRCode, Feedback, FeedbackAnswer
 from .schema_definitions import establishment_serializer_schema, menu_serializer_schema
 from .utils import phone_number_validation
 from ..beverage.serializers import BeverageSerializer
@@ -136,3 +136,92 @@ class MenuSerializer(serializers.ModelSerializer):
             "happyhours_end",
             "beverages",
         ]
+
+
+class FeedbackAnswerSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = FeedbackAnswer
+        fields = (
+            "id",
+            "feedback",
+            "user",
+            "created_at",
+            "text",
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["user"] = instance.user.email
+        return representation
+
+
+class FeedbackListSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+    feedback_answers = FeedbackAnswerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Feedback
+        fields = (
+            "id",
+            "user",
+            "created_at",
+            "establishment",
+            "text",
+            "feedback_answers",
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["user"] = instance.user.email
+        representation["establishment"] = instance.establishment.name
+        return representation
+
+
+class FeedbackCreateSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Feedback
+        fields = (
+            "id",
+            "created_at",
+            "text",
+        )
+
+    def create(self, validated_data):
+        validated_data["user"] = self.context["request"].user
+        establishment = self.context.get("request").resolver_match.kwargs["pk"]
+        validated_data["establishment"] = Establishment.objects.get(pk=establishment)
+        feedback = Feedback.objects.create(**validated_data)
+        return feedback
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Feedback
+        fields = (
+            "id",
+            "text",
+        )
+
+
+class FeedbackAnswerCreateSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = FeedbackAnswer
+        fields = (
+            "id",
+            "created_at",
+            "text",
+        )
+
+    def create(self, validated_data):
+        validated_data["user"] = self.context["request"].user
+        feedback = self.context.get("request").resolver_match.kwargs["pk"]
+        validated_data["feedback"] = Feedback.objects.get(pk=feedback)
+        feedback_answer = FeedbackAnswer.objects.create(**validated_data)
+        return feedback_answer
