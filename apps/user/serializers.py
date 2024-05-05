@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from backend.apps.user.schema_definitions import (
+from apps.user.schema_definitions import (
     client_registration_schema,
     partner_creation_schema,
     user_profile_schema,
