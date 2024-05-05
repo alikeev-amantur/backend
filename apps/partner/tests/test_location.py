@@ -1,7 +1,6 @@
 import pytest
 from django.contrib.gis.geos import Point
 from rest_framework.test import APIClient
-from django.contrib.auth import get_user_model
 
 from happyhours.factories import UserFactory
 from ..models import Establishment

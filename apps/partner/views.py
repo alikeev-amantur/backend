@@ -1,4 +1,3 @@
-from django.core.files.base import ContentFile
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied, NotFound
@@ -22,7 +21,6 @@ from .serializers import (
     EstablishmentCreateUpdateSerializer,
     # MenuSerializer,
 )
-from .utils import generate_qr_code
 from .models import Establishment
 from ..beverage.models import Beverage
 from ..beverage.serializers import BeverageSerializer
@@ -88,12 +86,6 @@ class EstablishmentCreateView(CreateAPIView):
                 "This partner has reached their maximum number of establishments."
             )
         serializer.save()
-        # establishment = serializer.save()
-        # domain = self.request.build_absolute_uri("/")
-        # filename, qr_code_data = generate_qr_code(establishment, domain)
-        # qr_code = QRCode(establishment=establishment)
-        # qr_code.qr_code_image.save(filename, ContentFile(qr_code_data), save=False)
-        # qr_code.save()
 
 
 @extend_schema(tags=["Establishments"])
