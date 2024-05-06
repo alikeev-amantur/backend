@@ -18,14 +18,14 @@ class OrderSerializer(serializers.ModelSerializer):
         return beverage.establishment
 
     def validate_order_happyhours(self, establishment):
-        current_time = timezone.now()
-        if not (establishment.happyhours_start <= current_time.time() <= establishment.happyhours_end):
+        current_time = timezone.localtime().time()
+        if not (establishment.happyhours_start <= current_time <= establishment.happyhours_end):
             raise serializers.ValidationError(
                 "Order can only be placed during the establishment's designated happy hours.")
 
     def validate_order_per_hour(self, client):
         # Get the current time and calculate one hour ago
-        one_hour_ago = timezone.now() - datetime.timedelta(hours=1)
+        one_hour_ago = timezone.localtime() - datetime.timedelta(hours=1)
 
         # Check if there are any existing orders from this client in the last hour
         if Order.objects.filter(client=client, order_date__gte=one_hour_ago).exists():
@@ -33,7 +33,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def validate_order_per_day(self, client, establishment):
         # Ensure one order per day per establishment
-        current_time = timezone.now()
+        current_time = timezone.localtime()
         today_min = datetime.datetime.combine(current_time.date(), datetime.time.min)
         today_max = datetime.datetime.combine(current_time.date(), datetime.time.max)
 
@@ -55,8 +55,8 @@ class OrderSerializer(serializers.ModelSerializer):
         establishment = data['establishment']
 
         self.validate_order_happyhours(establishment)
-        self.validate_order_per_hour(client)
         self.validate_order_per_day(client, establishment)
+        self.validate_order_per_hour(client)
 
         return data
 
@@ -65,6 +65,7 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderHistorySerializer(serializers.ModelSerializer):
     establishment_name = serializers.CharField(source='establishment.name', read_only=True)
     beverage_name = serializers.CharField(source='beverage.name', read_only=True)
+
     # client_details = serializers.HyperlinkedRelatedField(
     #     view_name='v1:user-detail',
     #     read_only=True,

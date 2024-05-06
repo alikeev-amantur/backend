@@ -1,8 +1,12 @@
 from django.contrib import admin
+from django.contrib.gis import admin as gis_admin
+from .models import Establishment, Feedback, FeedbackAnswer
 
-from .models import Establishment, QRCode, Feedback, FeedbackAnswer
 
-admin.site.register(Establishment)
-admin.site.register(QRCode)
+class EstablishmentAdmin(gis_admin.OSMGeoAdmin):
+    pass
+
+
+admin.site.register(Establishment, EstablishmentAdmin)
 admin.site.register(Feedback)
 admin.site.register(FeedbackAnswer)
