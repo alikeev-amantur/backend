@@ -1,9 +1,10 @@
 from django.contrib import admin
-from django.contrib.gis import admin as gis_admin
+from django.contrib.gis.admin import GISModelAdmin
+
 from .models import Establishment
 
 
-class EstablishmentAdmin(gis_admin.OSMGeoAdmin):
+class EstablishmentAdmin(GISModelAdmin):
     pass
 
 
