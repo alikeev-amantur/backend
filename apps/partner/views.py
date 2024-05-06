@@ -64,14 +64,6 @@ class EstablishmentCreateView(CreateAPIView):
     ### Validation:
     - Ensures that the partner has not exceeded their limit of owned establishments.
     - Checks data integrity for phone numbers and locations.
-
-    ### Permission:
-    - Restricted to authenticated partner users only.
-
-    ### Business Logic:
-    - The creation will fail with a `Permission Denied` error
-    if the user has reached their limit of establishments.
-
     """
 
     queryset = Establishment.objects.all()
