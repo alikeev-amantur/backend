@@ -1,19 +1,21 @@
+from django.contrib.gis.geos import Point
 from rest_framework import serializers
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from rest_framework.exceptions import ValidationError
+from rest_framework_gis.fields import GeometryField
 
 from .models import Establishment
 from .utils import phone_number_validation
 
 
 # @establishment_serializer_schema
-class EstablishmentSerializer(GeoFeatureModelSerializer):
+class EstablishmentSerializer(serializers.ModelSerializer):
     """
     Main serializer for Establishment model
     """
+    location = GeometryField()
 
     class Meta:
         model = Establishment
-        geo_field = "location"
         fields = (
             "id",
             "name",
@@ -41,10 +43,11 @@ class EstablishmentSerializer(GeoFeatureModelSerializer):
 
 
 # @establishment_serializer_schema
-class EstablishmentCreateUpdateSerializer(GeoFeatureModelSerializer):
+class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
+    location = GeometryField()
+
     class Meta:
         model = Establishment
-        geo_field = "location"
         fields = (
             "id",
             "name",
@@ -57,6 +60,26 @@ class EstablishmentCreateUpdateSerializer(GeoFeatureModelSerializer):
             "happyhours_end",
             "owner",
         )
+
+    def validate_location(self, value):
+        """Validate that location contains valid latitude and longitude."""
+        if value:
+            # Check if it's a Point instance
+            if not isinstance(value, Point):
+                raise serializers.ValidationError("Location must be a valid Point.")
+
+            # Extract latitude and longitude
+            latitude, longitude = value.coords[1], value.coords[0]
+
+            # Validate latitude
+            if not -90 <= latitude <= 90:
+                raise serializers.ValidationError("Latitude must be between -90 and 90.")
+
+            # Validate longitude
+            if not -180 <= longitude <= 180:
+                raise serializers.ValidationError("Longitude must be between -180 and 180.")
+
+        return value
 
     def validate_owner(self, value):
         """

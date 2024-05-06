@@ -1,12 +1,20 @@
-from .base  import *
+import sys
+
+from .base import *
 
 DEBUG = True
-# STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+  'default': {
+      'ENGINE': 'django.contrib.gis.db.backends.postgis',
+      'NAME': 'myapp',
+      'USER': 'myuser',
+      'PASSWORD': 'mypassword',
+      'HOST': 'db',
+      'PORT': '5432',
+  }
 }
 
+
+if 'test' in sys.argv or 'test_coverage' in sys.argv:
+    DATABASES['default']['NAME'] = 'test_myapp'
