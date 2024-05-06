@@ -150,16 +150,6 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     'SERVERS': [{'url': 'http://16.170.203.161', 'description': 'Production server'},],
     "PARSER_WHITELIST": ["rest_framework.parsers.JSONParser"],
-    # 'SECURITY': [{'jwtAuth': []}],
-    # 'COMPONENTS': {
-    #         'securitySchemes': {
-    #             'jwtAuth': {
-    #                 'type': 'http',
-    #                 'scheme': 'bearer',
-    #                 'bearerFormat': 'JWT'
-    #             },
-    #         },
-    #     },
 }
 
 SIMPLE_JWT = {
