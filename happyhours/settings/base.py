@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "apps.beverage.apps.BeverageConfig",
     "apps.partner.apps.PartnerConfig",
     "apps.order.apps.OrderConfig",
+    "apps.feedback.apps.FeedbackConfig",
 ]
 
 MIDDLEWARE = [
