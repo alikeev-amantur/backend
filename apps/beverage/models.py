@@ -16,7 +16,7 @@ class Category(models.Model):
 
 class Beverage(models.Model):
     name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=5, decimal_places=2)
+    price = models.DecimalField(max_digits=9, decimal_places=2)
     description = models.TextField()
     availability_status = models.BooleanField(default=True)
     category = models.ForeignKey(

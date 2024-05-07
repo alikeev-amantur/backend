@@ -24,6 +24,7 @@ class EstablishmentSerializer(serializers.ModelSerializer):
             "description",
             "phone_number",
             "logo",
+            "email",
             "address",
             "happyhours_start",
             "happyhours_end",
@@ -39,7 +40,6 @@ class EstablishmentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["logo"] = self.get_image_url(instance)
-        representation["owner"] = instance.owner.email
         return representation
 
 
@@ -55,6 +55,7 @@ class EstablishmentCreateUpdateSerializer(serializers.ModelSerializer):
             "location",
             "description",
             "phone_number",
+            "email",
             "logo",
             "address",
             "happyhours_start",
