@@ -230,6 +230,38 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
+@user_profile_schema
+class PartnerProfileSerializer(serializers.ModelSerializer):
+    """
+    Only for partner profile
+    """
+
+    email = serializers.EmailField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "name",
+            "phone_number",
+        )
+
+    def update(self, instance, validated_data):
+        """
+        Update existing user-partner instance.
+        :param instance:
+        :param validated_data:
+        :return:
+        """
+        # phone_number_validation(validated_data)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+
 @client_list_schema
 class ClientListSerializer(serializers.ModelSerializer):
     """
