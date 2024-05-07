@@ -55,6 +55,16 @@ user_profile_schema = extend_schema_serializer(
             name="Client Profile Retrieval",
             description="Successful Client Profile Retrieve",
             value={
+                "name": "Customer",
+                "date_of_birth": "2024-05-07",
+                "avatar": "http://example.com/media/client_avatar/customer.jpg"
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            name="Client Profile Retrieval",
+            description="Successful Client Profile Retrieve",
+            value={
                 "id": 1,
                 "email": "customer@mail.com",
                 "name": "null",
@@ -67,11 +77,61 @@ user_profile_schema = extend_schema_serializer(
             name="Client Profile Updating",
             description="Successful Client Profile Update",
             value={
+                "name": "Customer Name",
+                "date_of_birth": "2020-01-01",
+                "avatar": "http://example.com/media/client_avatar/customer.jpg",
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            name="Client Profile Updating",
+            description="Successful Client Profile Update",
+            value={
                 "id": 1,
                 "email": "customer@mail.com",
                 "name": "Customer Name",
                 "date_of_birth": "2020-01-01",
                 "avatar": "http://example.com/media/client_avatar/customer.jpg",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Retrieval",
+            description="Successful Partner Profile Retrieve",
+            value={
+                "name": "Partner",
+                "phone_number": "996111222333",
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Retrieval",
+            description="Successful Partner Profile Retrieve",
+            value={
+                "id": 1,
+                "email": "partner@mail.com",
+                "name": "Partner",
+                "phone_number": "996111222333",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Updating",
+            description="Successful Partner Profile Update",
+            value={
+                "name": "Partner",
+                "phone_number": "996111222333",
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Updating",
+            description="Successful Partner Profile Update",
+            value={
+                "id": 1,
+                "email": "partner@mail.com",
+                "name": "Partner",
+                "phone_number": "996111222333",
             },
             response_only=True,
         ),

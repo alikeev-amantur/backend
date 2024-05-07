@@ -230,6 +230,24 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
+@user_profile_schema
+class PartnerProfileSerializer(serializers.ModelSerializer):
+    """
+    Only for partner profile
+    """
+
+    email = serializers.EmailField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "name",
+            "phone_number",
+        )
+
+
 @client_list_schema
 class ClientListSerializer(serializers.ModelSerializer):
     """
