@@ -6,7 +6,7 @@ from .views import (
     EstablishmentViewSet,
     MenuView,
 )
-from ..feedback.views import FeedbackListView, FeedbackCreateView
+from apps.feedback.views import FeedbackListView, FeedbackCreateView
 
 urlpatterns = [
     path(
