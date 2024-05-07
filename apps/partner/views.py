@@ -117,10 +117,18 @@ class MenuView(viewsets.ReadOnlyModelViewSet):
     serializer_class = BeverageSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = MenuFilter
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         establishment_id = self.kwargs.get("pk")
         establishment = get_object_or_404(Establishment, id=establishment_id)
+        user = self.request.user
+
+        if user == establishment.owner:
+            return Beverage.objects.filter(
+                establishment=establishment
+            ).select_related("category", "establishment")
+
         return Beverage.objects.filter(
             establishment=establishment, availability_status=True
         ).select_related("category", "establishment")
