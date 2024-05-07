@@ -1,6 +1,8 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
@@ -17,6 +19,7 @@ from happyhours.permissions import (
     IsPartnerOwner,
     IsPartnerUser,
 )
+from .filters import EstablishmentFilter, MenuFilter
 from .serializers import (
     EstablishmentSerializer,
     EstablishmentCreateUpdateSerializer,
@@ -33,13 +36,6 @@ class EstablishmentListView(ListAPIView):
     Lists establishments based on user roles. This view is accessible to all
     authenticated users. Partners see only
     establishments they own.
-
-    ### Access Control:
-    - All authenticated users can access this view, but the listings are
-    filtered by ownership for partners,
-      showing only their own establishments.
-    - Admins have the privilege to view all establishments across the platform
-
     ### Implementation Details:
     - The queryset dynamically adjusts based on the authenticated user's role,
     ensuring that users receive data
@@ -48,6 +44,9 @@ class EstablishmentListView(ListAPIView):
 
     serializer_class = EstablishmentSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = EstablishmentFilter
+    search_fields = ["name", "beverages__name"]
 
     def get_queryset(self):
         user = self.request.user
@@ -65,14 +64,6 @@ class EstablishmentCreateView(CreateAPIView):
     ### Validation:
     - Ensures that the partner has not exceeded their limit of owned establishments.
     - Checks data integrity for phone numbers and locations.
-
-    ### Permission:
-    - Restricted to authenticated partner users only.
-
-    ### Business Logic:
-    - The creation will fail with a `Permission Denied` error
-    if the user has reached their limit of establishments.
-
     """
 
     queryset = Establishment.objects.all()
@@ -122,12 +113,17 @@ class MenuView(viewsets.ReadOnlyModelViewSet):
     Provides a view of the menu for a specific establishment,
     accessible to all authenticated users.
     """
+
     serializer_class = BeverageSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MenuFilter
 
     def get_queryset(self):
         establishment_id = self.kwargs.get("pk")
         establishment = get_object_or_404(Establishment, id=establishment_id)
-        return Beverage.objects.filter(establishment=establishment).select_related("category", "establishment")
+        return Beverage.objects.filter(
+            establishment=establishment, availability_status=True
+        ).select_related("category", "establishment")
 
     def list(self, request, *args, **kwargs):
         if not self.get_queryset().exists():
