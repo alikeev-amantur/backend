@@ -38,6 +38,7 @@ from .serializers import (
     ClientListSerializer,
     PartnerListSerializer,
     BlockUserSerializer,
+    PartnerProfileSerializer,
 )
 from .utils import (
     generate_reset_code,
@@ -162,9 +163,10 @@ class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     User's profile CRUD
 
     ### Fields:
-    - 'name': Name of the user
-    - 'date_of_birth': Birth of the user
-    - `avatar`: Image of profile
+    - `name`: Name of the Client/Partner
+    - `date_of_birth`: Birth of the Client
+    - `avatar`: Image of Client profile
+    - `phone_number`: Phone number of Partner
 
     ### Access Control:
     - Only user himself can access this endpoint
@@ -175,13 +177,18 @@ class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     """
 
     queryset = User.objects.all()
-    serializer_class = UserSerializer
     permission_classes = [IsUserOwner]
 
     def get_object(self):
         obj = get_object_or_404(self.queryset, id=self.request.user.id)
         self.check_object_permissions(self.request, obj)
         return obj
+
+    def get_serializer_class(self):
+        if not self.request.user.is_anonymous:
+            if self.request.user.role == "partner":
+                return PartnerProfileSerializer
+        return UserSerializer
 
 
 @extend_schema(tags=["Users"])
