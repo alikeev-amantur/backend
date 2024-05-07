@@ -5,12 +5,8 @@ from .views import (
     EstablishmentCreateView,
     EstablishmentViewSet,
     MenuView,
-    FeedbackListView,
-    FeedbackCreateView,
-    FeedbackViewSet,
-    FeedbackAnswerCreate,
-    FeedbackAnswerViewSet,
 )
+from ..feedback.views import FeedbackListView, FeedbackCreateView
 
 urlpatterns = [
     path("establishment/list/", EstablishmentListView.as_view(), name='establishment-list'),
@@ -26,25 +22,6 @@ urlpatterns = [
         name='establishment-detail'
     ),
     path("menu/<int:pk>/", MenuView.as_view({'get': 'list'}), name='menu-detail'),
-    path("menu/<int:pk>/", MenuView.as_view()),
     path("establishment/<int:pk>/feedback_list/", FeedbackListView.as_view()),
     path("establishment/<int:pk>/feedback_create/", FeedbackCreateView.as_view()),
-    path(
-        "establishment/feedback/<int:pk>/",
-        FeedbackViewSet.as_view(
-            {
-                "get": "retrieve",
-                "put": "update",
-                "delete": "destroy",
-            }
-        )
-    ),
-    path("establishment/feedback/<int:pk>/answer_create/", FeedbackAnswerCreate.as_view()),
-    path("establishment/feedback/answer/<int:pk>/", FeedbackAnswerViewSet.as_view(
-        {
-            "get": "retrieve",
-            "put": "update",
-            "delete": "destroy",
-        }
-    ))
 ]
