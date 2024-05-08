@@ -278,6 +278,7 @@ class PartnerListSerializer(serializers.ModelSerializer):
             "id",
             "email",
             "name",
+            "phone_number",
             "max_establishments",
             "is_blocked",
         )
