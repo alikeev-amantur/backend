@@ -1,5 +1,3 @@
-from datetime import time
-
 import pytest
 import pytz
 from django.db.models.functions import datetime
@@ -43,13 +41,11 @@ def beverage(partner_establishment):
 
 @pytest.fixture
 def establishment_happy_hour():
-    # Ensure these times align with your freeze_time settings
     return EstablishmentFactory(happyhours_start="15:00:00", happyhours_end="17:00:00")
 
 
 @pytest.fixture
 def establishment_not_happy_hour():
-    # Ensure these times are outside your freeze_time settings
     return EstablishmentFactory(happyhours_start="18:00:00", happyhours_end="20:00:00")
 
 
@@ -92,8 +88,6 @@ def test_create_beverage_as_partner(client, partner_user, partner_establishment)
         "category": CategoryFactory().id,
     }
     response = client.post(url, data)
-    if response.status_code != status.HTTP_201_CREATED:
-        print(response.data)  # Print response data for debugging
     assert response.status_code == status.HTTP_201_CREATED
 
 
@@ -122,7 +116,7 @@ def test_filter_beverage_by_category(client, normal_user, beverage):
     .astimezone(pytz.utc)
 )
 def test_filter_beverage_in_happy_hour(
-    client, normal_user, beverage_in_happy_hour, beverage_not_in_happy_hour
+        client, normal_user, beverage_in_happy_hour, beverage_not_in_happy_hour
 ):
     client.force_authenticate(user=normal_user)
     url = reverse("v1:beverage-list") + "?in_happy_hour=true"
@@ -131,7 +125,7 @@ def test_filter_beverage_in_happy_hour(
     print("Filtered data:", response.data)  # Debugging output
     assert len(response.data) == 1, "Should find exactly one beverage in happy hour"
     assert (
-        response.data[0]["id"] == beverage_in_happy_hour.id
+            response.data[0]["id"] == beverage_in_happy_hour.id
     ), "The beverage should be the one in happy hour"
 
 
@@ -142,10 +136,11 @@ def test_filter_beverage_in_happy_hour(
     .astimezone(pytz.utc)
 )
 def test_filter_beverage_not_in_happy_hour(
-    client, normal_user, beverage_in_happy_hour, beverage_not_in_happy_hour
+        client, normal_user, beverage_in_happy_hour, beverage_not_in_happy_hour
 ):
     client.force_authenticate(user=normal_user)
     url = reverse("v1:beverage-list") + "?in_happy_hour=true"
     response = client.get(url)
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 0, "Should find no beverages in happy hour"
+
