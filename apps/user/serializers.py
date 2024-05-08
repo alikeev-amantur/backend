@@ -252,6 +252,7 @@ class PartnerProfileSerializer(serializers.ModelSerializer):
             "max_establishments",
         )
 
+
 @user_profile_admin_schema
 class UserSerializerAdmin(serializers.ModelSerializer):
     """
