@@ -5,13 +5,14 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 
+from happyhours.permissions import IsAdmin
+
 from .models import Feedback, FeedbackAnswer
 from .serializers import (
     FeedbackSerializer,
     FeedbackAnswerSerializer,
 )
 from .views_services import FeedbackViewSetService
-from happyhours.permissions import IsAdmin
 
 
 @extend_schema(tags=["Feedbacks"])

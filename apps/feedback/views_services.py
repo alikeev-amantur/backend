@@ -16,10 +16,8 @@ class FeedbackPermissions:
             permissions = []
         elif self.action in ("update", "partial_update", "destroy"):
             permissions = [IsUserObjectOwner]
-            permissions = []
         else:
             permissions = [IsAdmin]
-            permissions = []
         return [permission() for permission in permissions]
 
 
