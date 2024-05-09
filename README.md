@@ -15,6 +15,8 @@ HappyHours is a novel platform designed to enhance customer engagement for resta
 - **Beverage**: Contains information about the drinks available including name, category, and price.
 - **Order**: Records transactions of beverages ordered by users at establishments.
 
+![ERD.png](ERD.png)
+
 ## APIs
 Endpoints are provided for each entity (Users, Establishments, Beverages, Orders) supporting CRUD operations along with specific filters and authentication methods to ensure data security.
 
