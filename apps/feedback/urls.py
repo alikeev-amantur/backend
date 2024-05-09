@@ -3,7 +3,9 @@ from django.urls import path
 from .views import (
     FeedbackViewSet,
     FeedbackAnswerCreate,
-    FeedbackAnswerViewSet, FeedbackListView, FeedbackCreateView,
+    FeedbackAnswerViewSet,
+    FeedbackListView,
+    FeedbackCreateView,
 )
 
 urlpatterns = [
