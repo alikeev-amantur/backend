@@ -161,7 +161,7 @@ class ClientPasswordChangeView(GenericAPIView):
 @extend_schema(tags=["Users"])
 class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     """
-    User's profile CRUD
+    User's profile CRUD. For client (mobile)
 
     ### Fields:
     - `name`: Name of the Client/Partner
