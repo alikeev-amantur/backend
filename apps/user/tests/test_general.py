@@ -24,7 +24,7 @@ class TestUserAPI:
             email=email, password=password, role=role
         )
         client.login(email=email, password=password)
-        url = reverse('v1:token_obtain_pair')
+        url = reverse("v1:token_obtain_pair")
         data = {
             "email": email,
             "password": password,
@@ -40,7 +40,7 @@ class TestUserAPI:
         user = django_user_model.objects.create_user(
             email=email, password=password, role=role, is_blocked=is_blocked
         )
-        url = reverse('v1:token_obtain_pair')
+        url = reverse("v1:token_obtain_pair")
         data = {
             "email": email,
             "password": password,
@@ -49,7 +49,7 @@ class TestUserAPI:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_forgot_page(self):
-        url = reverse('v1:password-forgot-page')
+        url = reverse("v1:password-forgot-page")
         data = {
             "email": "email",
         }
@@ -61,7 +61,7 @@ class TestUserAPI:
         session["reset_code"] = "9267"
         session["reset_code_create_time"] = datetime_serializer(datetime.datetime.now())
         session.save()
-        url = reverse('v1:password-reset')
+        url = reverse("v1:password-reset")
         data = {
             "email": "email@example.com",
             "reset_code": "9263",

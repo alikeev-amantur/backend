@@ -4,7 +4,7 @@ from rest_framework.generics import (
     CreateAPIView,
     RetrieveAPIView,
     UpdateAPIView,
-    DestroyAPIView
+    DestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSetMixin
@@ -14,7 +14,7 @@ from .serializers import (
     FeedbackSerializer,
     FeedbackCreateUpdateSerializer,
     FeedbackAnswerCreateUpdateSerializer,
-    FeedbackAnswerSerializer
+    FeedbackAnswerSerializer,
 )
 from happyhours.permissions import (
     IsUserObjectOwner,
@@ -27,7 +27,7 @@ class FeedbackListView(ListAPIView):
     serializer_class = FeedbackSerializer
 
     def get_queryset(self):
-        establishment = self.request.resolver_match.kwargs['pk']
+        establishment = self.request.resolver_match.kwargs["pk"]
         return Feedback.objects.filter(establishment=establishment)
 
 
@@ -51,8 +51,7 @@ class FeedbackPermissions:
 
 @extend_schema(tags=["Feedbacks"])
 class FeedbackViewSet(
-    FeedbackPermissions, ViewSetMixin, RetrieveAPIView, UpdateAPIView,
-    DestroyAPIView
+    FeedbackPermissions, ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 ):
     queryset = Feedback.objects.all()
 
@@ -71,8 +70,7 @@ class FeedbackAnswerCreate(CreateAPIView):
 
 @extend_schema(tags=["Feedbacks"])
 class FeedbackAnswerViewSet(
-    FeedbackPermissions, ViewSetMixin, RetrieveAPIView, UpdateAPIView,
-    DestroyAPIView
+    FeedbackPermissions, ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 ):
     queryset = FeedbackAnswer.objects.all()
 

@@ -57,7 +57,7 @@ user_profile_schema = extend_schema_serializer(
             value={
                 "name": "Customer",
                 "date_of_birth": "2024-05-07",
-                "avatar": "http://example.com/media/client_avatar/customer.jpg"
+                "avatar": "http://example.com/media/client_avatar/customer.jpg",
             },
             request_only=True,
         ),
@@ -170,20 +170,20 @@ user_profile_admin_schema = extend_schema_serializer(
                 "max_establishments": "0",
                 "is_blocked": "true",
             },
-            response_only=True
+            response_only=True,
         ),
         OpenApiExample(
             name="Client Profile Updating",
             description="Successful Client Profile Update",
             value={
-                    "name": "User",
-                    "role": "client",
-                    "date_of_birth": "2024-05-08",
-                    "phone_number": "996111222333",
-                    "max_establishments": 1,
-                    "is_blocked": "false"
+                "name": "User",
+                "role": "client",
+                "date_of_birth": "2024-05-08",
+                "phone_number": "996111222333",
+                "max_establishments": 1,
+                "is_blocked": "false",
             },
-            request_only=True
+            request_only=True,
         ),
     ]
 )

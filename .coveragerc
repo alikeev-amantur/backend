@@ -10,6 +10,11 @@ omit =
     */config/asgi.py
     */apps/*/apps.py
     */venv/*  # Exclude virtual environment directory if inside the project root
+    */apps/*/schema_definitions.py
+    */apps/*/__init__.py
+    __init__.py
+
+
 
 [report]
 # Ignore lines that are difficult to test so that they do not affect your coverage percentage

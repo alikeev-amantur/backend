@@ -258,6 +258,7 @@ class UserSerializerAdmin(serializers.ModelSerializer):
     """
     Serializer for user profile admin
     """
+
     email = serializers.EmailField(read_only=True)
 
     class Meta:
