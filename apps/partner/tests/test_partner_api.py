@@ -60,7 +60,9 @@ class TestEstablishmentAPI:
         self.client.force_authenticate(user=other_user)
         url = reverse("v1:establishment-detail", kwargs={"pk": establishment.pk})
         new_description = "Unauthorized Update Attempt"
-        response = self.client.patch(url, {"description": new_description}, format="json")
+        response = self.client.patch(
+            url, {"description": new_description}, format="json"
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_create_establishment_invalid_location(self):
@@ -130,8 +132,11 @@ class TestEstablishmentAPI:
         response = self.client.post(url, new_establishment_data, format="json")
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert 'detail' in response.data
-        assert response.data['detail'] == "This partner has reached their maximum number of establishments."
+        assert "detail" in response.data
+        assert (
+            response.data["detail"]
+            == "This partner has reached their maximum number of establishments."
+        )
 
     def test_owner_sees_all_beverages(self):
         owner = UserFactory(role="partner")
@@ -166,4 +171,7 @@ class TestEstablishmentAPI:
         url = reverse("v1:menu-list", kwargs={"pk": establishment.pk})
         response = self.client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        assert "No beverages found for this establishment or establishment does not exist." in response.data['detail']
+        assert (
+            "No beverages found for this establishment or establishment does not exist."
+            in response.data["detail"]
+        )

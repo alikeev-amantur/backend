@@ -31,7 +31,7 @@ urlpatterns = [
         ),
         name="establishment-detail",
     ),
-    path("menu/<int:pk>/", MenuView.as_view({'get': 'list'}), name='menu-list'),
+    path("menu/<int:pk>/", MenuView.as_view({"get": "list"}), name="menu-list"),
     path("establishment/<int:pk>/feedback_list/", FeedbackListView.as_view()),
     path("establishment/<int:pk>/feedback_create/", FeedbackCreateView.as_view()),
 ]

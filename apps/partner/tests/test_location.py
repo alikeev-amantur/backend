@@ -57,34 +57,37 @@ class TestEstablishmentAPI:
 class TestEstablishmentLocationView:
     def setup_method(self):
         self.client = APIClient()
-        self.url = reverse('v1:establishment-list')
-        self.user = UserFactory(role='client')
+        self.url = reverse("v1:establishment-list")
+        self.user = UserFactory(role="client")
         self.establishment1 = EstablishmentFactory(
             location=Point(74.61662756863511, 42.82463980484438, srid=4326),
             happyhours_start=timezone.now().replace(hour=9, minute=0),
-            happyhours_end=timezone.now().replace(hour=11, minute=0)
+            happyhours_end=timezone.now().replace(hour=11, minute=0),
         )
         self.establishment2 = EstablishmentFactory(
             location=Point(10, 20, srid=4326),
             happyhours_start=timezone.now().replace(hour=15, minute=0),
-            happyhours_end=timezone.now().replace(hour=17, minute=0)
+            happyhours_end=timezone.now().replace(hour=17, minute=0),
         )
 
-
     def test_filter_by_distance(self):
-        params = {'latitude': '42.82463980484438', 'longitude': '74.61651510051765', 'near_me': '50000'}
+        params = {
+            "latitude": "42.82463980484438",
+            "longitude": "74.61651510051765",
+            "near_me": "50000",
+        }
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url, params)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
-        assert response.data[0]['id'] == self.establishment1.id
+        assert response.data[0]["id"] == self.establishment1.id
 
     def test_filter_happyhours_active(self):
         current_time = timezone.now().replace(hour=10, minute=0)
-        with mock.patch('django.utils.timezone.localtime', return_value=current_time):
-            params = {'happyhours_active': 'true'}
+        with mock.patch("django.utils.timezone.localtime", return_value=current_time):
+            params = {"happyhours_active": "true"}
             self.client.force_authenticate(self.user)
             response = self.client.get(self.url, params)
             assert response.status_code == status.HTTP_200_OK
             assert len(response.data) == 1
-            assert response.data[0]['id'] == self.establishment1.id
+            assert response.data[0]["id"] == self.establishment1.id

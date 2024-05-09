@@ -17,14 +17,17 @@ urlpatterns = [
                 "put": "update",
                 "delete": "destroy",
             }
-        )
+        ),
     ),
     path("<int:pk>/answer_create/", FeedbackAnswerCreate.as_view()),
-    path("answer/<int:pk>/", FeedbackAnswerViewSet.as_view(
-        {
-            "get": "retrieve",
-            "put": "update",
-            "delete": "destroy",
-        }
-    )),
+    path(
+        "answer/<int:pk>/",
+        FeedbackAnswerViewSet.as_view(
+            {
+                "get": "retrieve",
+                "put": "update",
+                "delete": "destroy",
+            }
+        ),
+    ),
 ]

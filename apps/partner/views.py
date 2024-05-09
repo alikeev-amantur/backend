@@ -125,9 +125,9 @@ class MenuView(viewsets.ReadOnlyModelViewSet):
         user = self.request.user
 
         if user == establishment.owner:
-            return Beverage.objects.filter(
-                establishment=establishment
-            ).select_related("category", "establishment")
+            return Beverage.objects.filter(establishment=establishment).select_related(
+                "category", "establishment"
+            )
 
         return Beverage.objects.filter(
             establishment=establishment, availability_status=True

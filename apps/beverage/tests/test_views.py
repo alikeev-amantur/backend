@@ -116,7 +116,7 @@ def test_filter_beverage_by_category(client, normal_user, beverage):
     .astimezone(pytz.utc)
 )
 def test_filter_beverage_in_happy_hour(
-        client, normal_user, beverage_in_happy_hour, beverage_not_in_happy_hour
+    client, normal_user, beverage_in_happy_hour, beverage_not_in_happy_hour
 ):
     client.force_authenticate(user=normal_user)
     url = reverse("v1:beverage-list") + "?in_happy_hour=true"
@@ -125,7 +125,7 @@ def test_filter_beverage_in_happy_hour(
     print("Filtered data:", response.data)  # Debugging output
     assert len(response.data) == 1, "Should find exactly one beverage in happy hour"
     assert (
-            response.data[0]["id"] == beverage_in_happy_hour.id
+        response.data[0]["id"] == beverage_in_happy_hour.id
     ), "The beverage should be the one in happy hour"
 
 
@@ -136,11 +136,10 @@ def test_filter_beverage_in_happy_hour(
     .astimezone(pytz.utc)
 )
 def test_filter_beverage_not_in_happy_hour(
-        client, normal_user, beverage_in_happy_hour, beverage_not_in_happy_hour
+    client, normal_user, beverage_in_happy_hour, beverage_not_in_happy_hour
 ):
     client.force_authenticate(user=normal_user)
     url = reverse("v1:beverage-list") + "?in_happy_hour=true"
     response = client.get(url)
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 0, "Should find no beverages in happy hour"
-
