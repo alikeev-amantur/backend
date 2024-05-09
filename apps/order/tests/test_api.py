@@ -24,8 +24,8 @@ class TestOrderViews:
         self.beverage = BeverageFactory(establishment=self.establishment)
         self.order = OrderFactory(client=self.user, beverage=self.beverage)
         self.place_order_url = reverse("v1:place-order")
-        self.client_order_history_url = reverse("v1:client-order-history")
-        self.partner_order_history_url = reverse("v1:partner-order-history")
+        self.client_order_history_url = reverse("v1:client-order-history-list")
+        self.partner_order_history_url = reverse("v1:partner-order-history-list")
 
     def test_place_order_permissions(self):
         response = self.client.post(self.place_order_url, {})
