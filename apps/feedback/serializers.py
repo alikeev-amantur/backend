@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from .models import FeedbackAnswer, Feedback
 from apps.partner.models import Establishment
+
+from .models import FeedbackAnswer, Feedback
 
 
 class FeedbackAnswerSerializer(serializers.ModelSerializer):
