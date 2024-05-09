@@ -75,12 +75,6 @@ class OrderHistorySerializer(serializers.ModelSerializer):
     )
     beverage_name = serializers.CharField(source="beverage.name", read_only=True)
 
-    # client_details = serializers.HyperlinkedRelatedField(
-    #     view_name='v1:user-detail',
-    #     read_only=True,
-    #     source='client'
-    # )
-
     class Meta:
         model = Order
-        fields = ["id", "order_date", "establishment_name", "beverage_name"]
+        fields = ["id", "order_date", "establishment_name", "beverage_name", "client"]

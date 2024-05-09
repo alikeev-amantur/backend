@@ -3,9 +3,8 @@ from django.contrib.gis.geos import Point
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.test import APIClient, APIRequestFactory
+from rest_framework.test import APIClient
 from unittest import mock
-from apps.partner.filters import EstablishmentFilter
 from apps.partner.models import Establishment
 from happyhours.factories import EstablishmentFactory, UserFactory
 
