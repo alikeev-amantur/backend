@@ -1,16 +1,14 @@
 from django.urls import path
 
 from .views import (
-    FeedbackListView,
-    FeedbackCreateView,
     FeedbackViewSet,
     FeedbackAnswerCreate,
-    FeedbackAnswerViewSet,
+    FeedbackAnswerViewSet, FeedbackListView, FeedbackCreateView,
 )
 
 urlpatterns = [
     path(
-        "<int:pk>/",
+        "feedbacks/<int:pk>/",
         FeedbackViewSet.as_view(
             {
                 "get": "retrieve",
@@ -19,9 +17,9 @@ urlpatterns = [
             }
         ),
     ),
-    path("<int:pk>/answer_create/", FeedbackAnswerCreate.as_view()),
+    path("answers/create/", FeedbackAnswerCreate.as_view()),
     path(
-        "answer/<int:pk>/",
+        "answers/<int:pk>/",
         FeedbackAnswerViewSet.as_view(
             {
                 "get": "retrieve",
@@ -30,4 +28,6 @@ urlpatterns = [
             }
         ),
     ),
+    path("feedbacks/list/", FeedbackListView.as_view()),
+    path("feedbacks/create/", FeedbackCreateView.as_view()),
 ]
