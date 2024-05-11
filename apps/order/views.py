@@ -6,6 +6,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from apps.beverage.models import Beverage
 from apps.order.models import Order
 from apps.order.serializers import OrderSerializer, OrderHistorySerializer
+from apps.order.utils import send_order_notification
 from apps.partner.models import Establishment
 from happyhours.permissions import IsPartnerUser
 
@@ -26,7 +27,8 @@ class PlaceOrderView(generics.CreateAPIView):
     def perform_create(self, serializer):
         beverage_id = serializer.validated_data.get("beverage").id
         beverage = Beverage.objects.get(id=beverage_id)
-        serializer.save(client=self.request.user, establishment=beverage.establishment)
+        order = serializer.save(client=self.request.user, establishment=beverage.establishment)
+        send_order_notification(order)
 
 
 @extend_schema(tags=["Orders"])
