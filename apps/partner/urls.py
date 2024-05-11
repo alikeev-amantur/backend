@@ -1,22 +1,16 @@
 from django.urls import path
 
 from .views import (
-    EstablishmentListView,
-    EstablishmentCreateView,
+    EstablishmentListCreateView,
     EstablishmentViewSet,
     MenuView,
 )
 
 urlpatterns = [
     path(
-        "establishment/list/",
-        EstablishmentListView.as_view(),
-        name="establishment-list",
-    ),
-    path(
-        "establishment/create/",
-        EstablishmentCreateView.as_view(),
-        name="establishment-create",
+        "establishments/",
+        EstablishmentListCreateView.as_view(),
+        name="establishments",
     ),
     path(
         "establishment/<int:pk>/",

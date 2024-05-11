@@ -32,7 +32,7 @@ class TestEstablishmentAPI:
 
     def test_create_establishment_with_valid_location(self):
         response = self.client.post(
-            "/api/v1/partner/establishment/create/",
+            "/api/v1/partner/establishments/",
             data=self.establishment_data,
             format="json",
         )
@@ -45,7 +45,7 @@ class TestEstablishmentAPI:
         invalid_data["location"] = {"type": "Point", "coordinates": [190.0, 95.0]}
 
         response = self.client.post(
-            "/api/v1/partner/establishment/create/", data=invalid_data, format="json"
+            "/api/v1/partner/establishments/", data=invalid_data, format="json"
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "location" in response.data
@@ -56,7 +56,7 @@ class TestEstablishmentAPI:
 class TestEstablishmentLocationView:
     def setup_method(self):
         self.client = APIClient()
-        self.url = reverse("v1:establishment-list")
+        self.url = reverse("v1:establishments")
         self.user = UserFactory(role="client")
         self.establishment1 = EstablishmentFactory(
             location=Point(74.61662756863511, 42.82463980484438, srid=4326),
