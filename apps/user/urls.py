@@ -26,15 +26,26 @@ TokenRefreshView = extend_schema(tags=["Users"])(TokenRefreshView)
 urlpatterns = [
     path("token/", TokenObtainView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("token/admin/", AdminLoginView.as_view(), name="admin_login"),
-    path("client_register/", ClientRegisterView.as_view(), name="client-register"),
-    path("client_list/", ClientListView.as_view(), name="client-list"),
-    path("partner_list", PartnerListView.as_view(), name="partner-list"),
-    path("block_user/", BlockUserView.as_view(), name="block-user"),
     path("logout/", TokenBlacklistView.as_view(), name="logout"),
-    path("create_partner/", CreatePartner.as_view(), name="create-partner"),
+    path("admin/token/", AdminLoginView.as_view(), name="admin_login"),
     path(
-        "",
+        "admin/profiles/<int:pk>/",
+        UserViewSetAdmin.as_view(
+            {
+                "get": "retrieve",
+                "put": "update",
+                "delete": "destroy",
+            }
+        ),
+        name="user-profile-admin",
+    ),
+    path("admin/block_user/", BlockUserView.as_view(), name="block-user"),
+    path("partners/list", PartnerListView.as_view(), name="partner-list"),
+    path("partners/create/", CreatePartner.as_view(), name="create-partner"),
+    path("clients/register/", ClientRegisterView.as_view(), name="client-register"),
+    path("clients/list/", ClientListView.as_view(), name="client-list"),
+    path(
+        "clients/profile/",
         UserViewSet.as_view(
             {
                 "get": "retrieve",
@@ -45,23 +56,12 @@ urlpatterns = [
         name="user-profile",
     ),
     path(
-        "profiles_admin/<int:pk>/",
-        UserViewSetAdmin.as_view(
-            {
-                "get": "retrieve",
-                "put": "update",
-                "delete": "destroy",
-            }
-        ),
-        name="user-profile-admin",
-    ),
-    path(
-        "password_forgot/",
+        "clients/password_forgot/",
         ClientPasswordForgotPageView.as_view(),
         name="password-forgot-page",
     ),
-    path("password_reset/", ClientPasswordResetView.as_view(), name="password-reset"),
+    path("cleints/password_reset/", ClientPasswordResetView.as_view(), name="password-reset"),
     path(
-        "password_change/", ClientPasswordChangeView.as_view(), name="password-change"
+        "clients/password_change/", ClientPasswordChangeView.as_view(), name="password-change"
     ),
 ]
