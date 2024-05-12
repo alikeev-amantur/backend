@@ -13,7 +13,7 @@ class TestEstablishmentAPI:
     def test_create_establishment_api(self):
         user = UserFactory(role="partner")
         self.client.force_authenticate(user=user)
-        url = reverse("v1:establishment-create")
+        url = reverse("v1:establishments")
         data = {
             "name": "New Establishment",
             "description": "A new sample establishment",
@@ -68,7 +68,7 @@ class TestEstablishmentAPI:
     def test_create_establishment_invalid_location(self):
         user = UserFactory(role="partner")
         self.client.force_authenticate(user=user)
-        url = reverse("v1:establishment-create")
+        url = reverse("v1:establishments")
         invalid_location_data = {
             "name": "Faulty Location Establishment",
             "description": "Has an invalid location format",
@@ -81,7 +81,7 @@ class TestEstablishmentAPI:
     def test_create_establishment_missing_required_fields(self):
         user = UserFactory(role="partner")
         self.client.force_authenticate(user=user)
-        url = reverse("v1:establishment-create")
+        url = reverse("v1:establishments")
         incomplete_data = {
             "location": {"type": "Point", "coordinates": [10, 20]},
             "description": None,
@@ -98,7 +98,7 @@ class TestEstablishmentAPI:
         EstablishmentFactory(owner=other_user)
 
         self.client.force_authenticate(user=partner_user)
-        url = reverse("v1:establishment-list")
+        url = reverse("v1:establishments")
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 2
@@ -108,7 +108,7 @@ class TestEstablishmentAPI:
         EstablishmentFactory.create_batch(3)
 
         self.client.force_authenticate(user=non_partner_user)
-        url = reverse("v1:establishment-list")
+        url = reverse("v1:establishments")
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 3
@@ -121,7 +121,7 @@ class TestEstablishmentAPI:
             EstablishmentFactory(owner=partner_user)
 
         self.client.force_authenticate(user=partner_user)
-        url = reverse("v1:establishment-create")
+        url = reverse("v1:establishments")
         new_establishment_data = {
             "name": "Extra Establishment",
             "description": "Should fail to create this one",

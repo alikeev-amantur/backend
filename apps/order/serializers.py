@@ -10,7 +10,7 @@ from .schema_definitions import order_serializer_schema, order_history_serialize
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ["id", "establishment", "beverage", "client", "order_date"]
+        fields = ["id", "establishment", "beverage", "client", "order_date", "status"]
         read_only_fields = ["client", "establishment"]
 
     def get_default_establishment(self, beverage):
@@ -20,9 +20,9 @@ class OrderSerializer(serializers.ModelSerializer):
     def validate_order_happyhours(self, establishment):
         current_time = timezone.localtime().time()
         if not (
-            establishment.happyhours_start
-            <= current_time
-            <= establishment.happyhours_end
+                establishment.happyhours_start
+                <= current_time
+                <= establishment.happyhours_end
         ):
             raise serializers.ValidationError(
                 "Order can only be placed during the establishment's designated happy hours."
@@ -77,4 +77,4 @@ class OrderHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["id", "order_date", "establishment_name", "beverage_name", "client"]
+        fields = ["id", "order_date", "establishment_name", "beverage_name", "client", "status"]

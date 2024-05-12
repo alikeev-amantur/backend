@@ -24,4 +24,4 @@ RUN pip install --upgrade pip \
 COPY . .
 
 
-CMD ["gunicorn", "--workers=3", "--bind", "0.0.0.0:8000", "happyhours.wsgi:application"]
+CMD ["uvicorn", "happyhours.asgi:application", "--host", "0.0.0.0", "--port", "8000"]

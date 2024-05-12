@@ -6,6 +6,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from apps.beverage.models import Beverage
 from apps.order.models import Order
 from apps.order.serializers import OrderSerializer, OrderHistorySerializer
+from apps.order.utils import send_order_notification
 from apps.partner.models import Establishment
 from happyhours.permissions import IsPartnerUser
 
