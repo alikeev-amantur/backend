@@ -13,7 +13,7 @@ urlpatterns = [
         name="establishments",
     ),
     path(
-        "establishment/<int:pk>/",
+        "establishments/<int:pk>/",
         EstablishmentViewSet.as_view(
             {
                 "get": "retrieve",
