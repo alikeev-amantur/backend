@@ -22,8 +22,9 @@ async def test_order_consumer():
     token = AccessToken.for_user(user)
 
     communicator = WebsocketCommunicator(
-        application, f"/ws/orders/?token={str(token)}"
+        application, f"/ws/orders/?token={token}"
     )
+
     connected, subprotocol = await communicator.connect()
     assert connected, "Connection to websocket failed"
 
@@ -50,7 +51,7 @@ async def test_order_consumer():
     # Disconnect
     await communicator.disconnect()
 
+
 @pytest.fixture
 def user():
     return UserFactory()
-

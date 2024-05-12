@@ -3,20 +3,19 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import AccessToken, TokenError
-
+import logging
 from .models import Order
 
 from ..partner.models import Establishment
 
-
+logger = logging.getLogger(__name__)
 class OrderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        token = self.scope['query_string'].decode().split('token=')[1]
-        user = await self.get_user_from_token(token)
-        if user is not None and user.role == "partner":
-            self.user = user
+        logger.debug("Attempting to connect.")
+        if self.scope['user'].is_authenticated and self.scope['user'].role == "partner":
+            logger.debug(f"WebSocket connection accepted: {self.scope['user']}")
             self.groups = []
-            establishments = await self.get_user_establishments(user)
+            establishments = await self.get_user_establishments(self.scope['user'])
             for establishment in establishments:
                 group_name = f'order_{establishment.id}'
                 self.groups.append(group_name)
@@ -24,6 +23,7 @@ class OrderConsumer(AsyncWebsocketConsumer):
             await self.accept()
         else:
             await self.close()
+            logger.debug("WebSocket connection refused - user not authenticated.")
 
     async def disconnect(self, close_code):
         for group in self.groups:
@@ -60,7 +60,8 @@ class OrderConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def update_order_status(self, order_id, status):
         try:
-            order = Order.objects.select_related('establishment').get(id=order_id, establishment__owner=self.user)
+            order = Order.objects.select_related('establishment').get(id=order_id,
+                                                                      establishment__owner=self.scope['user'])
             order.status = status
             order.save()
             return True
