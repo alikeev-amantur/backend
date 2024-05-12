@@ -27,8 +27,7 @@ class PlaceOrderView(generics.CreateAPIView):
     def perform_create(self, serializer):
         beverage_id = serializer.validated_data.get("beverage").id
         beverage = Beverage.objects.get(id=beverage_id)
-        order = serializer.save(client=self.request.user, establishment=beverage.establishment)
-        send_order_notification(order)
+        serializer.save(client=self.request.user, establishment=beverage.establishment)
 
 
 @extend_schema(tags=["Orders"])

@@ -7,15 +7,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-def get_user_from_token(token):
-    try:
-        decoded_data = AccessToken(token)
-        user_id = decoded_data['user_id']
-        return User.objects.get(id=user_id)
-    except Exception as e:
-        return AnonymousUser()
-
-def send_order_notification(order):
+async def send_order_notification(order):
     channel_layer = get_channel_layer()
     message = {
         'type': 'order_message',
@@ -25,4 +17,4 @@ def send_order_notification(order):
         'details': f"New order {order.id} for {order.beverage.name}"
     }
     group_name = f'order_{order.establishment_id}'
-    async_to_sync(channel_layer.group_send)(group_name, message)
+    await channel_layer.group_send(group_name, message)
