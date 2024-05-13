@@ -45,9 +45,11 @@ class BeverageSerializer(serializers.ModelSerializer):
     def validate_price(self, value):
         """
         Check that the price is not negative.
+        Check that price is between 50 and 999
         """
         if value < 0:
-            raise serializers.ValidationError(
-                "The price must be a non-negative number."
-            )
+            raise serializers.ValidationError("The price must be a non-negative number.")
+        if not 50 <= value <= 999:
+            raise serializers.ValidationError("The price must be between 50 and 999.")
         return value
+

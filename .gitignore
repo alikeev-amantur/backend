@@ -169,3 +169,4 @@ qr_codes/
 happyhours.pem
 local-docker/
 config/nginx/def.conf
+asgi-local.py

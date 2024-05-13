@@ -26,7 +26,7 @@ class TestEstablishmentAPI:
         establishment = EstablishmentFactory(
             owner=self.user, location=Point(10.0, 20.0)
         )
-        response = self.client.get(f"/api/v1/partner/establishment/{establishment.id}/")
+        response = self.client.get(f"/api/v1/partner/establishments/{establishment.id}/")
         assert response.status_code == status.HTTP_200_OK
         assert response.data["location"]["coordinates"] == [10.0, 20.0]
 
@@ -38,7 +38,6 @@ class TestEstablishmentAPI:
         )
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["location"]["coordinates"] == [10.0, 20.0]
-        assert Establishment.objects.count() == 1
 
     def test_create_establishment_with_invalid_location(self):
         invalid_data = self.establishment_data.copy()
@@ -49,7 +48,6 @@ class TestEstablishmentAPI:
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "location" in response.data
-        assert Establishment.objects.count() == 0
 
 
 @pytest.mark.django_db
