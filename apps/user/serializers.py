@@ -240,7 +240,6 @@ class PartnerProfileSerializer(serializers.ModelSerializer):
     """
 
     email = serializers.EmailField(read_only=True)
-    max_establishments = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = User
@@ -248,6 +247,28 @@ class PartnerProfileSerializer(serializers.ModelSerializer):
             "id",
             "email",
             "name",
+            "phone_number",
+        )
+
+
+class PartnerProfileAdminSerializer(serializers.ModelSerializer):
+    """
+    Only for partner profile admin
+    """
+
+    email = serializers.EmailField(read_only=True)
+    name = serializers.CharField(read_only=True)
+    role = serializers.CharField(read_only=True)
+    phone_number = serializers.CharField(read_only=True)
+    max_establishments = serializers.IntegerField(max_value=20)
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "name",
+            "role",
             "phone_number",
             "max_establishments",
         )

@@ -40,6 +40,7 @@ from .serializers import (
     BlockUserSerializer,
     PartnerProfileSerializer,
     UserSerializerAdmin,
+    PartnerProfileAdminSerializer,
 )
 from .utils import (
     generate_reset_code,
@@ -193,16 +194,14 @@ class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
 
 
 @extend_schema(tags=["Users"])
-class UserViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
+class PartnerViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     """
-    User's profile CRUD for admin
+    Partner's profile CRUD for admin
 
     ### Fields:
     - `name`: Name of the User
     - `email`: Email of the User
     - `role`: Role of the User
-    - `date_of_birth`: Birth of the User
-    - `avatar`: Image of profile
     - `phone_number`: Phone number of the User
     - `max_establishments`: Max establishments of the User
     - `is_blocked`: Blocked status of the User
@@ -212,9 +211,9 @@ class UserViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIV
 
     """
 
-    queryset = User.objects.all()
+    queryset = User.objects.filter(role="partner")
     permission_classes = [IsAdmin]
-    serializer_class = UserSerializerAdmin
+    serializer_class = PartnerProfileAdminSerializer
 
 
 @extend_schema(tags=["Users"])
