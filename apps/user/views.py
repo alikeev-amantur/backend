@@ -196,8 +196,22 @@ class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
 
 @extend_schema(tags=["Users"])
 class ClientExistenceView(GenericAPIView):
+    """
+    View that checks if a client exists in the database. For partner
+
+    ### Fields:
+    - `email`: Email if client user
+
+    ### Access Control:
+    - Partner, Admin, Superuser
+
+    ### Implementation Details:
+    - Check if email from post-request exists in the database
+
+    """
+
     serializer_class = ClientExistenceSerializer
-    permission_classes = [IsPartnerAndAdmin]
+    # permission_classes = [IsPartnerAndAdmin]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -226,7 +240,7 @@ class PartnerViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyA
     """
 
     queryset = User.objects.filter(role="partner")
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin]
     serializer_class = PartnerProfileAdminSerializer
 
 

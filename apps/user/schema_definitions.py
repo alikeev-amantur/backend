@@ -138,6 +138,47 @@ user_profile_schema = extend_schema_serializer(
     ]
 )
 
+partner_profile_schema = extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            name="Partner Profile Retrieval",
+            description="Successful Partner Profile Retrieve",
+            value={
+                "id": 1,
+                "email": "partner@example.com",
+                "name": "Partner",
+                "role": "partner",
+                "phone_number": "996111222333",
+                "max_establishments": 1,
+                "is_blocked": False,
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Updating",
+            description="Successful Partner Profile Update",
+            value={
+                "max_establishments": "3",
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Updating",
+            description="Successful Partner Profile Update",
+            value={
+                "id": 1,
+                "email": "partner@example.com",
+                "name": "Partner",
+                "role": "partner",
+                "phone_number": "996111222333",
+                "max_establishments": 1,
+                "is_blocked": False,
+            },
+            response_only=True,
+        ),
+    ]
+)
+
 user_profile_admin_schema = extend_schema_serializer(
     examples=[
         OpenApiExample(
@@ -184,6 +225,26 @@ user_profile_admin_schema = extend_schema_serializer(
                 "is_blocked": "false",
             },
             request_only=True,
+        ),
+    ]
+)
+
+client_existence_schema = extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            name="Client Existence Success",
+            description="Client Existence Success",
+            value="Exists"
+            ,
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Client Existence Error",
+            description="Client Existence Error",
+            value={
+                "detail": "No User matches the given query."
+            },
+            response_only=True,
         ),
     ]
 )

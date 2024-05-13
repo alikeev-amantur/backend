@@ -16,6 +16,8 @@ from apps.user.schema_definitions import (
     user_password_change_schema,
     client_list_schema,
     partner_list_schema,
+    client_existence_schema,
+    partner_profile_schema,
 )
 
 User = get_user_model()
@@ -214,6 +216,7 @@ class ClientPasswordChangeSerializer(serializers.ModelSerializer):
         return attrs
 
 
+@client_existence_schema
 class ClientExistenceSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True, max_length=255)
 
@@ -260,6 +263,7 @@ class PartnerProfileSerializer(serializers.ModelSerializer):
         )
 
 
+@partner_profile_schema
 class PartnerProfileAdminSerializer(serializers.ModelSerializer):
     """
     Only for partner profile admin
@@ -270,6 +274,7 @@ class PartnerProfileAdminSerializer(serializers.ModelSerializer):
     role = serializers.CharField(read_only=True)
     phone_number = serializers.CharField(read_only=True)
     max_establishments = serializers.IntegerField(max_value=20)
+    is_blocked = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
@@ -280,6 +285,7 @@ class PartnerProfileAdminSerializer(serializers.ModelSerializer):
             "role",
             "phone_number",
             "max_establishments",
+            "is_blocked",
         )
 
 
