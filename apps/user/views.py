@@ -41,6 +41,7 @@ from .serializers import (
     PartnerProfileSerializer,
     UserSerializerAdmin,
     PartnerProfileAdminSerializer,
+    ClientExistenceSerializer,
 )
 from .utils import (
     generate_reset_code,
@@ -191,6 +192,19 @@ class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
             if self.request.user.role == "partner":
                 return PartnerProfileSerializer
         return UserSerializer
+
+
+@extend_schema(tags=["Users"])
+class ClientExistenceView(GenericAPIView):
+    serializer_class = ClientExistenceSerializer
+    permission_classes = [IsPartnerAndAdmin]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = get_object_or_404(User, email=serializer.validated_data["email"])
+        if user:
+            return Response("Exists", status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=["Users"])

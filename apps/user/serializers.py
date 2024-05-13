@@ -214,6 +214,15 @@ class ClientPasswordChangeSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class ClientExistenceSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True, max_length=255)
+
+    class Meta:
+        fields = (
+            "email",
+        )
+
+
 @user_profile_schema
 class UserSerializer(serializers.ModelSerializer):
     """
