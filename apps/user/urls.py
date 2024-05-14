@@ -18,7 +18,7 @@ from .views import (
     PartnerListView,
     BlockUserView,
     PartnerViewSetAdmin,
-    ClientExistenceView,
+    ClientViewSetAdmin,
 )
 
 TokenBlacklistView = extend_schema(tags=["Users"])(TokenBlacklistView)
@@ -53,10 +53,20 @@ urlpatterns = [
         ),
         name="partners-profile-admin",
     ),
+    path(
+        "admin/clients/<int:pk>/",
+        ClientViewSetAdmin.as_view(
+            {
+                "get": "retrieve",
+                "put": "update",
+                "delete": "destroy",
+            }
+        ),
+        name="clients-profile-admin",
+    ),
     path("admin/partners/list/", PartnerListView.as_view(), name="partner-list"),
     path("admin/partners/create/", CreatePartner.as_view(), name="create-partner"),
     path("admin/clients/list/", ClientListView.as_view(), name="client-list"),
-    path("partner/clients/existence/", ClientExistenceView.as_view(), name="client-existence"),
     path("client/register/", ClientRegisterView.as_view(), name="client-register"),
     path(
         "client/password/forgot/",
