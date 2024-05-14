@@ -211,7 +211,7 @@ class ClientExistenceView(GenericAPIView):
     """
 
     serializer_class = ClientExistenceSerializer
-    # permission_classes = [IsPartnerAndAdmin]
+    permission_classes = [IsPartnerAndAdmin]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
