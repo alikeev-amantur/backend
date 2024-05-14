@@ -7,7 +7,7 @@ from apps.user.schema_definitions import (
     client_registration_schema,
     partner_creation_schema,
     user_profile_schema,
-    user_profile_admin_schema,
+    client_profile_retrieval_schema,
     client_partner_login,
     admin_login_schema,
     admin_block_user_schema,
@@ -217,12 +217,18 @@ class ClientPasswordChangeSerializer(serializers.ModelSerializer):
 
 
 @client_existence_schema
-class ClientExistenceSerializer(serializers.Serializer):
+class ClientExistenceSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, max_length=255)
 
     class Meta:
+        model = User
         fields = (
+            "id",
             "email",
+            "name",
+            "date_of_birth",
+            "avatar",
+            "is_blocked",
         )
 
 
@@ -289,10 +295,10 @@ class PartnerProfileAdminSerializer(serializers.ModelSerializer):
         )
 
 
-@user_profile_admin_schema
-class UserSerializerAdmin(serializers.ModelSerializer):
+@client_profile_retrieval_schema
+class ClientSerializer(serializers.ModelSerializer):
     """
-    Serializer for user profile admin
+    Serializer for user profile admin, partner
     """
 
     email = serializers.EmailField(read_only=True)
@@ -307,7 +313,6 @@ class UserSerializerAdmin(serializers.ModelSerializer):
             "date_of_birth",
             "avatar",
             "phone_number",
-            "max_establishments",
             "is_blocked",
         )
 

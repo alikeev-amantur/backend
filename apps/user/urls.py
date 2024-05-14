@@ -17,15 +17,16 @@ from .views import (
     AdminLoginView,
     PartnerListView,
     BlockUserView,
-    PartnerViewSetAdmin, ClientExistenceView,
+    PartnerViewSetAdmin,
+    ClientExistenceView,
 )
 
 TokenBlacklistView = extend_schema(tags=["Users"])(TokenBlacklistView)
 TokenRefreshView = extend_schema(tags=["Users"])(TokenRefreshView)
 
 urlpatterns = [
-    path("auth/token/", TokenObtainView.as_view(), name="token_obtain_pair"),
-    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("auth/token/", TokenObtainView.as_view(), name="token-obtain-pair"),
+    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("auth/logout/", TokenBlacklistView.as_view(), name="logout"),
     path(
         "users/profile/",
@@ -38,9 +39,9 @@ urlpatterns = [
         ),
         name="user-profile",
     ),
-    path("admin/auth/token/", AdminLoginView.as_view(), name="admin_login"),
+    path("admin/auth/token/", AdminLoginView.as_view(), name="login-admin"),
     path("admin/users/block/", BlockUserView.as_view(),
-         name="block-user"),
+         name="block-user-admin"),
     path(
         "admin/partners/<int:pk>/",
         PartnerViewSetAdmin.as_view(
@@ -50,7 +51,7 @@ urlpatterns = [
                 "delete": "destroy",
             }
         ),
-        name="user-profile-admin",
+        name="partners-profile-admin",
     ),
     path("admin/partners/list/", PartnerListView.as_view(), name="partner-list"),
     path("admin/partners/create/", CreatePartner.as_view(), name="create-partner"),

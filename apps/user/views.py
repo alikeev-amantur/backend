@@ -39,7 +39,7 @@ from .serializers import (
     PartnerListSerializer,
     BlockUserSerializer,
     PartnerProfileSerializer,
-    UserSerializerAdmin,
+    ClientSerializer,
     PartnerProfileAdminSerializer,
     ClientExistenceSerializer,
 )
@@ -216,9 +216,11 @@ class ClientExistenceView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = get_object_or_404(User, email=serializer.validated_data["email"])
-        if user:
-            return Response("Exists", status=status.HTTP_200_OK)
+        email = serializer.validated_data['email']
+        user = get_object_or_404(User, email=email)
+        return Response(
+            ClientExistenceSerializer(user).data, status=status.HTTP_200_OK
+        )
 
 
 @extend_schema(tags=["Users"])
@@ -240,8 +242,31 @@ class PartnerViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyA
     """
 
     queryset = User.objects.filter(role="partner")
-    # permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin]
     serializer_class = PartnerProfileAdminSerializer
+
+
+@extend_schema(tags=["Users"])
+class ClientRetrieveView(RetrieveAPIView):
+    """
+    Client's profile
+
+    ### Fields:
+    - `name`: Name of the Client
+    - `email`: Email of the Client
+    - `role`: Role of the Client
+    - `phone_number`: Phone number of the Client
+    - `avatar`: Avatar of the Client
+    - `is_blocked`: Blocked status of the Client
+
+    ### Access Control:
+    - Partner, Admin, Superuser
+
+    """
+
+    queryset = User.objects.filter(role="client")
+    permission_classes = [IsPartnerAndAdmin]
+    serializer_class = ClientSerializer
 
 
 @extend_schema(tags=["Users"])
