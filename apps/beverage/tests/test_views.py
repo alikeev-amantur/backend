@@ -82,7 +82,7 @@ def test_create_beverage_as_partner(client, partner_user, partner_establishment)
     url = reverse("v1:beverage-list")
     data = {
         "name": "New Beverage",
-        "price": 10.99,
+        "price": 100.99,
         "description": "Some description",
         "establishment": partner_establishment.id,
         "category": CategoryFactory().id,

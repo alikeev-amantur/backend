@@ -1,69 +1,53 @@
-from django.utils import timezone
+from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
+
+
 from .models import Order
-import datetime
 
 from .schema_definitions import order_serializer_schema, order_history_serializer_schema
+from .utils import validate_order_happyhours, validate_order_per_hour, validate_order_per_day
+
+User = get_user_model()
 
 
 @order_serializer_schema
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ["id", "establishment", "beverage", "client", "order_date", "status"]
-        read_only_fields = ["client", "establishment"]
-
-    def get_default_establishment(self, beverage):
-        # Get the establishment associated with the beverage
-        return beverage.establishment
-
-    def validate_order_happyhours(self, establishment):
-        current_time = timezone.localtime().time()
-        if not (
-                establishment.happyhours_start
-                <= current_time
-                <= establishment.happyhours_end
-        ):
-            raise serializers.ValidationError(
-                "Order can only be placed during the establishment's designated happy hours."
-            )
-
-    def validate_order_per_hour(self, client):
-        # Get the current time and calculate one hour ago
-        one_hour_ago = timezone.localtime() - datetime.timedelta(hours=1)
-
-        # Check if there are any existing orders from this client in the last hour
-        if Order.objects.filter(client=client, order_date__gte=one_hour_ago).exists():
-            raise serializers.ValidationError("You can only place one order per hour.")
-
-    def validate_order_per_day(self, client, establishment):
-        # Ensure one order per day per establishment
-        current_time = timezone.localtime()
-        today_min = datetime.datetime.combine(current_time.date(), datetime.time.min)
-        today_max = datetime.datetime.combine(current_time.date(), datetime.time.max)
-
-        existing_order_same_day = Order.objects.filter(
-            client=client,
-            establishment=establishment,
-            order_date__range=(today_min, today_max),
-        ).exists()
-
-        if existing_order_same_day:
-            raise serializers.ValidationError(
-                "You can only place one order per establishment per day."
-            )
+        fields = ['id', 'client', 'beverage', 'establishment', 'order_date']
+        read_only_fields = ['client', 'establishment']
 
     def validate(self, data):
-        # Automate providing client and establishment
-        data["client"] = self.context["request"].user
-        data["establishment"] = self.get_default_establishment(data["beverage"])
+        establishment = data.get('beverage').establishment
+        client = self.context['request'].user
+        validate_order_happyhours(establishment)
+        validate_order_per_hour(client)
+        validate_order_per_day(client, establishment)
 
-        client = data["client"]
-        establishment = data["establishment"]
+        return data
 
-        self.validate_order_happyhours(establishment)
-        self.validate_order_per_day(client, establishment)
-        self.validate_order_per_hour(client)
+
+class OwnerOrderSerializer(OrderSerializer):
+    client_email = serializers.EmailField(write_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'client', 'beverage', 'establishment', 'order_date', 'client_email']
+        read_only_fields = ['client', 'establishment']
+
+    def validate(self, data):
+        client_email = data.pop('client_email', None)
+        try:
+            client = User.objects.get(email=client_email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'client_email': 'No user found with this email address.'})
+        data['client'] = client
+
+        establishment = data.get('beverage').establishment
+        validate_order_happyhours(establishment)
+        validate_order_per_hour(client)
+        validate_order_per_day(client, establishment)
 
         return data
 

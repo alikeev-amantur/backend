@@ -1,5 +1,6 @@
 from django.db import models
 
+from apps.beverage.managers import BeverageManager
 from apps.partner.models import Establishment
 
 
@@ -26,6 +27,7 @@ class Beverage(models.Model):
     establishment = models.ForeignKey(
         Establishment, on_delete=models.CASCADE, related_name="beverages"
     )
+    objects = BeverageManager()
 
     def __str__(self):
         return self.name

@@ -1,14 +1,18 @@
+from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema
-from rest_framework import generics
+from rest_framework import generics, views, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from apps.beverage.models import Beverage
 from apps.order.models import Order
-from apps.order.serializers import OrderSerializer, OrderHistorySerializer
-from apps.order.utils import send_order_notification
+from apps.order.serializers import OrderSerializer, OrderHistorySerializer, OwnerOrderSerializer
 from apps.partner.models import Establishment
 from happyhours.permissions import IsPartnerUser
+
+User = get_user_model()
 
 
 @extend_schema(tags=["Orders"], responses={201: OrderSerializer, 400: OrderSerializer})
@@ -64,3 +68,22 @@ class PartnerOrderHistoryView(ReadOnlyModelViewSet):
         """
         owned_establishments = Establishment.objects.filter(owner=self.request.user)
         return Order.objects.filter(establishment__in=owned_establishments)
+
+
+@extend_schema(tags=["Orders"])
+class PartnerPlaceOrderView(generics.CreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OwnerOrderSerializer
+    permission_classes = [IsPartnerUser]
+
+    def perform_create(self, serializer):
+        beverage = serializer.validated_data['beverage']
+        establishment = beverage.establishment
+        client = serializer.validated_data['client']
+
+        if self.request.user != establishment.owner:
+            raise PermissionDenied({
+                'error': 'You are not the owner of the establishment linked to this beverage.'
+            })
+
+        serializer.save(establishment=establishment, client=client)
