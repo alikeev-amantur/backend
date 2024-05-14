@@ -17,24 +17,19 @@ from .views import (
     AdminLoginView,
     PartnerListView,
     BlockUserView,
-    UserViewSetAdmin,
+    PartnerViewSetAdmin,
+    ClientExistenceView,
 )
 
 TokenBlacklistView = extend_schema(tags=["Users"])(TokenBlacklistView)
 TokenRefreshView = extend_schema(tags=["Users"])(TokenRefreshView)
 
 urlpatterns = [
-    path("token/", TokenObtainView.as_view(), name="token_obtain_pair"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("token/admin/", AdminLoginView.as_view(), name="admin_login"),
-    path("client_register/", ClientRegisterView.as_view(), name="client-register"),
-    path("client_list/", ClientListView.as_view(), name="client-list"),
-    path("partner_list", PartnerListView.as_view(), name="partner-list"),
-    path("block_user/", BlockUserView.as_view(), name="block-user"),
-    path("logout/", TokenBlacklistView.as_view(), name="logout"),
-    path("create_partner/", CreatePartner.as_view(), name="create-partner"),
+    path("auth/token/", TokenObtainView.as_view(), name="token-obtain-pair"),
+    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    path("auth/logout/", TokenBlacklistView.as_view(), name="logout"),
     path(
-        "",
+        "users/profile/",
         UserViewSet.as_view(
             {
                 "get": "retrieve",
@@ -44,24 +39,32 @@ urlpatterns = [
         ),
         name="user-profile",
     ),
+    path("admin/auth/token/", AdminLoginView.as_view(), name="login-admin"),
+    path("admin/users/block/", BlockUserView.as_view(),
+         name="block-user-admin"),
     path(
-        "profiles_admin/<int:pk>/",
-        UserViewSetAdmin.as_view(
+        "admin/partners/<int:pk>/",
+        PartnerViewSetAdmin.as_view(
             {
                 "get": "retrieve",
                 "put": "update",
                 "delete": "destroy",
             }
         ),
-        name="user-profile-admin",
+        name="partners-profile-admin",
     ),
+    path("admin/partners/list/", PartnerListView.as_view(), name="partner-list"),
+    path("admin/partners/create/", CreatePartner.as_view(), name="create-partner"),
+    path("admin/clients/list/", ClientListView.as_view(), name="client-list"),
+    path("partner/clients/existence/", ClientExistenceView.as_view(), name="client-existence"),
+    path("client/register/", ClientRegisterView.as_view(), name="client-register"),
     path(
-        "password_forgot/",
+        "client/password/forgot/",
         ClientPasswordForgotPageView.as_view(),
         name="password-forgot-page",
     ),
-    path("password_reset/", ClientPasswordResetView.as_view(), name="password-reset"),
+    path("client/password/reset/", ClientPasswordResetView.as_view(), name="password-reset"),
     path(
-        "password_change/", ClientPasswordChangeView.as_view(), name="password-change"
+        "client/password/change/", ClientPasswordChangeView.as_view(), name="password-change"
     ),
 ]

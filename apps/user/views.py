@@ -39,7 +39,9 @@ from .serializers import (
     PartnerListSerializer,
     BlockUserSerializer,
     PartnerProfileSerializer,
-    UserSerializerAdmin,
+    ClientSerializer,
+    PartnerProfileAdminSerializer,
+    ClientExistenceSerializer,
 )
 from .utils import (
     generate_reset_code,
@@ -193,16 +195,43 @@ class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
 
 
 @extend_schema(tags=["Users"])
-class UserViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
+class ClientExistenceView(GenericAPIView):
     """
-    User's profile CRUD for admin
+    View that checks if a client exists in the database. For partner
+
+    ### Fields:
+    - `email`: Email if client user
+
+    ### Access Control:
+    - Partner, Admin, Superuser
+
+    ### Implementation Details:
+    - Check if email from post-request exists in the database
+
+    """
+
+    serializer_class = ClientExistenceSerializer
+    # permission_classes = [IsPartnerAndAdmin]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        user = get_object_or_404(User, email=email)
+        return Response(
+            ClientExistenceSerializer(user).data, status=status.HTTP_200_OK
+        )
+
+
+@extend_schema(tags=["Users"])
+class PartnerViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
+    """
+    Partner's profile CRUD for admin
 
     ### Fields:
     - `name`: Name of the User
     - `email`: Email of the User
     - `role`: Role of the User
-    - `date_of_birth`: Birth of the User
-    - `avatar`: Image of profile
     - `phone_number`: Phone number of the User
     - `max_establishments`: Max establishments of the User
     - `is_blocked`: Blocked status of the User
@@ -212,9 +241,32 @@ class UserViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIV
 
     """
 
-    queryset = User.objects.all()
+    queryset = User.objects.filter(role="partner")
     permission_classes = [IsAdmin]
-    serializer_class = UserSerializerAdmin
+    serializer_class = PartnerProfileAdminSerializer
+
+
+@extend_schema(tags=["Users"])
+class ClientRetrieveView(RetrieveAPIView):
+    """
+    Client's profile
+
+    ### Fields:
+    - `name`: Name of the Client
+    - `email`: Email of the Client
+    - `role`: Role of the Client
+    - `phone_number`: Phone number of the Client
+    - `avatar`: Avatar of the Client
+    - `is_blocked`: Blocked status of the Client
+
+    ### Access Control:
+    - Partner, Admin, Superuser
+
+    """
+
+    queryset = User.objects.filter(role="client")
+    permission_classes = [IsPartnerAndAdmin]
+    serializer_class = ClientSerializer
 
 
 @extend_schema(tags=["Users"])
