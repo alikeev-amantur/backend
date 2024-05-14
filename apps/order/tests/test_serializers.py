@@ -1,10 +1,14 @@
 import pytest
-from unittest.mock import patch, Mock
+from rest_framework.test import APIRequestFactory
 from django.utils import timezone
-import datetime
-from rest_framework.exceptions import ValidationError
-from happyhours.factories import UserFactory, BeverageFactory, EstablishmentFactory
-from ..serializers import OrderSerializer
+from ..serializers import OrderSerializer, OwnerOrderSerializer
+
+from happyhours.factories import UserFactory, EstablishmentFactory, BeverageFactory, OrderFactory
+
+
+@pytest.fixture
+def api_request_factory():
+    return APIRequestFactory()
 
 
 @pytest.fixture
@@ -14,7 +18,7 @@ def user():
 
 @pytest.fixture
 def establishment():
-    return EstablishmentFactory()
+    return EstablishmentFactory(happyhours_start='00:00:00', happyhours_end='23:59:59')
 
 
 @pytest.fixture
@@ -22,93 +26,111 @@ def beverage(establishment):
     return BeverageFactory(establishment=establishment)
 
 
+@pytest.fixture
+def order(user, beverage):
+    return OrderFactory(client=user, beverage=beverage, establishment=beverage.establishment)
+
 @pytest.mark.django_db
-def test_order_serializer_fields(user, beverage):
-    order_data = {
-        "beverage": beverage.id,
-        "client": user.id,
-        "establishment": beverage.establishment.id,
-        "order_date": timezone.now(),
+def test_order_serializer_validation(user, beverage, api_request_factory):
+    request = api_request_factory.post('/')
+    request.user = user
+
+    data = {
+        'beverage': beverage.id,
+        'order_date': timezone.now()
     }
-    serializer = OrderSerializer(data=order_data)
-    assert serializer.fields["client"].read_only
-    assert serializer.fields["establishment"].read_only
-    assert "id" in serializer.fields
-    assert "beverage" in serializer.fields
 
+    serializer = OrderSerializer(data=data, context={'request': request})
+
+    assert serializer.is_valid(), serializer.errors
 
 @pytest.mark.django_db
-def test_get_default_establishment(beverage):
-    serializer = OrderSerializer()
-    establishment = serializer.get_default_establishment(beverage)
-    assert establishment == beverage.establishment
+def test_owner_order_serializer_validation(user, beverage, api_request_factory):
+    owner = UserFactory(role='owner')
+    request = api_request_factory.post('/')
+    request.user = owner
 
+    data = {
+        'beverage': beverage.id,
+        'order_date': timezone.now(),
+        'client_email': user.email
+    }
 
-@pytest.mark.django_db
-@patch(
-    "django.utils.timezone.localtime",
-    return_value=timezone.make_aware(
-        datetime.datetime.combine(datetime.date.today(), datetime.time(11, 0))
-    ),
-)
-def test_validate_order_happyhours_inside(mock_time, establishment, user, beverage):
-    establishment.happyhours_start = datetime.time(10, 0)
-    establishment.happyhours_end = datetime.time(12, 0)
-    serializer = OrderSerializer()
-    serializer.validate_order_happyhours(establishment)
+    serializer = OwnerOrderSerializer(data=data, context={'request': request})
 
+    assert serializer.is_valid(), serializer.errors
 
 @pytest.mark.django_db
-@patch(
-    "django.utils.timezone.localtime",
-    return_value=timezone.make_aware(
-        datetime.datetime.combine(datetime.date.today(), datetime.time(13, 0))
-    ),
-)
-def test_validate_order_happyhours_outside(mock_time, establishment, user, beverage):
-    establishment.happyhours_start = datetime.time(10, 0)
-    establishment.happyhours_end = datetime.time(12, 0)
-    serializer = OrderSerializer()
-    with pytest.raises(ValidationError):
-        serializer.validate_order_happyhours(establishment)
+def test_owner_order_serializer_invalid_client_email(user, beverage, api_request_factory):
+    owner = UserFactory(role='owner')
+    request = api_request_factory.post('/')
+    request.user = owner
 
+    data = {
+        'beverage': beverage.id,
+        'order_date': timezone.now(),
+        'client_email': 'nonexistent@example.com'
+    }
 
-@pytest.mark.django_db
-@patch("django.utils.timezone.localtime")
-@patch("apps.order.models.Order.objects.filter")
-def test_validate_order_per_hour(mock_filter, mock_time, user, beverage):
-    mock_time.return_value = timezone.now()
-    mock_filter.return_value.exists.return_value = True
-    serializer = OrderSerializer()
-    with pytest.raises(ValidationError):
-        serializer.validate_order_per_hour(user)
+    serializer = OwnerOrderSerializer(data=data, context={'request': request})
 
+    assert not serializer.is_valid()
+    assert 'client_email' in serializer.errors
 
 @pytest.mark.django_db
-@patch("django.utils.timezone.localtime")
-@patch("apps.order.models.Order.objects.filter")
-def test_validate_order_per_day(mock_filter, mock_time, user, establishment):
-    mock_time.return_value = timezone.now()
-    mock_filter.return_value.exists.return_value = True
-    serializer = OrderSerializer()
-    with pytest.raises(ValidationError):
-        serializer.validate_order_per_day(user, establishment)
+def test_order_happyhours_validation(order, beverage, api_request_factory):
+    request = api_request_factory.post('/')
+    request.user = order.client
 
+    # Modify establishment to not be in happy hour
+    beverage.establishment.happy_hour_start = timezone.now() + timezone.timedelta(hours=1)
+    beverage.establishment.happy_hour_end = timezone.now() + timezone.timedelta(hours=2)
+    beverage.establishment.save()
+
+    data = {
+        'beverage': beverage.id,
+        'order_date': timezone.now()
+    }
+
+    serializer = OrderSerializer(data=data, context={'request': request})
+
+    assert not serializer.is_valid()
+    assert 'non_field_errors' in serializer.errors
 
 @pytest.mark.django_db
-def test_serializer_validate_integration(user, beverage):
-    with patch.object(
-        OrderSerializer, "validate_order_happyhours"
-    ) as mock_happyhours, patch.object(
-        OrderSerializer, "validate_order_per_hour"
-    ) as mock_per_hour, patch.object(
-        OrderSerializer, "validate_order_per_day"
-    ) as mock_per_day:
-        serializer = OrderSerializer(context={"request": Mock(user=user)})
-        data = {"beverage": beverage}
-        validated_data = serializer.validate(data)
-        assert "client" in validated_data
-        assert "establishment" in validated_data
-        mock_happyhours.assert_called_once()
-        mock_per_hour.assert_called_once()
-        mock_per_day.assert_called_once()
+def test_order_per_hour_validation(user, beverage, api_request_factory):
+    request = api_request_factory.post('/')
+    request.user = user
+
+    # Create an order within the last hour
+    OrderFactory(client=user, beverage=beverage, establishment=beverage.establishment,
+                 order_date=timezone.now() - timezone.timedelta(minutes=30))
+
+    data = {
+        'beverage': beverage.id,
+        'order_date': timezone.now()
+    }
+
+    serializer = OrderSerializer(data=data, context={'request': request})
+
+    assert not serializer.is_valid()
+    assert 'non_field_errors' in serializer.errors
+
+@pytest.mark.django_db
+def test_order_per_day_validation(user, beverage, api_request_factory):
+    request = api_request_factory.post('/')
+    request.user = user
+
+    # Create an order earlier today
+    OrderFactory(client=user, beverage=beverage, establishment=beverage.establishment,
+                 order_date=timezone.now() - timezone.timedelta(hours=3))
+
+    data = {
+        'beverage': beverage.id,
+        'order_date': timezone.now()
+    }
+
+    serializer = OrderSerializer(data=data, context={'request': request})
+
+    assert not serializer.is_valid()
+    assert 'non_field_errors' in serializer.errors

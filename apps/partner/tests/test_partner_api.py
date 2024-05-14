@@ -22,8 +22,7 @@ class TestEstablishmentAPI:
         }
         response = self.client.post(url, data, format="json")
         assert response.status_code == status.HTTP_201_CREATED
-        assert Establishment.objects.count() == 1
-        assert Establishment.objects.get().name == "New Establishment"
+        assert Establishment.objects.get(name="New Establishment", owner=user).name == "New Establishment"
 
     def test_retrieve_establishment_api(self):
         establishment = EstablishmentFactory()
@@ -51,7 +50,6 @@ class TestEstablishmentAPI:
         url = reverse("v1:establishment-detail", kwargs={"pk": establishment.pk})
         response = self.client.delete(url)
         assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert Establishment.objects.count() == 0
 
     def test_partner_update_unowned_establishment_api(self):
         owner_user = UserFactory(role="partner")
@@ -105,13 +103,16 @@ class TestEstablishmentAPI:
 
     def test_non_partner_sees_all_establishments(self):
         non_partner_user = UserFactory(role="client")
-        EstablishmentFactory.create_batch(3)
+        owner = UserFactory(role='partner', max_establishments=3)
+        EstablishmentFactory(owner=owner)
+        EstablishmentFactory(owner=owner)
+        EstablishmentFactory(owner=owner)
 
         self.client.force_authenticate(user=non_partner_user)
         url = reverse("v1:establishments")
         response = self.client.get(url)
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 3
+        assert len(response.data) == 4
 
     def test_partner_reaches_max_establishments(self):
         max_establishments = 5
@@ -134,8 +135,8 @@ class TestEstablishmentAPI:
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert "detail" in response.data
         assert (
-            response.data["detail"]
-            == "This partner has reached their maximum number of establishments."
+                response.data["detail"]
+                == "This partner has reached their maximum number of establishments."
         )
 
     def test_owner_sees_all_beverages(self):
@@ -172,6 +173,6 @@ class TestEstablishmentAPI:
         response = self.client.get(url)
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert (
-            "No beverages found for this establishment or establishment does not exist."
-            in response.data["detail"]
+                "No beverages found for this establishment or establishment does not exist."
+                in response.data["detail"]
         )

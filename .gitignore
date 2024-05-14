@@ -172,3 +172,4 @@ config/nginx/def.conf
 asgi-local.py
 happyhours/static/
 static/
+
