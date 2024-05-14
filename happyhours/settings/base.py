@@ -215,3 +215,4 @@ CHANNEL_LAYERS = {
 CSRF_TRUSTED_ORIGINS = [
     'https://happyhours.zapto.org',
 ]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
