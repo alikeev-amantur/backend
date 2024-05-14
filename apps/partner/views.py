@@ -14,6 +14,8 @@ from rest_framework.generics import (
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSetMixin
+from silk.profiling.profiler import silk_profile
+
 from happyhours.permissions import (
     IsAdmin,
     IsPartnerOwner,
@@ -53,6 +55,7 @@ class EstablishmentListCreateView(ListCreateAPIView):
     filterset_class = EstablishmentFilter
     search_fields = ["name", "beverages__name"]
 
+    @silk_profile(name='Profile Establishment List View')
     def get_queryset(self):
         user = self.request.user
         if user.role == "partner":
@@ -64,6 +67,7 @@ class EstablishmentListCreateView(ListCreateAPIView):
             return [IsPartnerUser()]
         return [IsAuthenticated()]
 
+    @silk_profile(name='Profile Establishment Create View')
     def perform_create(self, serializer):
         user = self.request.user
         if user.max_establishments <= Establishment.objects.filter(owner=user).count():
