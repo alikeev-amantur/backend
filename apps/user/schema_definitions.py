@@ -138,52 +138,97 @@ user_profile_schema = extend_schema_serializer(
     ]
 )
 
-user_profile_admin_schema = extend_schema_serializer(
+partner_profile_schema = extend_schema_serializer(
     examples=[
         OpenApiExample(
-            name="User Profile Retrieval",
+            name="Partner Profile Retrieval",
+            description="Successful Partner Profile Retrieve",
+            value={
+                "id": 1,
+                "email": "partner@example.com",
+                "name": "Partner",
+                "role": "partner",
+                "phone_number": "996111222333",
+                "max_establishments": 1,
+                "is_blocked": False,
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Updating",
+            description="Successful Partner Profile Update",
+            value={
+                "max_establishments": "3",
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Updating",
+            description="Successful Partner Profile Update",
+            value={
+                "id": 1,
+                "email": "partner@example.com",
+                "name": "Partner",
+                "role": "partner",
+                "phone_number": "996111222333",
+                "max_establishments": 1,
+                "is_blocked": False,
+            },
+            response_only=True,
+        ),
+    ]
+)
+
+client_profile_retrieval_schema = extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            name="Client Profile Retrieval Success",
             description="Successful Client Profile Retrieve",
             value={
                 "id": 1,
-                "email": "user@example.com",
-                "name": "User",
+                "email": "client@example.com",
+                "name": "Client",
                 "role": "client",
                 "date_of_birth": "2024-05-08",
                 "avatar": "http://example.com/media/client_avatar/customer.jpg",
                 "phone_number": "string",
-                "max_establishments": "0",
                 "is_blocked": "true",
             },
             response_only=True,
         ),
         OpenApiExample(
-            name="Client Profile Updating",
-            description="Successful Client Profile Update",
+            name="Client Profile Error",
+            description="Client Profile Error",
             value={
-                "id": 1,
-                "email": "user@example.com",
-                "name": "User",
-                "role": "client",
-                "date_of_birth": "2024-05-08",
-                "avatar": "http://example.com/media/client_avatar/customer.jpg",
-                "phone_number": "string",
-                "max_establishments": "0",
-                "is_blocked": "true",
+                "detail": "No User matches the given query."
             },
             response_only=True,
         ),
+    ]
+)
+
+client_existence_schema = extend_schema_serializer(
+    examples=[
         OpenApiExample(
-            name="Client Profile Updating",
-            description="Successful Client Profile Update",
+            name="Client Existence Success",
+            description="Client Existence Success",
             value={
-                "name": "User",
-                "role": "client",
-                "date_of_birth": "2024-05-08",
-                "phone_number": "996111222333",
-                "max_establishments": 1,
-                "is_blocked": "false",
+                "id": 10,
+                "email": "user@example.com",
+                "name": "string",
+                "date_of_birth": None,
+                "avatar": None
+            }
+            ,
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Client Existence Error",
+            description="Client Existence Error",
+            value={
+                "detail": "No User matches the given query."
             },
-            request_only=True,
+            response_only=True,
         ),
     ]
 )
