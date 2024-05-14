@@ -49,8 +49,9 @@ services:
       - static_volume:/code/static
       - ./config/nginx:/etc/nginx/conf.d
       - media_volume:/code/media
-      - ./nginx/certbot/conf:/etc/letsencrypt
-      - ./nginx/certbot/www:/var/www/certbot
+      - /etc/letsencrypt/live/happyhours.zapto.org:/etc/letsencrypt/live/happyhours.zapto.org
+      - /etc/letsencrypt/archive/happyhours.zapto.org:/etc/letsencrypt/archive/happyhours.zapto.org
+      - /etc/letsencrypt/renewal/happyhours.zapto.org.conf:/etc/letsencrypt/renewal/happyhours.zapto.org.conf
     depends_on:
       - web
     restart: unless-stopped
