@@ -1,7 +1,8 @@
 import pytest
 
-from happyhours.factories import UserFactory
 from django.test import RequestFactory
+
+from happyhours.factories import UserFactory
 
 from ..serializers import UserSerializer, PartnerProfileSerializer
 
