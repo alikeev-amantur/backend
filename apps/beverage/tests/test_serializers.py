@@ -63,7 +63,7 @@ def test_validate_establishment_not_owner(establishment, another_user, mock_requ
 @pytest.mark.django_db
 def test_validate_price_positive():
     serializer = BeverageSerializer()
-    assert serializer.validate_price(10) == 10
+    assert serializer.validate_price(100) == 100
 
 
 @pytest.mark.django_db

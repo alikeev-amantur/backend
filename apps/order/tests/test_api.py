@@ -63,6 +63,71 @@ class TestOrderViews:
         self.client.force_authenticate(user=self.partner)
         response = self.client.get(self.partner_order_history_url)
         assert (
-            len(response.data)
-            == Order.objects.filter(establishment__owner=self.partner).count()
+                len(response.data)
+                == Order.objects.filter(establishment__owner=self.partner).count()
         )
+
+
+@pytest.mark.django_db
+class TestPartnerPlaceOrderView:
+    def setup_method(self):
+        self.client = APIClient()
+        self.partner = UserFactory(role="partner")
+        self.client_user = UserFactory(role="client", email='nine@mail.com')
+        self.establishment = EstablishmentFactory(owner=self.partner, happyhours_start='00:00:00',
+                                                  happyhours_end='23:59:00')
+        self.beverage = BeverageFactory(establishment=self.establishment)
+        self.url = reverse("v1:partner-place-order")
+
+    def test_place_order_permissions(self):
+        response = self.client.post(self.url, {})
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+        self.client.force_authenticate(user=self.client_user)
+        response = self.client.post(self.url, {})
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        self.client.force_authenticate(user=self.partner)
+        response = self.client.post(self.url, {})
+        assert response.status_code not in [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
+
+    def test_partner_place_order(self):
+        self.client.force_authenticate(user=self.partner)
+        data = {
+            'client_email': self.client_user.email,
+            'beverage': self.beverage.id
+        }
+        response = self.client.post(self.url, data, format='json')
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['client'] == self.client_user.id
+        assert response.data['establishment'] == self.establishment.id
+
+    def test_invalid_beverage(self):
+        self.client.force_authenticate(user=self.partner)
+        data = {
+            'client_email': self.client_user.email,
+            'beverage': 999
+        }
+        response = self.client.post(self.url, data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_not_owner_of_establishment(self):
+        other_partner = UserFactory(role="partner")
+        self.client.force_authenticate(user=other_partner)
+        data = {
+            'client_email': self.client_user.email,
+            'beverage': self.beverage.id
+        }
+        response = self.client.post(self.url, data, format='json')
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert 'You are not the owner of the establishment linked to this beverage.' in response.data['error']
+
+    def test_invalid_client_email(self):
+        self.client.force_authenticate(user=self.partner)
+        data = {
+            'client_email': 'nonexistentemail@example.com',
+            'beverage': self.beverage.id
+        }
+        response = self.client.post(self.url, data, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+

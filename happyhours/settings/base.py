@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     'rest_framework_simplejwt.token_blacklist',
     'channels',
+    'silk',
     # apps
     "apps.user.apps.UserConfig",
     "apps.beverage.apps.BeverageConfig",
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    'silk.middleware.SilkyMiddleware',
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

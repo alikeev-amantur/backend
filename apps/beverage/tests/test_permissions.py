@@ -89,7 +89,7 @@ class TestBeverageViewSetPermissions:
             self.list_url,
             {
                 "name": "New Beverage",
-                "price": "5.99",
+                "price": "55.99",
                 "description": "some text",
                 "category": self.category.id,
                 "establishment": establishment.id,
@@ -100,17 +100,17 @@ class TestBeverageViewSetPermissions:
 
         self.client.force_authenticate(user=self.regular_user)
         response = self.client.post(
-            self.list_url, {"name": "Another Beverage", "price": "6.99"}
+            self.list_url, {"name": "Another Beverage", "price": "66.99"}
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_update_beverage_permissions(self):
         self.client.force_authenticate(user=self.partner_owner_user)
-        response = self.client.patch(self.detail_url, {"price": 7.99})
+        response = self.client.patch(self.detail_url, {"price": 55})
         assert response.status_code == status.HTTP_200_OK
 
         self.client.force_authenticate(user=self.partner_user)
-        response = self.client.patch(self.detail_url, {"price": 8.99})
+        response = self.client.patch(self.detail_url, {"price": 344})
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_delete_beverage_permissions(self):

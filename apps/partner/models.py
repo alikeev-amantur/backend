@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.gis.db import models as geomodels
+from django.utils import timezone
+
+from apps.partner.managers import EstablishmentManager
 
 User = get_user_model()
 
@@ -26,6 +29,11 @@ class Establishment(models.Model):
     happyhours_end = models.TimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
+    objects = EstablishmentManager()
 
     def __str__(self):
         return "Establishment: " + self.name
+
+    def is_happy_hour(self):
+        now = timezone.localtime().time()
+        return self.happyhours_start <= now <= self.happyhours_end

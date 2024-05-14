@@ -9,6 +9,8 @@ from .models import Order
 from ..partner.models import Establishment
 
 logger = logging.getLogger(__name__)
+
+
 class OrderConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         logger.debug("Attempting to connect.")
@@ -23,7 +25,6 @@ class OrderConsumer(AsyncWebsocketConsumer):
             await self.accept()
         else:
             await self.close()
-            logger.debug("WebSocket connection refused - user not authenticated.")
 
     async def disconnect(self, close_code):
         for group in self.groups:
