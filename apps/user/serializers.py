@@ -216,22 +216,6 @@ class ClientPasswordChangeSerializer(serializers.ModelSerializer):
         return attrs
 
 
-@client_existence_schema
-class ClientExistenceSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=True, max_length=255)
-
-    class Meta:
-        model = User
-        fields = (
-            "id",
-            "email",
-            "name",
-            "date_of_birth",
-            "avatar",
-            "is_blocked",
-        )
-
-
 @user_profile_schema
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -249,6 +233,23 @@ class UserSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "avatar",
         )
+
+
+class ClientProfileAdminSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        email = serializers.EmailField(read_only=True)
+
+        class Meta:
+            model = User
+            fields = (
+                "id",
+                "email",
+                "name",
+                "date_of_birth",
+                "avatar",
+                "is_blocked",
+            )
 
 
 @user_profile_schema

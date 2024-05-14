@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth import get_user_model
 
 from drf_spectacular.utils import extend_schema
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
@@ -20,7 +20,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from happyhours.permissions import (
     IsUserOwner,
-    IsPartnerAndAdmin,
+    IsPartnerUser,
     IsNotAuthenticated,
     IsAdmin,
     IsAuthenticatedAndNotAdmin,
@@ -41,7 +41,6 @@ from .serializers import (
     PartnerProfileSerializer,
     ClientSerializer,
     PartnerProfileAdminSerializer,
-    ClientExistenceSerializer,
 )
 from .utils import (
     generate_reset_code,
@@ -195,7 +194,7 @@ class UserViewSet(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
 
 
 @extend_schema(tags=["Users"])
-class ClientExistenceView(GenericAPIView):
+class ClientViewSetAdmin(ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     """
     View that checks if a client exists in the database. For partner
 
@@ -210,17 +209,21 @@ class ClientExistenceView(GenericAPIView):
 
     """
 
-    serializer_class = ClientExistenceSerializer
-    permission_classes = [IsPartnerAndAdmin]
+    queryset = User.objects.filter(role="client")
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-        user = get_object_or_404(User, email=email)
-        return Response(
-            ClientExistenceSerializer(user).data, status=status.HTTP_200_OK
-        )
+    def get_serializer_class(self):
+        user = self.request.user
+        if not user.is_anonymous:
+            if user.role == "admin" or user.is_superuser:
+                return ClientSerializer
+        return UserSerializer
+
+    def get_permissions(self):
+        if self.action == "retrieve":
+            permissions = [IsPartnerUser]
+        else:
+            permissions = [IsAdmin]
+        return [permission() for permission in permissions]
 
 
 @extend_schema(tags=["Users"])
@@ -265,7 +268,7 @@ class ClientRetrieveView(RetrieveAPIView):
     """
 
     queryset = User.objects.filter(role="client")
-    permission_classes = [IsPartnerAndAdmin]
+    permission_classes = [IsPartnerUser]
     serializer_class = ClientSerializer
 
 
@@ -313,7 +316,17 @@ class ClientListView(ListAPIView):
 
     queryset = User.objects.all().filter(role="client").order_by("id")
     serializer_class = ClientListSerializer
-    permission_classes = [IsPartnerAndAdmin]
+    permission_classes = [IsPartnerUser]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["email"]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        email = self.request.query_params.get("search", None)
+        if email:
+            queryset = queryset.filter(
+                email__exact=email)
+        return queryset
 
 
 @extend_schema(tags=["Users"])
