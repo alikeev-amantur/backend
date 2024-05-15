@@ -1,16 +1,12 @@
 import pytest
-import pytz
-from django.db.models.functions import datetime
 from django.urls import reverse
 
-from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.test import APIClient
 from happyhours.factories import (
     UserFactory,
     EstablishmentFactory,
     FeedbackFactory,
-    FeedbackAnswerFactory,
 )
 
 

@@ -1,5 +1,8 @@
 import pytest
+
 from django.contrib.auth import get_user_model
+from django.test import RequestFactory
+
 from happyhours.factories import (
     FeedbackFactory,
     FeedbackAnswerFactory,
@@ -10,7 +13,6 @@ from ..serializers import (
     FeedbackSerializer,
     FeedbackAnswerSerializer,
 )
-from django.test import RequestFactory
 
 User = get_user_model()
 
