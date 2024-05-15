@@ -6,6 +6,7 @@ from apps.user.models import ROLE_CHOICES
 from apps.beverage.models import Category, Beverage
 from apps.order.models import Order
 from apps.partner.models import Establishment
+from apps.feedback.models import Feedback, FeedbackAnswer
 from faker import Faker
 
 User = get_user_model()
@@ -54,7 +55,6 @@ class EstablishmentFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserFactory)
 
 
-
 class BeverageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Beverage
@@ -75,3 +75,22 @@ class OrderFactory(factory.django.DjangoModelFactory):
     beverage = factory.SubFactory(BeverageFactory)
     client = factory.SubFactory(UserFactory)
     order_date = factory.LazyFunction(timezone.now)
+
+
+class FeedbackFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Feedback
+
+    user = factory.SubFactory(UserFactory)
+    establishment = factory.SubFactory(EstablishmentFactory)
+    text = factory.Faker('paragraph')
+
+
+class FeedbackAnswerFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = FeedbackAnswer
+
+    feedback = factory.SubFactory(FeedbackFactory)
+    user = factory.SubFactory(UserFactory)
+    text = factory.Faker('paragraph')

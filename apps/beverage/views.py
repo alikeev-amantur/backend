@@ -47,7 +47,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 @extend_schema(
     tags=["Beverages"],
     responses=(
-        {200: BeverageSerializer, 201: BeverageSerializer, 400: BeverageSerializer}
+            {200: BeverageSerializer, 201: BeverageSerializer, 400: BeverageSerializer}
     ),
 )
 class BeverageViewSet(viewsets.ModelViewSet):
@@ -58,19 +58,19 @@ class BeverageViewSet(viewsets.ModelViewSet):
     - The `price` field must be a non-negative number.
     """
 
-    queryset = Beverage.objects.all()
+    queryset = Beverage.objects.all().select_related('category', 'establishment')
     serializer_class = BeverageSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = BeverageFilter
     search_fields = ["name", "category__name", "establishment__name"]
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
-            permission_classes = [permissions.IsAuthenticated]
-        elif self.action == "create":
-            permission_classes = [IsPartnerUser]
-        elif self.action in ["update", "partial_update", "destroy"]:
-            permission_classes = [IsPartnerOwner]
-        else:
-            permission_classes = [permissions.IsAuthenticated]
+        permission_classes = {
+            "list": [permissions.IsAuthenticated],
+            "retrieve": [permissions.IsAuthenticated],
+            "create": [IsPartnerUser],
+            "update": [IsPartnerOwner],
+            "partial_update": [IsPartnerOwner],
+            "destroy": [IsPartnerOwner],
+        }.get(self.action, [permissions.IsAuthenticated])
         return [permission() for permission in permission_classes]

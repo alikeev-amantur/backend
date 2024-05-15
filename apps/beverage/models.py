@@ -36,3 +36,7 @@ class Beverage(models.Model):
         verbose_name = "Beverage"
         verbose_name_plural = "Beverages"
         ordering = ["name"]
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['availability_status']),
+        ]

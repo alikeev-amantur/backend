@@ -55,16 +55,6 @@ user_profile_schema = extend_schema_serializer(
             name="Client Profile Retrieval",
             description="Successful Client Profile Retrieve",
             value={
-                "name": "Customer",
-                "date_of_birth": "2024-05-07",
-                "avatar": "http://example.com/media/client_avatar/customer.jpg",
-            },
-            request_only=True,
-        ),
-        OpenApiExample(
-            name="Client Profile Retrieval",
-            description="Successful Client Profile Retrieve",
-            value={
                 "id": 1,
                 "email": "customer@mail.com",
                 "name": "null",
@@ -77,16 +67,6 @@ user_profile_schema = extend_schema_serializer(
             name="Client Profile Updating",
             description="Successful Client Profile Update",
             value={
-                "name": "Customer Name",
-                "date_of_birth": "2020-01-01",
-                "avatar": "http://example.com/media/client_avatar/customer.jpg",
-            },
-            request_only=True,
-        ),
-        OpenApiExample(
-            name="Client Profile Updating",
-            description="Successful Client Profile Update",
-            value={
                 "id": 1,
                 "email": "customer@mail.com",
                 "name": "Customer Name",
@@ -99,15 +79,6 @@ user_profile_schema = extend_schema_serializer(
             name="Partner Profile Retrieval",
             description="Successful Partner Profile Retrieve",
             value={
-                "name": "Partner",
-                "phone_number": "996111222333",
-            },
-            request_only=True,
-        ),
-        OpenApiExample(
-            name="Partner Profile Retrieval",
-            description="Successful Partner Profile Retrieve",
-            value={
                 "id": 1,
                 "email": "partner@mail.com",
                 "name": "Partner",
@@ -119,63 +90,92 @@ user_profile_schema = extend_schema_serializer(
             name="Partner Profile Updating",
             description="Successful Partner Profile Update",
             value={
+                "id": 1,
+                "email": "partner@mail.com",
                 "name": "Partner",
                 "phone_number": "996111222333",
             },
-            request_only=True,
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Partner Profile Retrieval",
+            description="Successful Partner Profile Retrieve",
+            value={
+                "id": 1,
+                "email": "partner@example.com",
+                "name": "Partner",
+                "role": "partner",
+                "phone_number": "996111222333",
+                "max_establishments": 1,
+                "is_blocked": False,
+            },
+            response_only=True,
         ),
         OpenApiExample(
             name="Partner Profile Updating",
             description="Successful Partner Profile Update",
             value={
                 "id": 1,
-                "email": "partner@mail.com",
+                "email": "partner@example.com",
                 "name": "Partner",
+                "role": "partner",
                 "phone_number": "996111222333",
+                "max_establishments": 1,
+                "is_blocked": False,
             },
             response_only=True,
         ),
     ]
 )
 
-partner_profile_schema = extend_schema_serializer(
+client_profile_schema = extend_schema_serializer(
     examples=[
         OpenApiExample(
-            name="Partner Profile Retrieval",
-            description="Successful Partner Profile Retrieve",
+            name="Client Profile Retrieval Admin",
+            description="Successful Client Profile Retrieve",
             value={
-                "id": 1,
-                "email": "partner@example.com",
-                "name": "Partner",
-                "role": "partner",
+                "id": 13,
+                "email": "Customer@example.com",
+                "name": "Customer",
+                "date_of_birth": "2024-05-07",
+                "avatar": "http://example.com/media/client_avatar/customer.jpg",
                 "phone_number": "996111222333",
-                "max_establishments": 1,
-                "is_blocked": False,
-            },
-            response_only=True,
-        ),
-        OpenApiExample(
-            name="Partner Profile Updating",
-            description="Successful Partner Profile Update",
-            value={
-                "max_establishments": "3",
+                "is_blocked": True,
             },
             request_only=True,
         ),
         OpenApiExample(
-            name="Partner Profile Updating",
-            description="Successful Partner Profile Update",
+            name="Client Profile Retrieval Partner",
+            description="Successful Client Profile Retrieve",
             value={
-                "id": 1,
-                "email": "partner@example.com",
-                "name": "Partner",
-                "role": "partner",
-                "phone_number": "996111222333",
-                "max_establishments": 1,
-                "is_blocked": False,
+                "id": 13,
+                "email": "Customer@example.com",
+                "name": "Customer",
+                "date_of_birth": "2024-05-07",
+                "avatar": "http://example.com/media/client_avatar/customer.jpg",
+                "phone_number": "string",
             },
-            response_only=True,
+            request_only=True,
         ),
+        OpenApiExample(
+            name="Client Profile Update Admin",
+            description="Successful Client Profile Retrieve",
+            value={
+                "id": 13,
+                "email": "Customer@example.com",
+                "name": "Customer",
+                "date_of_birth": "2024-05-07",
+                "avatar": "http://example.com/media/client_avatar/customer.jpg",
+                "phone_number": "996111222333",
+                "is_blocked": True,
+            },
+            request_only=True,
+        ),
+    ]
+)
+
+partner_profile_schema = extend_schema_serializer(
+    examples=[
     ]
 )
 
