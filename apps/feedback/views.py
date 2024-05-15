@@ -11,6 +11,8 @@ from .models import Feedback, FeedbackAnswer
 from .serializers import (
     FeedbackSerializer,
     FeedbackAnswerSerializer,
+    FeedbackCreateUpdateSerializer,
+    FeedbackAnswerCreateUpdateSerializer,
 )
 from .views_services import FeedbackViewSetService
 
@@ -25,7 +27,6 @@ class FeedbackListView(ListAPIView):
     - `created_at`: Time of creation
     - `establishment`: Establishment of the feedback
     - `text`: Content of the feedback
-    - `feedback_answers`: Answers to the feedback
 
     ### Access Control:
     - Everyone
@@ -34,6 +35,32 @@ class FeedbackListView(ListAPIView):
 
     queryset = Feedback.objects.all()
     serializer_class = FeedbackSerializer
+
+
+@extend_schema(tags=["Feedbacks"])
+class FeedbackAnswerListView(ListAPIView):
+    """
+    Feedback's Answers list view
+
+    ### Fields:
+    - `feedback`: ID of the feedback
+    - `user`: Owner of the feedback's answer
+    - `created_at`: Time of creation
+    - `text`: Content of the feedback's answer
+
+    ### Access Control:
+    - Everyone
+
+    """
+    queryset = FeedbackAnswer.objects.all()
+    serializer_class = FeedbackAnswerSerializer
+
+    def get_queryset(self):
+        queryset = FeedbackAnswer.objects.all()
+        feedback = self.request.resolver_match.kwargs["pk"]
+        if feedback:
+            queryset = FeedbackAnswer.objects.filter(feedback=feedback)
+        return queryset
 
 
 @extend_schema(tags=["Feedbacks"])
@@ -46,7 +73,6 @@ class FeedbackCreateView(CreateAPIView):
     - `created_at`: Time of creation
     - `establishment`: Establishment of the feedback
     - `text`: Content of the feedback
-    - `feedback_answers`: Answers to the feedback
 
     ### Access Control:
     - Authenticated user
@@ -54,7 +80,7 @@ class FeedbackCreateView(CreateAPIView):
     """
 
     queryset = Feedback.objects.all()
-    serializer_class = FeedbackSerializer
+    serializer_class = FeedbackCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
 
 
@@ -68,7 +94,6 @@ class FeedbackViewSet(FeedbackViewSetService):
     - `created_at`: Time of creation
     - `establishment`: Establishment of the feedback
     - `text`: Content of the feedback
-    - `feedback_answers`: Answers to the feedback
 
     ### Access Control:
     - Retrieve - anonymous user
@@ -97,7 +122,7 @@ class FeedbackAnswerCreate(CreateAPIView):
     """
 
     queryset = FeedbackAnswer.objects.all()
-    serializer_class = FeedbackAnswerSerializer
+    serializer_class = FeedbackAnswerCreateUpdateSerializer
     permission_classes = [IsAdmin]
 
 
