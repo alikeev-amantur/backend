@@ -1,5 +1,5 @@
 # HappyHours Backend(DRF) 
-# Server : http://16.170.203.161/
+# Server : http://16.170.203.161/api/schema/swagger-ui/
 ## Overview
 HappyHours is a novel platform designed to enhance customer engagement for restaurants and cafes during their off-peak hours through the concept of "happy hours." This system allows participating businesses to offer free beverages during specified hours, addressing the drop in customer traffic typically experienced midday and between the end of lunch service and the start of dinner. By leveraging a subscription-based model, HappyHours aims to increase foot traffic and revenue for these venues, transforming how these businesses attract customers during less busy times.
 
@@ -14,6 +14,8 @@ HappyHours is a novel platform designed to enhance customer engagement for resta
 - **Establishment**: Represents details like location, name, description of the establishments.
 - **Beverage**: Contains information about the drinks available including name, category, and price.
 - **Order**: Records transactions of beverages ordered by users at establishments.
+
+![ERD.png](ERD.png)
 
 ## APIs
 Endpoints are provided for each entity (Users, Establishments, Beverages, Orders) supporting CRUD operations along with specific filters and authentication methods to ensure data security.

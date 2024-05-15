@@ -23,6 +23,8 @@ from drf_spectacular.views import (
     SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 )
 
+# from happyhours.settings.local import STATIC_URL, STATIC_ROOT
+
 v1_api = (
     [
         path('beverage/', include('apps.beverage.urls')),
@@ -44,6 +46,8 @@ urlpatterns = [
         "api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
+    path('silk/', include('silk.urls', namespace='silk')),
     re_path(r'api/v1/', include(v1_api, namespace='v1'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# urlpatterns += static(STATIC_URL, document_root=STATIC_ROOT)
 

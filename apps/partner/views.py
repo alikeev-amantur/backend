@@ -14,6 +14,8 @@ from rest_framework.generics import (
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSetMixin
+
+
 from happyhours.permissions import (
     IsAdmin,
     IsPartnerOwner,
@@ -53,6 +55,7 @@ class EstablishmentListCreateView(ListCreateAPIView):
     filterset_class = EstablishmentFilter
     search_fields = ["name", "beverages__name"]
 
+
     def get_queryset(self):
         user = self.request.user
         if user.role == "partner":
@@ -63,6 +66,7 @@ class EstablishmentListCreateView(ListCreateAPIView):
         if self.request.method == 'POST':
             return [IsPartnerUser()]
         return [IsAuthenticated()]
+
 
     def perform_create(self, serializer):
         user = self.request.user
