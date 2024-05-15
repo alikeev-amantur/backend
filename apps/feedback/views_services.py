@@ -14,7 +14,7 @@ class FeedbackPermissions:
     def get_permissions(self):
         if self.action == "retrieve":
             permissions = []
-        elif self.action in ("update", "partial_update", "destroy"):
+        elif self.action in ("update", "destroy"):
             permissions = [IsUserObjectOwner]
         else:
             permissions = [IsAdmin]

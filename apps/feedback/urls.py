@@ -5,7 +5,7 @@ from .views import (
     FeedbackAnswerCreate,
     FeedbackAnswerViewSet,
     FeedbackListView,
-    FeedbackCreateView,
+    FeedbackCreateView, FeedbackAnswerListView,
 )
 
 urlpatterns = [
@@ -17,8 +17,9 @@ urlpatterns = [
                 "put": "update",
                 "delete": "destroy",
             }
-        ),
+        )
     ),
+    path("feedbacks/<int:pk>/answers/list/", FeedbackAnswerListView.as_view()),
     path("answers/create/", FeedbackAnswerCreate.as_view()),
     path(
         "answers/<int:pk>/",
