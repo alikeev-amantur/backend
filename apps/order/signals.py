@@ -16,7 +16,8 @@ def send_order_notification(sender, instance, created, **kwargs):
         "order_id": instance.id,
         "establishment_id": instance.establishment.id,
         "status": instance.status,
-        "client": instance.client.id,
+        "client": instance.client.email,
+        "beverage": instance.beverage.name,
         "details": f"New order created: {instance.id}" if created else f"Order updated: {instance.id}"
     }
 
