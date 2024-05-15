@@ -6,6 +6,7 @@ from .views import (
     FeedbackAnswerViewSet,
     FeedbackListView,
     FeedbackCreateView,
+    FeedbackAnswerListView,
 )
 
 urlpatterns = [
@@ -17,9 +18,16 @@ urlpatterns = [
                 "put": "update",
                 "delete": "destroy",
             }
-        ),
+        ), name="feedback-viewset"
     ),
-    path("answers/create/", FeedbackAnswerCreate.as_view()),
+    path(
+        "feedbacks/<int:pk>/answers/list/", FeedbackAnswerListView.as_view(),
+        name="feedback-answer-list"
+    ),
+    path(
+        "answers/create/", FeedbackAnswerCreate.as_view(),
+        name="feedback-answer-create"
+    ),
     path(
         "answers/<int:pk>/",
         FeedbackAnswerViewSet.as_view(
@@ -29,7 +37,11 @@ urlpatterns = [
                 "delete": "destroy",
             }
         ),
+        name="feedback-answer-viewset"
     ),
-    path("feedbacks/list/", FeedbackListView.as_view()),
-    path("feedbacks/create/", FeedbackCreateView.as_view()),
+    path("feedbacks/list/", FeedbackListView.as_view(), name="feedback-list"),
+    path(
+        "feedbacks/create/", FeedbackCreateView.as_view(),
+        name="feedback-create"
+    ),
 ]
