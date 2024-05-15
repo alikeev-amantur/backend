@@ -25,6 +25,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 MIDDLEWARE = [
+    'silk.middleware.SilkyMiddleware',
     "django.middleware.security.SecurityMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -61,4 +62,3 @@ LOGGING = {
 SILKY_INTERCEPT_PERCENT = 100
 SILKY_PYTHON_PROFILER = True
 SILKY_SQL_ANALYSIS = True
-SILKY_INTERCEPT_ALL = True

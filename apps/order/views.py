@@ -46,8 +46,9 @@ class ClientOrderHistoryView(ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(client=self.request.user)
-
+        return Order.objects.filter(client=self.request.user).select_related(
+            'establishment', 'beverage', 'client'
+        )
 
 @extend_schema(tags=["Orders"])
 class PartnerOrderHistoryView(ReadOnlyModelViewSet):

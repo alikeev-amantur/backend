@@ -31,6 +31,13 @@ class Establishment(models.Model):
     modified_at = models.DateTimeField(auto_now=True, null=True)
     objects = EstablishmentManager()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['owner']),
+            models.Index(name='location_gist', fields=['location'], opclasses=['gist'])
+        ]
+
     def __str__(self):
         return "Establishment: " + self.name
 

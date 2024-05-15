@@ -15,7 +15,6 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSetMixin
 
-
 from happyhours.permissions import (
     IsAdmin,
     IsPartnerOwner,
@@ -55,7 +54,6 @@ class EstablishmentListCreateView(ListCreateAPIView):
     filterset_class = EstablishmentFilter
     search_fields = ["name", "beverages__name"]
 
-
     def get_queryset(self):
         user = self.request.user
         if user.role == "partner":
@@ -66,7 +64,6 @@ class EstablishmentListCreateView(ListCreateAPIView):
         if self.request.method == 'POST':
             return [IsPartnerUser()]
         return [IsAuthenticated()]
-
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -118,21 +115,22 @@ class MenuView(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         establishment_id = self.kwargs.get("pk")
-        establishment = get_object_or_404(Establishment, id=establishment_id)
         user = self.request.user
 
-        if user == establishment.owner:
-            return Beverage.objects.filter(establishment=establishment).select_related(
-                "category", "establishment"
-            )
+        establishment = get_object_or_404(
+            Establishment.objects.select_related('owner'),
+            id=establishment_id
+        )
 
-        return Beverage.objects.filter(
-            establishment=establishment, availability_status=True
-        ).select_related("category", "establishment")
+        queryset = Beverage.objects.filter(establishment=establishment).select_related("category", "establishment")
+
+        if user != establishment.owner:
+            queryset = queryset.filter(availability_status=True)
+
+        return queryset
 
     def list(self, request, *args, **kwargs):
-        if not self.get_queryset().exists():
-            raise NotFound(
-                "No beverages found for this establishment or establishment does not exist."
-            )
+        queryset = self.get_queryset()
+        if not queryset.exists():
+            raise NotFound("No beverages found for this establishment or establishment does not exist.")
         return super().list(request, *args, **kwargs)
