@@ -1,7 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import PlaceOrderView, ClientOrderHistoryView, PartnerOrderHistoryView, PartnerPlaceOrderView
+from .views import PlaceOrderView, ClientOrderHistoryView, PartnerOrderHistoryView, PartnerPlaceOrderView, \
+    OrderStatisticsView
 
 router = DefaultRouter()
 router.register(
@@ -13,5 +14,6 @@ router.register(
 urlpatterns = [
     path("place-order/", PlaceOrderView.as_view(), name="place-order"),
     path("partner-place-order/", PartnerPlaceOrderView.as_view(), name="partner-place-order"),
+    path("statistics/<int:establishment_id>/", OrderStatisticsView.as_view(), name='order-statistics'),
     path("", include(router.urls)),
 ]

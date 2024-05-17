@@ -1,12 +1,16 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Count
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, views, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from apps.beverage.models import Beverage
+from apps.order.filters import OrderFilter
 from apps.order.models import Order
 from apps.order.serializers import OrderSerializer, OrderHistorySerializer, OwnerOrderSerializer
 from apps.partner.models import Establishment
@@ -50,6 +54,7 @@ class ClientOrderHistoryView(ReadOnlyModelViewSet):
             'establishment', 'beverage', 'client'
         )
 
+
 @extend_schema(tags=["Orders"])
 class PartnerOrderHistoryView(ReadOnlyModelViewSet):
     """
@@ -88,3 +93,43 @@ class PartnerPlaceOrderView(generics.CreateAPIView):
             })
 
         serializer.save(establishment=establishment, client=client)
+
+
+@extend_schema(tags=["Orders"])
+class OrderStatisticsView(generics.ListAPIView):
+    permission_classes = [IsPartnerUser]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = OrderFilter
+
+    def get_queryset(self):
+        establishment_id = self.kwargs['establishment_id']
+        establishment = Establishment.objects.get(id=establishment_id)
+        return Order.objects.filter(establishment=establishment)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        total_orders = self.get_total_orders(queryset)
+        orders_by_category = self.get_orders_by_category(queryset)
+
+        data = {
+            'total_orders': total_orders,
+            'orders_by_category': orders_by_category,
+        }
+
+        return Response(data)
+
+    def get_total_orders(self, queryset):
+        total_orders = queryset.count()
+        return total_orders
+
+    def get_orders_by_category(self, queryset):
+        orders_by_category = (
+            queryset.values('beverage__category__name')
+            .annotate(total_orders=Count('id'))
+            .order_by('beverage__category__name')
+        )
+        return [
+            {'category': stat['beverage__category__name'], 'total_orders': stat['total_orders']}
+            for stat in orders_by_category
+        ]

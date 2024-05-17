@@ -1,9 +1,6 @@
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth import get_user_model
 import datetime
 
@@ -42,3 +39,5 @@ def validate_order_per_day(client, establishment):
     if Order.objects.filter(client=client, establishment=establishment,
                             order_date__range=(today_min, today_max)).exists():
         raise serializers.ValidationError("You can only place one order per establishment per day.")
+
+
