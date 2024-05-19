@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "apps.partner.apps.PartnerConfig",
     "apps.order.apps.OrderConfig",
     "apps.feedback.apps.FeedbackConfig",
+    "apps.subscription.apps.SubscriptionConfig"
 ]
 
 MIDDLEWARE = [
