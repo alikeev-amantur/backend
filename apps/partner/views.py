@@ -94,7 +94,7 @@ class EstablishmentViewSet(
     def get_permissions(self):
         if self.action == "retrieve":
             permissions = [IsAuthenticated]
-        elif self.action in ("update", "partial_update"):
+        elif self.action in ("update", "partial_update", "destroy"):
             permissions = [IsPartnerOwner]
         else:
             permissions = [IsAdmin]

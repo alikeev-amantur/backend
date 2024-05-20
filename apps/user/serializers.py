@@ -40,14 +40,14 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
             user = User.objects.get(email=attrs.get("email"))
             if not user.is_blocked or user.is_superuser:
                 data = super().validate(attrs)
-                refresh = self.get_token(self.user)
-                data["refresh"] = str(refresh)
-                data["access"] = str(refresh.access_token)
-                data["id"] = user.id
-                data["email"] = user.email
-                data["name"] = user.name
-                data["role"] = user.role
-                data["max_establishments"] = user.max_establishments
+                user_data = {
+                    "id": user.id,
+                    "email": user.email,
+                    "name": user.name,
+                    "role": user.role,
+                    "max_establishments": user.max_establishments
+                }
+                data.update(user_data)
                 return data
             raise serializers.ValidationError("busta straight busta")
         except User.DoesNotExist:
@@ -65,11 +65,11 @@ class AdminLoginSerializer(TokenObtainPairSerializer):
             user = User.objects.get(email=attrs.get("email"))
             if user.role == "admin" or user.is_superuser:
                 data = super().validate(attrs)
-                refresh = self.get_token(self.user)
-                data["refresh"] = str(refresh)
-                data["access"] = str(refresh.access_token)
-                data["id"] = user.id
-                data["email"] = user.email
+                user_data = {
+                    "id": user.id,
+                    "email": user.email,
+                }
+                data.update(user_data)
                 return data
             raise serializers.ValidationError("Not admin user")
         except User.DoesNotExist:
@@ -259,6 +259,7 @@ class PartnerProfileSerializer(serializers.ModelSerializer):
     """
 
     email = serializers.EmailField(read_only=True)
+    max_establishments = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = User
@@ -267,6 +268,7 @@ class PartnerProfileSerializer(serializers.ModelSerializer):
             "email",
             "name",
             "phone_number",
+            "max_establishments",
         )
 
 
