@@ -51,6 +51,7 @@ class OrderConsumer(AsyncWebsocketConsumer):
             'establishment_id': event['establishment_id'],
             'status': event['status'],
             'client': event['client'],
+            'beverage': event['beverage'],
             'details': event['details']
         }))
 
