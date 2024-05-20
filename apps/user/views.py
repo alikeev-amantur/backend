@@ -15,7 +15,8 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from rest_framework_simplejwt.tokens import RefreshToken, BlacklistMixin
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from happyhours.permissions import (
@@ -350,7 +351,7 @@ class PartnerListView(ListAPIView):
 
 
 @extend_schema(tags=["Users"])
-class BlockUserView(GenericAPIView):
+class BlockUserView(BlacklistMixin, GenericAPIView):
     """
     View responsible for blocking users. Alters flag is_blocked. Which prevents
     users from getting access tokens.
@@ -376,6 +377,9 @@ class BlockUserView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = User.objects.get(email=serializer.validated_data["email"])
         user.is_blocked = serializer.validated_data["is_blocked"]
+        tokens = OutstandingToken.objects.filter(user=user)
+        for token in tokens:
+            token.delete()
         user.save()
         return Response("Successful", status=status.HTTP_200_OK)
 
