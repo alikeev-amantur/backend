@@ -6,7 +6,9 @@ from .models import User
 
 class CustomUserAdmin(UserAdmin):
     ordering = ["id"]
-    list_display = ["email", "name", "role", "is_staff", "max_establishments"]
+    list_display = [
+        "email", "name", "role", "is_staff", "is_blocked", "max_establishments"
+    ]
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         (
