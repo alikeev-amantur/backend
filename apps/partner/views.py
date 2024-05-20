@@ -145,4 +145,4 @@ class PartnerEstablishmentView(ListAPIView):
 
     def get_queryset(self):
         partner_id = self.kwargs.get("partner_id")
-        queryset = Establishment.objects.filter(owner=partner_id)
+        return Establishment.objects.filter(owner=partner_id)
