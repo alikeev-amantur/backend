@@ -35,7 +35,7 @@ class Establishment(models.Model):
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['owner']),
-            models.Index(name='location_gist', fields=['location'], opclasses=['gist'])
+            # models.Index(name='location_gist', fields=['location'], opclasses=['gist'])
         ]
 
     def __str__(self):

@@ -63,3 +63,11 @@ class IsAuthenticatedAndNotAdmin(permissions.BasePermission):
             request.user and request.user.is_authenticated and
             request.user.role != 'admin' and not request.user.is_superuser
         )
+
+
+class IsClientOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.user.role == "client" or request.user.is_superuser and
+            request.user.is_authenticated
+        )
