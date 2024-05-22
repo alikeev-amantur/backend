@@ -1,20 +1,25 @@
 from datetime import datetime
 
 import paypalrestsdk
-from django.shortcuts import render
-from rest_framework import status
+from drf_spectacular.utils import extend_schema
+from rest_framework import status, viewsets, generics
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.state import token_backend
 from rest_framework_simplejwt.tokens import UntypedToken
 
 from apps.subscription.models import SubscriptionPlan, Subscription
+from apps.subscription.schema_definitions import deactivate_subscription_responses, free_trial_responses, \
+    free_trial_request_body
+from apps.subscription.serializers import FreeTrialSerializer, SubscriptionPlanSerializer, SubscriptionSerializer
 from apps.user.models import User
+from happyhours.permissions import IsAdmin
 
 
 # Create your views here.
+@extend_schema(tags=["Subscriptions"])
 class CreatePaymentView(APIView):
     def post(self, request, plan_id):
         plan = SubscriptionPlan.objects.get(id=plan_id)
@@ -58,6 +63,7 @@ class CreatePaymentView(APIView):
             return Response({'error': payment.error}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(tags=["Subscriptions"])
 class ExecutePaymentView(APIView):
     def get(self, request):
         payment_id = request.query_params.get('paymentId')
@@ -99,6 +105,72 @@ class ExecutePaymentView(APIView):
         except (InvalidToken, TokenError, User.DoesNotExist) as e:
             return None
 
+
+@extend_schema(tags=["Subscriptions"])
 class CancelPaymentView(APIView):
     def get(self, request):
         return Response({'status': 'Payment cancelled'}, status=status.HTTP_200_OK)
+
+
+@extend_schema(tags=["Subscriptions"], request=free_trial_request_body, responses=free_trial_responses)
+class FreeTrialView(APIView):
+    def post(self, request):
+        serializer = FreeTrialSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            subscription = serializer.save()
+            return Response({
+                'status': 'Free trial activated',
+                'subscription_id': subscription.id,
+                'end_date': subscription.end_date
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(tags=["Subscriptions"])
+class SubscriptionPlanViewSet(viewsets.ModelViewSet):
+    queryset = SubscriptionPlan.objects.all()
+    serializer_class = SubscriptionPlanSerializer
+
+    def get_permissions(self):
+        permission_classes = {
+            "list": [IsAuthenticated],
+            "retrieve": [IsAuthenticated],
+            "create": [IsAdmin],
+            "update": [IsAdmin],
+            "partial_update": [IsAdmin],
+            "destroy": [IsAdmin],
+        }.get(self.action, [IsAuthenticated])
+        return [permission() for permission in permission_classes]
+
+
+@extend_schema(tags=["Subscriptions"])
+class UserSubscriptionsView(generics.ListAPIView):
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        return Subscription.objects.filter(user__id=user_id)
+
+
+@extend_schema(tags=["Subscriptions"], request=None, responses=deactivate_subscription_responses)
+class DeactivateSubscriptionView(APIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if instance.user != request.user:
+            return Response({'detail': 'Not allowed to deactivate this subscription.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        if not instance.is_active:
+            return Response({'detail': 'Subscription is already deactivated.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        instance.is_active = False
+        instance.save()
+
+        return Response({'detail': 'Subscription deactivated successfully.'}, status=status.HTTP_200_OK)

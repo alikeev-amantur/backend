@@ -29,7 +29,7 @@ def validate_order_happyhours(establishment):
 
 def validate_order_per_hour(client):
     one_hour_ago = timezone.localtime() - datetime.timedelta(hours=1)
-    if Order.objects.filter(client=client, order_date__gte=one_hour_ago).exists():
+    if Order.objects.filter(client=client, order_date__gte=one_hour_ago).exclude(status='cancelled').exists():
         raise serializers.ValidationError("You can only place one order per hour.")
 
 
@@ -37,7 +37,5 @@ def validate_order_per_day(client, establishment):
     today_min = datetime.datetime.combine(timezone.localtime().date(), datetime.time.min)
     today_max = datetime.datetime.combine(timezone.localtime().date(), datetime.time.max)
     if Order.objects.filter(client=client, establishment=establishment,
-                            order_date__range=(today_min, today_max)).exists():
+                            order_date__range=(today_min, today_max)).exclude(status='cancelled').exists():
         raise serializers.ValidationError("You can only place one order per establishment per day.")
-
-
