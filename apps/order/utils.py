@@ -39,3 +39,5 @@ def validate_order_per_day(client, establishment):
     if Order.objects.filter(client=client, establishment=establishment,
                             order_date__range=(today_min, today_max)).exclude(status='cancelled').exists():
         raise serializers.ValidationError("You can only place one order per establishment per day.")
+
+

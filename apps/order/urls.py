@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import PlaceOrderView, ClientOrderHistoryView, PartnerOrderHistoryView, PartnerPlaceOrderView, \
     OrderStatisticsView, IncomingOrdersView
 
+
 router = DefaultRouter()
 router.register(
     r"partner-order-history", PartnerOrderHistoryView, basename="partner-order-history"
