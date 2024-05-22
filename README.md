@@ -1,5 +1,5 @@
 # HappyHours Backend(DRF) 
-# Server : http://16.170.203.161/api/schema/swagger-ui/
+# Server : https://happyhours.zapto.org/api/schema/swagger-ui/
 ## Overview
 HappyHours is a novel platform designed to enhance customer engagement for restaurants and cafes during their off-peak hours through the concept of "happy hours." This system allows participating businesses to offer free beverages during specified hours, addressing the drop in customer traffic typically experienced midday and between the end of lunch service and the start of dinner. By leveraging a subscription-based model, HappyHours aims to increase foot traffic and revenue for these venues, transforming how these businesses attract customers during less busy times.
 

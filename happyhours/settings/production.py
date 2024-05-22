@@ -1,3 +1,5 @@
+import paypalrestsdk
+
 from .base import *
 import dj_database_url
 
@@ -62,3 +64,9 @@ LOGGING = {
 SILKY_INTERCEPT_PERCENT = 100
 SILKY_PYTHON_PROFILER = True
 SILKY_SQL_ANALYSIS = True
+
+paypalrestsdk.configure({
+    "mode": "sandbox",
+    "client_id": os.getenv('CLIENT_ID'),
+    "client_secret": os.getenv('CLIENT_SECRET')
+})

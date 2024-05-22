@@ -1,86 +1,96 @@
-# schema_definitions.py
-from drf_spectacular.utils import (
-    OpenApiExample,
-    extend_schema_serializer,
-    OpenApiResponse,
-    extend_schema,
-)
-import datetime
+from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, inline_serializer, extend_schema, OpenApiParameter
+from rest_framework import serializers
 
-order_serializer_schema = extend_schema_serializer(
-    examples=[
-        OpenApiExample(
-            name="Create Order Success",
-            description="Successful creation of an order during happy hours",
-            value={
-                "beverage": 1,
-            },
-            request_only=True,
-        ),
-        OpenApiExample(
-            name="Create Order Success",
-            description="Example of successfully creating an order during happy hours",
-            value={
-                "beverage": 1,
-                "establishment": 1,
-                "client": 1,
-                "order_date": "2024-04-29T15:00:00Z",
-            },
-            response_only=True,
-            status_codes=["201"],
-        ),
-        OpenApiExample(
-            name="Create Order Failure - Happy Hours",
-            description="Failed attempt to create an order outside happy hours",
-            value={"detail": "You can only place an order during happy hours."},
-            response_only=True,
-            status_codes=["400"],
-        ),
-        OpenApiExample(
-            name="Create Order Failure - Order Frequency",
-            description="Failed attempt to create an order due to frequency limit (one per hour/day)",
-            value={
-                "detail": "You can only place one order per hour and one order per establishment per day."
-            },
-            response_only=True,
-            status_codes=["400"],
-        ),
-    ]
+from apps.order.serializers import OrderSerializer, OwnerOrderSerializer
+
+order_request_body = inline_serializer(
+    name='OrderRequest',
+    fields={
+        'beverage': serializers.IntegerField(),
+    }
 )
 
-order_history_serializer_schema = extend_schema_serializer(
-    examples=[
-        OpenApiExample(
-            name="Order History Retrieval Success",
-            description="Successful retrieval of order history for a client",
-            value=[
-                {
-                    "id": 1,
-                    "order_date": "2024-04-30T17:00:00Z",
-                    "establishment_name": "Joe's Bar",
-                    "beverage_name": "Cola",
-                    "client_details": "http://example.com/api/v1/users/1",
-                },
-                {
-                    "id": 2,
-                    "order_date": "2024-04-29T15:00:00Z",
-                    "establishment_name": "The Coffee Shop",
-                    "beverage_name": "Espresso",
-                    "client_details": "http://example.com/api/v1/users/1",
-                },
+partner_place_order_request_body = inline_serializer(
+    name='PartnerOrderRequest',
+    fields={
+        'beverage': serializers.IntegerField(),
+        'client_email': serializers.EmailField(),
+    }
+)
+
+place_order_responses = {
+    201: OpenApiResponse(
+        response=OrderSerializer,
+        description="Order placed successfully."
+    ),
+    400: OpenApiResponse(
+        description="Validation error.",
+        examples={
+            'non_field_errors': [
+                "Order can only be placed during happy hours.",
+                "You can only place one order per hour.",
+                "You can only place one order per establishment per day."
+            ]
+        }
+    ),
+}
+
+partner_place_order_responses = {
+    201: OpenApiResponse(
+        response=OwnerOrderSerializer,
+        description="Order placed successfully by partner."
+    ),
+    400: OpenApiResponse(
+        description="Validation error.",
+        examples={
+            'client_email': [
+                "No user found with this email address."
             ],
-            response_only=True,
-        )
-    ]
-)
-create_order_success = OpenApiExample(
-    name="Create Order Success",
-    description="Example of successfully creating an order during happy hours",
-    value={
-        "beverage": 1,
-        "establishment": 1,
-        "client": 1,
-        "order_date": "2024-04-29T15:00:00Z",
-    },
-    status_codes=["201"],
-)
+            'non_field_errors': [
+                "Order can only be placed during happy hours.",
+                "You can only place one order per hour.",
+                "You can only place one order per establishment per day."
+            ]
+        }
+    ),
+    403: OpenApiResponse(
+        description="Permission denied.",
+        examples={'error': 'You are not the owner of the establishment linked to this beverage.'}
+    ),
+}
+
+statistic_response = {
+    200: OpenApiResponse(
+        response=inline_serializer(
+            name='OrderStatisticsResponse',
+            fields={
+                'total_orders': serializers.IntegerField(),
+                'orders_by_category': serializers.ListField(
+                    child=inline_serializer(
+                        name='OrderByCategory',
+                        fields={
+                            'category': serializers.CharField(),
+                            'total_orders': serializers.IntegerField(),
+                        }
+                    )
+                ),
+            }
+        ),
+        description="Order statistics by establishment"
+    )}
+order_statistics_parameters = [
+    OpenApiParameter(
+        name='order_date__gte',
+        description='Filter orders by order date greater than or equal to a specific date',
+        required=False,
+        type=OpenApiTypes.DATE,
+        location=OpenApiParameter.QUERY
+    ),
+    OpenApiParameter(
+        name='order_date__lte',
+        description='Filter orders by order date less than or equal to a specific date',
+        required=False,
+        type=OpenApiTypes.DATE,
+        location=OpenApiParameter.QUERY
+    )
+]
