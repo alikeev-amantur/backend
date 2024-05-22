@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
-from rest_framework import generics, views, status
+from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,14 +12,21 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from apps.beverage.models import Beverage
 from apps.order.filters import OrderFilter
 from apps.order.models import Order
-from apps.order.serializers import OrderSerializer, OrderHistorySerializer, OwnerOrderSerializer
+from apps.order.schema_definitions import order_request_body, place_order_responses, partner_place_order_request_body, \
+    partner_place_order_responses, statistic_response, order_statistics_parameters
+from apps.order.serializers import OrderSerializer, OrderHistorySerializer, OwnerOrderSerializer, \
+    IncomingOrderSerializer
 from apps.partner.models import Establishment
 from happyhours.permissions import IsPartnerUser
 
 User = get_user_model()
 
 
-@extend_schema(tags=["Orders"], responses={201: OrderSerializer, 400: OrderSerializer})
+@extend_schema(
+    tags=["Orders"],
+    request=order_request_body,
+    responses=place_order_responses
+)
 class PlaceOrderView(generics.CreateAPIView):
     """
     API endpoint for placing orders. Only authenticated users can create orders.
@@ -38,7 +45,7 @@ class PlaceOrderView(generics.CreateAPIView):
         serializer.save(client=self.request.user, establishment=beverage.establishment)
 
 
-@extend_schema(tags=["Orders"])
+@extend_schema(tags=["Orders"], responses={200: OrderHistorySerializer})
 class ClientOrderHistoryView(ReadOnlyModelViewSet):
     """
     ViewSet for viewing a client's own order history.
@@ -55,7 +62,8 @@ class ClientOrderHistoryView(ReadOnlyModelViewSet):
         )
 
 
-@extend_schema(tags=["Orders"])
+
+@extend_schema(tags=["Orders"], responses={200: OrderHistorySerializer})
 class PartnerOrderHistoryView(ReadOnlyModelViewSet):
     """
     ViewSet for viewing order history for partners.
@@ -73,10 +81,14 @@ class PartnerOrderHistoryView(ReadOnlyModelViewSet):
         This queryset returns orders for the establishments owned by the logged-in user.
         """
         owned_establishments = Establishment.objects.filter(owner=self.request.user)
-        return Order.objects.filter(establishment__in=owned_establishments)
+        return Order.objects.filter(establishment__in=owned_establishments, status='completed')
 
 
-@extend_schema(tags=["Orders"])
+@extend_schema(
+    tags=["Orders"],
+    request=partner_place_order_request_body,
+    responses=partner_place_order_responses
+)
 class PartnerPlaceOrderView(generics.CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OwnerOrderSerializer
@@ -95,7 +107,7 @@ class PartnerPlaceOrderView(generics.CreateAPIView):
         serializer.save(establishment=establishment, client=client)
 
 
-@extend_schema(tags=["Orders"])
+@extend_schema(tags=["Orders"], parameters=order_statistics_parameters, responses=statistic_response)
 class OrderStatisticsView(generics.ListAPIView):
     permission_classes = [IsPartnerUser]
     filter_backends = [DjangoFilterBackend]
@@ -133,3 +145,16 @@ class OrderStatisticsView(generics.ListAPIView):
             {'category': stat['beverage__category__name'], 'total_orders': stat['total_orders']}
             for stat in orders_by_category
         ]
+
+
+class IncomingOrdersView(generics.ListAPIView):
+    serializer_class = IncomingOrderSerializer
+    permission_classes = [IsPartnerUser]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Order.objects.filter(
+            establishment__owner=user,
+            status__in=['pending', 'in_preparation']
+        )
+
