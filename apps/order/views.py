@@ -62,7 +62,6 @@ class ClientOrderHistoryView(ReadOnlyModelViewSet):
         )
 
 
-
 @extend_schema(tags=["Orders"], responses={200: OrderHistorySerializer})
 class PartnerOrderHistoryView(ReadOnlyModelViewSet):
     """
@@ -147,6 +146,7 @@ class OrderStatisticsView(generics.ListAPIView):
         ]
 
 
+@extend_schema(tags=["Orders"])
 class IncomingOrdersView(generics.ListAPIView):
     serializer_class = IncomingOrderSerializer
     permission_classes = [IsPartnerUser]
@@ -157,4 +157,3 @@ class IncomingOrdersView(generics.ListAPIView):
             establishment__owner=user,
             status__in=['pending', 'in_preparation']
         )
-
