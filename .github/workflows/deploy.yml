@@ -34,6 +34,8 @@ jobs:
             export SECRET_KEY='${{ secrets.SECRET_KEY }}'
             export GMAIL_USER='${{ secrets.GMAIL_USER }}'
             export GMAIL_PASSWORD='${{ secrets.GMAIL_PASSWORD }}'
+            export CLIENT_ID='${{ secrets.CLIENT_ID }}'
+            export CLIENT_SECRET='${{ secrets.CLIENT_SECRET }}'
             
             # Use Docker Compose to rebuild and restart the application
             docker-compose down
