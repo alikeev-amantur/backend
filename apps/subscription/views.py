@@ -3,6 +3,7 @@ from datetime import datetime
 import paypalrestsdk
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets, generics
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -151,7 +152,10 @@ class UserSubscriptionsView(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']
-        return Subscription.objects.filter(user__id=user_id)
+        subscriptions = Subscription.objects.filter(user__id=user_id)
+        for subscription in subscriptions:
+            subscription.deactivate()
+        return subscriptions
 
 
 @extend_schema(tags=["Subscriptions"], request=None, responses=deactivate_subscription_responses)
@@ -161,7 +165,8 @@ class DeactivateSubscriptionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request, *args, **kwargs):
-        instance = self.get_object()
+        pk = kwargs.get('pk')
+        instance = get_object_or_404(Subscription, pk=pk)
 
         if instance.user != request.user:
             return Response({'detail': 'Not allowed to deactivate this subscription.'},

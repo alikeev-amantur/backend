@@ -6,7 +6,6 @@ from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from apps.beverage.models import Beverage
@@ -17,6 +16,7 @@ from apps.order.schema_definitions import order_request_body, place_order_respon
 from apps.order.serializers import OrderSerializer, OrderHistorySerializer, OwnerOrderSerializer, \
     IncomingOrderSerializer
 from apps.partner.models import Establishment
+from apps.subscription.models import Subscription
 from happyhours.permissions import IsPartnerUser
 
 User = get_user_model()
@@ -40,9 +40,17 @@ class PlaceOrderView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
+        user = self.request.user
+
+        if not self.user_has_active_subscription(user):
+            raise PermissionDenied("You need an active subscription to place an order.")
+
         beverage_id = serializer.validated_data.get("beverage").id
         beverage = Beverage.objects.get(id=beverage_id)
-        serializer.save(client=self.request.user, establishment=beverage.establishment)
+        serializer.save(client=user, establishment=beverage.establishment)
+
+    def user_has_active_subscription(self, user):
+        return Subscription.objects.filter(user=user, is_active=True).exists()
 
 
 @extend_schema(tags=["Orders"], responses={200: OrderHistorySerializer})
@@ -103,7 +111,15 @@ class PartnerPlaceOrderView(generics.CreateAPIView):
                 'error': 'You are not the owner of the establishment linked to this beverage.'
             })
 
+        if not self.user_has_active_subscription(client):
+            raise PermissionDenied({
+                'error': "Client doesn't have an active subscription"
+            })
+
         serializer.save(establishment=establishment, client=client)
+
+    def user_has_active_subscription(self, user):
+        return Subscription.objects.filter(user=user, is_active=True).exists()
 
 
 @extend_schema(tags=["Orders"], parameters=order_statistics_parameters, responses=statistic_response)

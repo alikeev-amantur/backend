@@ -12,7 +12,7 @@ class FreeTrialSerializer(serializers.ModelSerializer):
 
     def validate_plan_id(self, value):
         try:
-            plan = SubscriptionPlan.objects.get(id=value)
+            SubscriptionPlan.objects.get(id=value)
         except SubscriptionPlan.DoesNotExist:
             raise serializers.ValidationError("Subscription plan does not exist.")
         return value
@@ -42,6 +42,8 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data.get('free_trial_days', 0) > 0 and data.get('price', 1) != 0:
             raise serializers.ValidationError("Price must be zero for free trial plans.")
+        if data.get('duration') != 'FT' and data.get('free_trial_days', 0) > 0:
+            raise serializers.ValidationError('Duration must be FT for free trial days')
         return data
 
     def validate_duration(self, value):
@@ -51,7 +53,7 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         return value
 
     def validate_price(self, value):
-        if value <= 0:
+        if value < 0:
             raise serializers.ValidationError("Price must be a positive value.")
         return value
 

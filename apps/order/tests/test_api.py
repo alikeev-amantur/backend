@@ -8,7 +8,7 @@ from happyhours.factories import (
     UserFactory,
     BeverageFactory,
     EstablishmentFactory,
-    OrderFactory,
+    OrderFactory, SubscriptionFactory,
 )
 
 
@@ -35,6 +35,7 @@ class TestOrderViews:
         )
         beverage = BeverageFactory(establishment=establishment)
         user = UserFactory(role="client")
+        SubscriptionFactory(user=user)
         self.client.force_authenticate(user=user)
         order_data = {"beverage": beverage.id}
         response = self.client.post(self.place_order_url, order_data)
@@ -93,6 +94,7 @@ class TestPartnerPlaceOrderView:
 
     def test_partner_place_order(self):
         self.client.force_authenticate(user=self.partner)
+        SubscriptionFactory(user=self.client_user)
         data = {
             'client_email': self.client_user.email,
             'beverage': self.beverage.id
@@ -130,4 +132,5 @@ class TestPartnerPlaceOrderView:
         }
         response = self.client.post(self.url, data, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
 

@@ -10,6 +10,7 @@ from apps.user.models import User
 # Create your models here.
 class SubscriptionPlan(models.Model):
     DURATION_CHOICES = [
+        ('FT', 'Free Trial'),
         ('1M', '1 Month'),
         ('3M', '3 Months'),
         ('6M', '6 Months'),
@@ -50,6 +51,10 @@ class Subscription(models.Model):
 
         super(Subscription, self).save(*args, **kwargs)
 
+    def deactivate(self):
+        if self.end_date and self.end_date < now():
+            self.is_active = False
+            self.save()
+
     def __str__(self):
         return f"{self.user.email} - {self.plan.name} {'(Trial)' if self.is_trial else ''}"
-    

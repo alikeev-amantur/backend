@@ -1,7 +1,14 @@
+from datetime import timedelta
+
 import factory
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import Point
 from django.utils import timezone
+from django.utils.timezone import now
+from factory.django import DjangoModelFactory
+
+from apps.subscription.models import Subscription, SubscriptionPlan
 from apps.user.models import ROLE_CHOICES
 from apps.beverage.models import Category, Beverage
 from apps.order.models import Order
@@ -53,6 +60,8 @@ class EstablishmentFactory(factory.django.DjangoModelFactory):
     phone_number = factory.Faker('phone_number')
     address = factory.Faker('address')
     owner = factory.SubFactory(UserFactory)
+    happyhours_start = '00:00:00'
+    happyhours_end = '23:50:00'
 
 
 class BeverageFactory(factory.django.DjangoModelFactory):
@@ -87,10 +96,48 @@ class FeedbackFactory(factory.django.DjangoModelFactory):
 
 
 class FeedbackAnswerFactory(factory.django.DjangoModelFactory):
-
     class Meta:
         model = FeedbackAnswer
 
     feedback = factory.SubFactory(FeedbackFactory)
     user = factory.SubFactory(UserFactory)
     text = factory.Faker('paragraph')
+
+
+class SubscriptionPlanFactory(DjangoModelFactory):
+    class Meta:
+        model = SubscriptionPlan
+
+    name = factory.Sequence(lambda n: f"Plan {n}")
+    duration = factory.Iterator(['FT', '1M', '3M', '6M', '1Y'])
+    price = factory.Faker('pydecimal', left_digits=3, right_digits=2, positive=True)
+    description = factory.Faker('text')
+    free_trial_days = factory.Faker('random_int', min=0, max=30)
+
+
+class SubscriptionFactory(DjangoModelFactory):
+    class Meta:
+        model = Subscription
+
+    user = factory.SubFactory(UserFactory)
+    plan = factory.SubFactory(SubscriptionPlanFactory)
+    start_date = factory.LazyFunction(now)
+    end_date = None
+    is_active = True
+    is_trial = False
+
+    @factory.post_generation
+    def set_end_date(obj, create, extracted, **kwargs):
+        if not obj.end_date:
+            if obj.is_trial and obj.plan.free_trial_days:
+                obj.end_date = obj.start_date + timedelta(days=obj.plan.free_trial_days)
+            else:
+                if obj.plan.duration == '1M':
+                    obj.end_date = obj.start_date + relativedelta(months=1)
+                elif obj.plan.duration == '3M':
+                    obj.end_date = obj.start_date + relativedelta(months=3)
+                elif obj.plan.duration == '6M':
+                    obj.end_date = obj.start_date + relativedelta(months=6)
+                elif obj.plan.duration == '1Y':
+                    obj.end_date = obj.start_date + relativedelta(years=1)
+            obj.save()

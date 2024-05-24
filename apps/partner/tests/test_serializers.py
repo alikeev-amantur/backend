@@ -49,6 +49,8 @@ class TestEstablishmentSerializer:
             'location': Point(10, 20),
             'description': 'A place for everyone.',
             'owner': user.id,
+            "happyhours_start": "00:00:00",
+            "happyhours_end": "23:00:00"
         }
         serializer = EstablishmentCreateUpdateSerializer(data=data, context={'request': MagicMock(user=user)})
         if serializer.is_valid():

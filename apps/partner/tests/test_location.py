@@ -20,6 +20,8 @@ class TestEstablishmentAPI:
             "location": {"type": "Point", "coordinates": [10, 20]},
             "description": "A new establishment",
             "address": "1234 Test St.",
+            "happyhours_start": "00:00:00",
+            "happyhours_end": "23:00:00"
         }
 
     def test_retrieve_establishment_with_location(self):
@@ -86,5 +88,5 @@ class TestEstablishmentLocationView:
             self.client.force_authenticate(self.user)
             response = self.client.get(self.url, params)
             assert response.status_code == status.HTTP_200_OK
-            assert len(response.data) == 1
-            assert response.data[0]["id"] == self.establishment1.id
+            assert len(response.data) == 2
+            assert response.data[1]["id"] == self.establishment1.id
