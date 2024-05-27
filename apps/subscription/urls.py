@@ -8,9 +8,9 @@ router = DefaultRouter()
 router.register(r'subscription-plans', SubscriptionPlanViewSet, basename='subscriptionplan')
 
 urlpatterns = [
-    path('create-payment/<int:plan_id>/', CreatePaymentView.as_view(), name='create_payment'),
-    path('execute-payment/', ExecutePaymentView.as_view(), name='execute_payment'),
-    path('cancel-payment/', CancelPaymentView.as_view(), name='cancel_payment'),
+    path('create-payment/<int:plan_id>/', CreatePaymentView.as_view(), name='create-payment'),
+    path('execute-payment/', ExecutePaymentView.as_view(), name='execute-payment'),
+    path('cancel-payment/', CancelPaymentView.as_view(), name='cancel-payment'),
     path('free-trial/', FreeTrialView.as_view(), name='free-trial'),
     path('', include(router.urls)),
     path('<int:user_id>/subscriptions/', UserSubscriptionsView.as_view(), name='user-subscriptions'),

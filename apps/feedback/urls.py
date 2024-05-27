@@ -39,7 +39,10 @@ urlpatterns = [
         ),
         name="feedback-answer-viewset"
     ),
-    path("feedbacks/list/", FeedbackListView.as_view(), name="feedback-list"),
+    path(
+        "feedbacks/list/<int:establishment_id>/", FeedbackListView.as_view(),
+        name="feedback-list"
+    ),
     path(
         "feedbacks/create/", FeedbackCreateView.as_view(),
         name="feedback-create"

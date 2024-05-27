@@ -15,9 +15,12 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from rest_framework_simplejwt.token_blacklist.models import (
+    OutstandingToken,
+    BlacklistedToken
+)
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenViewBase
 
 from happyhours.permissions import (
     IsUserOwner,
@@ -42,6 +45,7 @@ from .serializers import (
     PartnerProfileSerializer,
     ClientSerializer,
     PartnerProfileAdminSerializer,
+    TokenRefreshBlockCheckSerializer,
 )
 from .utils import (
     generate_reset_code,
@@ -90,6 +94,15 @@ class AdminLoginView(TokenObtainView):
     """
 
     serializer_class = AdminLoginSerializer
+
+
+@extend_schema(tags=["Users"])
+class TokenRefreshBlockCheckView(TokenViewBase):
+    """
+    checks
+    """
+
+    serializer_class = TokenRefreshBlockCheckSerializer
 
 
 @extend_schema(tags=["Users"])
@@ -375,13 +388,17 @@ class BlockUserView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = User.objects.get(email=serializer.validated_data["email"])
-        user.is_blocked = serializer.validated_data["is_blocked"]
-        tokens = OutstandingToken.objects.filter(user=user)
-        for token in tokens:
-            token.delete()
-        user.save()
-        return Response("Successful", status=status.HTTP_200_OK)
+        user = User.objects.get(email=serializer.validated_data.get("email"))
+        if user.role in ("client", "partner"):
+            is_blocked = serializer.validated_data.get("is_blocked")
+            user.is_blocked = is_blocked
+            if is_blocked:
+                tokens = OutstandingToken.objects.filter(user=user)
+                for token in tokens:
+                    BlacklistedToken.objects.get_or_create(token=token)
+            user.save()
+            return Response("Successful", status=status.HTTP_200_OK)
+        return Response("Impossible", status=status.HTTP_403_FORBIDDEN)
 
 
 @extend_schema(tags=["Users"])

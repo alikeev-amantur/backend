@@ -5,7 +5,9 @@ from .models import Establishment
 
 
 class EstablishmentAdmin(gis_admin.OSMGeoAdmin):
-    pass
+    list_display = [
+        "name", "id", "owner",
+    ]
 
 
 admin.site.register(Establishment, EstablishmentAdmin)
