@@ -87,14 +87,16 @@ class TokenRefreshBlockCheckSerializer(TokenRefreshSerializer):
     """
 
     def validate(self, attrs):
-        data = super().validate(attrs)
-        refresh = attrs.get("refresh")
-        refresh = RefreshToken(refresh)
+        refresh = self.token_class(attrs.get("refresh"))
+
         user_email = refresh.payload.get("email")
         user = User.objects.get(email=user_email)
+
         if user.is_blocked:
             refresh.blacklist()
             raise serializers.ValidationError("still straight busta")
+
+        data = {"access": str(refresh.access_token)}
         return data
 
 
