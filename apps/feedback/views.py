@@ -3,9 +3,12 @@ from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
 
-from happyhours.permissions import IsAdmin
+from happyhours.permissions import (
+    IsPartnerUser,
+    IsClientOnly,
+    IsAuthenticatedAndNotBlocked,
+)
 
 from .models import Feedback, FeedbackAnswer
 from .serializers import (
@@ -32,9 +35,15 @@ class FeedbackListView(ListAPIView):
     - Everyone
 
     """
-
     queryset = Feedback.objects.all()
     serializer_class = FeedbackSerializer
+
+    def get_queryset(self):
+        establishment = self.request.resolver_match.kwargs["establishment_id"]
+        if establishment:
+            queryset = Feedback.objects.filter(establishment=establishment)
+            return queryset
+        return Feedback.objects.none()
 
 
 @extend_schema(tags=["Feedbacks"])
@@ -58,7 +67,7 @@ class FeedbackAnswerListView(ListAPIView):
     def get_queryset(self):
         queryset = FeedbackAnswer.objects.all()
         feedback = self.request.resolver_match.kwargs["pk"]
-        if feedback:
+        if feedback > 0:
             queryset = FeedbackAnswer.objects.filter(feedback=feedback)
         return queryset
 
@@ -75,13 +84,13 @@ class FeedbackCreateView(CreateAPIView):
     - `text`: Content of the feedback
 
     ### Access Control:
-    - Authenticated user
+    - Only Client user
 
     """
 
     queryset = Feedback.objects.all()
     serializer_class = FeedbackCreateUpdateSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsClientOnly]
 
 
 @extend_schema(tags=["Feedbacks"])
@@ -123,7 +132,7 @@ class FeedbackAnswerCreate(CreateAPIView):
 
     queryset = FeedbackAnswer.objects.all()
     serializer_class = FeedbackAnswerCreateUpdateSerializer
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAuthenticatedAndNotBlocked]
 
 
 @extend_schema(tags=["Feedbacks"])
