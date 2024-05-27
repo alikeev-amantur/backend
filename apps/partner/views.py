@@ -9,7 +9,8 @@ from rest_framework.generics import (
     RetrieveAPIView,
     UpdateAPIView,
     DestroyAPIView,
-    get_object_or_404, ListCreateAPIView,
+    get_object_or_404,
+    ListCreateAPIView,
 )
 
 from rest_framework.permissions import IsAuthenticated

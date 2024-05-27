@@ -6,7 +6,8 @@ from rest_framework.generics import (
 
 from happyhours.permissions import (
     IsPartnerUser,
-    IsClientOnly
+    IsClientOnly,
+    IsAuthenticatedAndNotBlocked,
 )
 
 from .models import Feedback, FeedbackAnswer
@@ -131,7 +132,7 @@ class FeedbackAnswerCreate(CreateAPIView):
 
     queryset = FeedbackAnswer.objects.all()
     serializer_class = FeedbackAnswerCreateUpdateSerializer
-    permission_classes = [IsPartnerUser]
+    permission_classes = [IsAuthenticatedAndNotBlocked]
 
 
 @extend_schema(tags=["Feedbacks"])

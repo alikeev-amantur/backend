@@ -15,6 +15,7 @@ class FeedbackAnswerSerializer(SerializerRepresentationService):
             "feedback",
             "user",
             "display_user",
+            "user_role",
             "created_at",
             "text",
         )
@@ -29,6 +30,7 @@ class FeedbackSerializer(SerializerRepresentationService):
             "id",
             "user",
             "display_user",
+            "user_role",
             "created_at",
             "establishment",
             "text",
@@ -44,6 +46,7 @@ class FeedbackCreateUpdateSerializer(SerializerRepresentationService):
             "id",
             "user",
             "display_user",
+            "user_role",
             "created_at",
             "establishment",
             "text",
