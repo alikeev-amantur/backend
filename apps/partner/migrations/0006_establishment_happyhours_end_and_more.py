@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="establishment",
             name="happyhours_end",
-            field=models.TimeField(blank=True, null=True),
+            field=models.TimeField(blank=True),
         ),
         migrations.AddField(
             model_name="establishment",
             name="happyhours_start",
-            field=models.TimeField(blank=True, null=True),
+            field=models.TimeField(blank=True),
         ),
     ]

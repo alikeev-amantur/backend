@@ -2,16 +2,13 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
-
 from .models import Order
 
-from .schema_definitions import order_serializer_schema, order_history_serializer_schema
 from .utils import validate_order_happyhours, validate_order_per_hour, validate_order_per_day
 
 User = get_user_model()
 
 
-@order_serializer_schema
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
@@ -52,13 +49,26 @@ class OwnerOrderSerializer(OrderSerializer):
         return data
 
 
-@order_history_serializer_schema
 class OrderHistorySerializer(serializers.ModelSerializer):
     establishment_name = serializers.CharField(
         source="establishment.name", read_only=True
     )
     beverage_name = serializers.CharField(source="beverage.name", read_only=True)
+    client_details = serializers.HyperlinkedRelatedField(
+        view_name='v1:clients-profile-admin',
+        read_only=True
+    )
 
     class Meta:
         model = Order
-        fields = ["id", "order_date", "establishment_name", "beverage_name", "client", "status"]
+        fields = ["id", "order_date", "establishment_name", "beverage_name", "client", "client_details", "status"]
+
+
+class IncomingOrderSerializer(serializers.ModelSerializer):
+    beverage_name = serializers.CharField(source='beverage.name', read_only=True)
+    client = serializers.CharField(source='client.name', read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ["id", "order_date", "establishment", "beverage_name", "client", "status"]
+    

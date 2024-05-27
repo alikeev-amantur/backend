@@ -19,6 +19,8 @@ class TestEstablishmentAPI:
             "description": "A new sample establishment",
             "location": {"type": "Point", "coordinates": [10, 20]},
             "owner": user.id,
+            "happyhours_start": "00:00:00",
+            "happyhours_end": "23:00:00"
         }
         response = self.client.post(url, data, format="json")
         assert response.status_code == status.HTTP_201_CREATED
@@ -33,20 +35,28 @@ class TestEstablishmentAPI:
         assert response.status_code == status.HTTP_200_OK
 
     def test_update_establishment_api(self):
-        user = UserFactory()
+        user = UserFactory(role='partner')
         establishment = EstablishmentFactory(owner=user)
         self.client.force_authenticate(user=user)
         url = reverse("v1:establishment-detail", kwargs={"pk": establishment.pk})
         new_name = "Updated Name"
-        response = self.client.patch(url, {"name": new_name}, format="json")
+        data = {
+            "name": new_name,
+            "description": establishment.description,
+            "location": {"type": "Point", "coordinates": [10, 20]},
+            "owner": establishment.owner.id,
+            "happyhours_start": establishment.happyhours_start,
+            "happyhours_end": establishment.happyhours_end
+        }
+        response = self.client.put(url, data, format="json")
         assert response.status_code == status.HTTP_200_OK
         establishment.refresh_from_db()
         assert establishment.name == new_name
 
     def test_delete_establishment_api(self):
-        user = UserFactory(role="admin")
+        user = UserFactory(role="partner")
         self.client.force_authenticate(user=user)
-        establishment = EstablishmentFactory()
+        establishment = EstablishmentFactory(owner=user)
         url = reverse("v1:establishment-detail", kwargs={"pk": establishment.pk})
         response = self.client.delete(url)
         assert response.status_code == status.HTTP_204_NO_CONTENT

@@ -32,6 +32,7 @@ v1_api = (
         path('partner/', include('apps.partner.urls')),
         path('user/', include('apps.user.urls')),
         path('feedback/', include('apps.feedback.urls')),
+        path('subscription/', include('apps.subscription.urls'))
     ], 'v1',
 )
 

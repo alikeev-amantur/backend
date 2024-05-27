@@ -33,8 +33,9 @@ async def test_order_consumer():
         'type': 'order_message',
         'order_id': order.id,
         'establishment_id': establishment.id,
+        'beverage': order.beverage.name,
         'status': order.status,
-        'client': order.client.id,
+        'client': order.client.name,
         'details': f"New order created: {order.id}"
     }
     channel_layer = get_channel_layer()

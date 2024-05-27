@@ -14,6 +14,7 @@ from rest_framework.generics import (
 )
 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ViewSetMixin
 
 from happyhours.permissions import (
@@ -30,6 +31,7 @@ from .serializers import (
 from .models import Establishment
 from ..beverage.models import Beverage
 from ..beverage.serializers import BeverageSerializer
+from ..user.models import User
 
 
 @extend_schema(tags=["Establishments"])
@@ -135,3 +137,13 @@ class MenuView(viewsets.ReadOnlyModelViewSet):
         if not queryset.exists():
             raise NotFound("No beverages found for this establishment or establishment does not exist.")
         return super().list(request, *args, **kwargs)
+
+
+@extend_schema(tags=["Establishments"])
+class PartnerEstablishmentView(ListAPIView):
+    serializer_class = EstablishmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        partner_id = self.kwargs.get("partner_id")
+        return Establishment.objects.filter(owner=partner_id)
