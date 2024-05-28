@@ -1,7 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import FileExtensionValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer
+)
 
 from apps.user.schema_definitions import (
     client_registration_schema,
@@ -19,6 +23,7 @@ from apps.user.schema_definitions import (
     client_existence_schema,
     partner_profile_schema,
 )
+from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
@@ -38,7 +43,7 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         try:
             user = User.objects.get(email=attrs.get("email"))
-            if not user.is_blocked or user.is_superuser:
+            if not user.is_blocked and user.role in ("client", "partner"):
                 data = super().validate(attrs)
                 user_data = {
                     "id": user.id,
@@ -74,6 +79,25 @@ class AdminLoginSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError("Not admin user")
         except User.DoesNotExist:
             raise serializers.ValidationError("User does not exist")
+
+
+class TokenRefreshBlockCheckSerializer(TokenRefreshSerializer):
+    """
+    Serializer for Token Refresh with block checking
+    """
+
+    def validate(self, attrs):
+        refresh = self.token_class(attrs.get("refresh"))
+
+        user_email = refresh.payload.get("email")
+        user = User.objects.get(email=user_email)
+
+        if user.is_blocked:
+            refresh.blacklist()
+            raise serializers.ValidationError("still straight busta")
+
+        data = {"access": str(refresh.access_token)}
+        return data
 
 
 @admin_block_user_schema
@@ -114,6 +138,13 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         required=True,
         max_length=255,
         validators=[UniqueValidator(queryset=User.objects.all())],
+    )
+    avatar = serializers.ImageField(
+        validators=[
+            FileExtensionValidator(allowed_extensions=[
+                "jpg", "jpeg", "png", "webp"
+            ])
+        ]
     )
 
     class Meta:
@@ -223,6 +254,13 @@ class UserSerializer(serializers.ModelSerializer):
     """
 
     email = serializers.EmailField(read_only=True)
+    avatar = serializers.ImageField(
+        validators=[
+            FileExtensionValidator(allowed_extensions=[
+                "jpg", "jpeg", "png", "webp"
+            ])
+        ]
+    )
 
     class Meta:
         model = User
@@ -239,6 +277,13 @@ class ClientProfileAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         email = serializers.EmailField(read_only=True)
+        avatar = serializers.ImageField(
+            validators=[
+                FileExtensionValidator(allowed_extensions=[
+                    "jpg", "jpeg", "png", "webp"
+                ])
+            ]
+        )
 
         class Meta:
             model = User
@@ -305,6 +350,13 @@ class ClientSerializer(serializers.ModelSerializer):
     """
 
     email = serializers.EmailField(read_only=True)
+    avatar = serializers.ImageField(
+        validators=[
+            FileExtensionValidator(allowed_extensions=[
+                "jpg", "jpeg", "png", "webp"
+            ])
+        ]
+    )
 
     class Meta:
         model = User

@@ -1,4 +1,5 @@
 from django.contrib.gis.geos import Point
+from django.core.validators import FileExtensionValidator
 from rest_framework import serializers
 
 # from rest_framework.exceptions import ValidationError
@@ -53,6 +54,13 @@ class EstablishmentCreateUpdateSerializer(BaseEstablishmentSerializer):
     """
     Serializer for creating and updating Establishment instances.
     """
+    logo = serializers.ImageField(
+        validators=[
+            FileExtensionValidator(allowed_extensions=[
+                "jpg", "jpeg", "png", "webp"
+            ])
+        ]
+    )
 
     def validate_location(self, value):
         """Validate that location contains valid latitude and longitude."""
