@@ -87,8 +87,12 @@ class PartnerOrderHistoryView(ReadOnlyModelViewSet):
         """
         This queryset returns orders for the establishments owned by the logged-in user.
         """
-        owned_establishments = Establishment.objects.filter(owner=self.request.user)
-        return Order.objects.filter(establishment__in=owned_establishments, status='completed')
+        establishment_id = self.kwargs['establishment_id']
+        establishment = Establishment.objects.get(id=establishment_id)
+
+        if establishment.owner != self.request.user:
+            raise PermissionDenied("You do not have permission to view these orders.")
+        return Order.objects.filter(establishment=establishment, status='completed')
 
 
 @extend_schema(
