@@ -8,6 +8,8 @@ from rest_framework_gis.fields import GeometryField
 from apps.partner.models import Establishment
 from apps.partner.utils import phone_number_validation
 
+from apps.feedback.models import Feedback
+
 
 class BaseEstablishmentSerializer(serializers.ModelSerializer):
     """
@@ -15,6 +17,7 @@ class BaseEstablishmentSerializer(serializers.ModelSerializer):
     """
 
     location = GeometryField()
+    feedback_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Establishment
@@ -30,7 +33,12 @@ class BaseEstablishmentSerializer(serializers.ModelSerializer):
             "happyhours_start",
             "happyhours_end",
             "owner",
+            "feedback_count",
         )
+
+    def get_feedback_count(self, obj):
+        feedback_count = Feedback.objects.filter(establishment=obj).count()
+        return feedback_count
 
     def get_image_url(self, obj):
         request = self.context.get("request")
@@ -59,7 +67,7 @@ class EstablishmentCreateUpdateSerializer(BaseEstablishmentSerializer):
             FileExtensionValidator(allowed_extensions=[
                 "jpg", "jpeg", "png", "webp"
             ])
-        ]
+        ], required=False
     )
 
     def validate_location(self, value):

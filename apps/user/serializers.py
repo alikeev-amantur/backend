@@ -97,6 +97,14 @@ class TokenRefreshBlockCheckSerializer(TokenRefreshSerializer):
             raise serializers.ValidationError("still straight busta")
 
         data = {"access": str(refresh.access_token)}
+        refresh.blacklist()
+
+        refresh.set_jti()
+        refresh.set_exp()
+        refresh.set_iat()
+
+        data["refresh"] = str(refresh)
+
         return data
 
 
@@ -144,7 +152,8 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
             FileExtensionValidator(allowed_extensions=[
                 "jpg", "jpeg", "png", "webp"
             ])
-        ]
+        ],
+        required=False
     )
 
     class Meta:
@@ -259,7 +268,7 @@ class UserSerializer(serializers.ModelSerializer):
             FileExtensionValidator(allowed_extensions=[
                 "jpg", "jpeg", "png", "webp"
             ])
-        ]
+        ], required=False
     )
 
     class Meta:
@@ -282,7 +291,7 @@ class ClientProfileAdminSerializer(serializers.ModelSerializer):
                 FileExtensionValidator(allowed_extensions=[
                     "jpg", "jpeg", "png", "webp"
                 ])
-            ]
+            ], required=False
         )
 
         class Meta:
@@ -355,7 +364,7 @@ class ClientSerializer(serializers.ModelSerializer):
             FileExtensionValidator(allowed_extensions=[
                 "jpg", "jpeg", "png", "webp"
             ])
-        ]
+        ], required=False
     )
 
     class Meta:
