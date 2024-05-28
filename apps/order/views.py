@@ -168,8 +168,13 @@ class IncomingOrdersView(generics.ListAPIView):
     permission_classes = [IsPartnerUser]
 
     def get_queryset(self):
-        user = self.request.user
+        establishment_id = self.kwargs['establishment_id']
+        establishment = Establishment.objects.get(id=establishment_id)
+
+        if establishment.owner != self.request.user:
+            raise PermissionDenied("You do not have permission to view these orders.")
+
         return Order.objects.filter(
-            establishment__owner=user,
+            establishment=establishment,
             status__in=['pending', 'in_preparation']
         )
