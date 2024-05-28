@@ -23,6 +23,7 @@ class FeedbackAnswerSerializer(SerializerRepresentationService):
 
 @feedback_schema
 class FeedbackSerializer(SerializerRepresentationService):
+    answers = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Feedback
@@ -34,7 +35,12 @@ class FeedbackSerializer(SerializerRepresentationService):
             "created_at",
             "establishment",
             "text",
+            "answers",
         )
+
+    def get_answers(self, obj):
+        answers = FeedbackAnswer.objects.filter(feedback=obj).count()
+        return bool(answers)
 
 
 @feedback_schema
