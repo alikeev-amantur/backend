@@ -12,7 +12,9 @@ feedback_schema = extend_schema_serializer(
                     "display_user": "Client name",
                     "created_at": "2024-05-15T13:08:41.489420+06:00",
                     "establishment": 1,
-                    "text": "Text of feedback"
+                    "text": "Text of feedback",
+                    "answers": True,
+                    "user_role": "client",
                 },
                 {
                     "id": 2,
@@ -20,7 +22,9 @@ feedback_schema = extend_schema_serializer(
                     "display_user": "Other Client name",
                     "created_at": "2024-05-15T13:11:11.105170+06:00",
                     "establishment": 1,
-                    "text": "Text of feedback"
+                    "text": "Text of feedback",
+                    "answers": False,
+                    "user_role": "client",
                 },
             ],
             response_only=True,
@@ -34,7 +38,9 @@ feedback_schema = extend_schema_serializer(
                 "display_user": "Client name",
                 "created_at": "2024-05-07T14:49:37.914129+06:00",
                 "establishment": 1,
-                "text": "Text of feedback"
+                "text": "Text of feedback",
+                "answers": True,
+                "user_role": "client",
             },
             response_only=True,
         ),
@@ -47,7 +53,9 @@ feedback_schema = extend_schema_serializer(
                 "display_user": "Client name",
                 "created_at": "2024-05-07T14:49:37.914129+06:00",
                 "establishment": 1,
-                "text": "Text of feedback"
+                "text": "Text of feedback",
+                "answers": True,
+                "user_role": "client",
             },
             response_only=True,
         ),
@@ -66,7 +74,9 @@ feedback_answer_schema = extend_schema_serializer(
                     "user": "admin@mail.com",
                     "display_user": "Admin",
                     "created_at": "2024-05-15T13:39:36.660065+06:00",
-                    "text": "Text of feedback answer"
+                    "text": "Text of feedback answer",
+                    "answers": False,
+                    "user_role": "client"
                 },
                 {
                     "id": 2,
@@ -74,7 +84,9 @@ feedback_answer_schema = extend_schema_serializer(
                     "user": "partner@mail.com",
                     "display_user": "Establishment Name",
                     "created_at": "2024-05-15T15:57:42.598603+06:00",
-                    "text": "Text of feedback answer"
+                    "text": "Text of feedback answer",
+                    "answers": False,
+                    "user_role": "client"
                 }
             ],
             response_only=True,
@@ -88,7 +100,9 @@ feedback_answer_schema = extend_schema_serializer(
                 "user": "admin@mail.com",
                 "display_user": "Admin",
                 "created_at": "2024-05-07T14:52:54.661184+06:00",
-                "text": "Text of feedback answer"
+                "text": "Text of feedback answer",
+                "answers": False,
+                "user_role": "admin"
             },
             response_only=True,
         ),
@@ -101,7 +115,9 @@ feedback_answer_schema = extend_schema_serializer(
                 "user": "partner@mail.com",
                 "display_user": "Establishment Name",
                 "created_at": "2024-05-07T14:52:54.661184+06:00",
-                "text": "Text of feedback answer"
+                "text": "Text of feedback answer",
+                "answers": False,
+                "user_role": "partner"
             },
             response_only=True,
         ),
@@ -114,7 +130,9 @@ feedback_answer_schema = extend_schema_serializer(
                 "user": "admin@mail.com",
                 "display_user": "Admin",
                 "created_at": "2024-05-07T14:52:54.661184+06:00",
-                "text": "Text of feedback answer"
+                "text": "Text of feedback answer",
+                "answers": False,
+                "user_role": "admin",
             },
             response_only=True,
         ),
@@ -127,7 +145,9 @@ feedback_answer_schema = extend_schema_serializer(
                 "user": "partner@mail.com",
                 "display_user": "Establishment Name",
                 "created_at": "2024-05-07T14:52:54.661184+06:00",
-                "text": "Text of feedback answer"
+                "text": "Text of feedback answer",
+                "answers": False,
+                "user_role": "partner"
             },
             response_only=True,
         ),
