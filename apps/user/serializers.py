@@ -28,12 +28,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 User = get_user_model()
 
 
-@client_partner_login
-class TokenObtainSerializer(TokenObtainPairSerializer):
-    """
-    Token Obtaining Serializer
-    """
-
+class BaseTokenObtainSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -43,42 +38,49 @@ class TokenObtainSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         try:
             user = User.objects.get(email=attrs.get("email"))
-            if not user.is_blocked and user.role in ("client", "partner"):
-                data = super().validate(attrs)
-                user_data = {
-                    "id": user.id,
-                    "email": user.email,
-                    "name": user.name,
-                    "role": user.role,
-                    "max_establishments": user.max_establishments
-                }
-                data.update(user_data)
-                return data
-            raise serializers.ValidationError("busta straight busta")
+            data = super().validate(attrs)
+            user_data = {
+                "id": user.id,
+                "email": user.email,
+            }
+            data.update(user_data)
+            return data
         except User.DoesNotExist:
             raise serializers.ValidationError("User does not exist")
 
 
+@client_partner_login
+class TokenObtainSerializer(BaseTokenObtainSerializer):
+    """
+    Token Obtaining Serializer
+    """
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = User.objects.get(email=data.get("email"))
+        if not user.is_blocked and user.role in ("client", "partner"):
+            user_data = {
+                "name": user.name,
+                "role": user.role,
+                "max_establishments": user.max_establishments
+            }
+            data.update(user_data)
+            return data
+        raise serializers.ValidationError("busta straight busta")
+
+
 @admin_login_schema
-class AdminLoginSerializer(TokenObtainPairSerializer):
+class AdminLoginSerializer(BaseTokenObtainSerializer):
     """
     Token Obtaining Serializer for admin, superuser
     """
 
     def validate(self, attrs):
-        try:
-            user = User.objects.get(email=attrs.get("email"))
-            if user.role == "admin" or user.is_superuser:
-                data = super().validate(attrs)
-                user_data = {
-                    "id": user.id,
-                    "email": user.email,
-                }
-                data.update(user_data)
-                return data
-            raise serializers.ValidationError("Not admin user")
-        except User.DoesNotExist:
-            raise serializers.ValidationError("User does not exist")
+        data = super().validate(attrs)
+        user = User.objects.get(email=data.get("email"))
+        if user.role == "admin" or user.is_superuser:
+            return data
+        raise serializers.ValidationError("Not admin user")
 
 
 class TokenRefreshBlockCheckSerializer(TokenRefreshSerializer):
@@ -90,22 +92,25 @@ class TokenRefreshBlockCheckSerializer(TokenRefreshSerializer):
         refresh = self.token_class(attrs.get("refresh"))
 
         user_email = refresh.payload.get("email")
-        user = User.objects.get(email=user_email)
+        try:
+            user = User.objects.get(email=user_email)
 
-        if user.is_blocked:
+            if user.is_blocked:
+                refresh.blacklist()
+                raise serializers.ValidationError("still straight busta")
+
+            data = {"access": str(refresh.access_token)}
             refresh.blacklist()
-            raise serializers.ValidationError("still straight busta")
 
-        data = {"access": str(refresh.access_token)}
-        refresh.blacklist()
+            refresh.set_jti()
+            refresh.set_exp()
+            refresh.set_iat()
 
-        refresh.set_jti()
-        refresh.set_exp()
-        refresh.set_iat()
+            data["refresh"] = str(refresh)
 
-        data["refresh"] = str(refresh)
-
-        return data
+            return data
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User does not exist")
 
 
 @admin_block_user_schema
