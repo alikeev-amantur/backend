@@ -6,9 +6,6 @@ from .views import PlaceOrderView, ClientOrderHistoryView, PartnerOrderHistoryVi
 
 router = DefaultRouter()
 router.register(
-    r"<int:establishment_id>/partner-order-history", PartnerOrderHistoryView, basename="partner-order-history"
-)
-router.register(
     r"client-order-history", ClientOrderHistoryView, basename="client-order-history"
 )
 urlpatterns = [
