@@ -71,7 +71,7 @@ class ClientOrderHistoryView(ReadOnlyModelViewSet):
 
 
 @extend_schema(tags=["Orders"], responses={200: OrderHistorySerializer})
-class PartnerOrderHistoryView(ReadOnlyModelViewSet):
+class PartnerOrderHistoryView(generics.ListAPIView):
     """
     ViewSet for viewing order history for partners.
     Lists all orders related to establishments owned by the authenticated partner and
