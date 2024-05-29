@@ -92,7 +92,7 @@ class PartnerOrderHistoryView(generics.ListAPIView):
 
         if establishment.owner != self.request.user:
             raise PermissionDenied("You do not have permission to view these orders.")
-        return Order.objects.filter(establishment=establishment, status='completed')
+        return Order.objects.filter(establishment=establishment, status__in=['completed', 'cancelled'])
 
 
 @extend_schema(
