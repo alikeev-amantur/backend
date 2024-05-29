@@ -71,7 +71,7 @@ class ClientOrderHistoryView(ReadOnlyModelViewSet):
 
 
 @extend_schema(tags=["Orders"], responses={200: OrderHistorySerializer})
-class PartnerOrderHistoryView(ReadOnlyModelViewSet):
+class PartnerOrderHistoryView(generics.ListAPIView):
     """
     ViewSet for viewing order history for partners.
     Lists all orders related to establishments owned by the authenticated partner and
@@ -87,8 +87,12 @@ class PartnerOrderHistoryView(ReadOnlyModelViewSet):
         """
         This queryset returns orders for the establishments owned by the logged-in user.
         """
-        owned_establishments = Establishment.objects.filter(owner=self.request.user)
-        return Order.objects.filter(establishment__in=owned_establishments, status='completed')
+        establishment_id = self.kwargs['establishment_id']
+        establishment = Establishment.objects.get(id=establishment_id)
+
+        if establishment.owner != self.request.user:
+            raise PermissionDenied("You do not have permission to view these orders.")
+        return Order.objects.filter(establishment=establishment, status__in=['completed', 'cancelled'])
 
 
 @extend_schema(
@@ -168,8 +172,13 @@ class IncomingOrdersView(generics.ListAPIView):
     permission_classes = [IsPartnerUser]
 
     def get_queryset(self):
-        user = self.request.user
+        establishment_id = self.kwargs['establishment_id']
+        establishment = Establishment.objects.get(id=establishment_id)
+
+        if establishment.owner != self.request.user:
+            raise PermissionDenied("You do not have permission to view these orders.")
+
         return Order.objects.filter(
-            establishment__owner=user,
+            establishment=establishment,
             status__in=['pending', 'in_preparation']
         )
