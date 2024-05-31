@@ -46,6 +46,7 @@ from .serializers import (
     ClientSerializer,
     PartnerProfileAdminSerializer,
     TokenRefreshBlockCheckSerializer,
+    PartnerLoginSerializer,
 )
 from .utils import (
     generate_reset_code,
@@ -83,7 +84,7 @@ class AdminLoginView(TokenObtainView):
     Separated admin authorization. View responsible for creating valid refresh
     and access tokens for admin role or superuser.
     Return not only tokens but a user's information
-    (id, email, name, role, max_establishments)
+    (id, email, name, role)
 
     ### Access Control:
     - Only users with admin role or superuser
@@ -97,9 +98,27 @@ class AdminLoginView(TokenObtainView):
 
 
 @extend_schema(tags=["Users"])
+class PartnerLoginView(TokenObtainView):
+    """
+    Separated partner authorization. View responsible for creating valid refresh
+    and access tokens for partner role.
+    Return not only tokens but a user's information
+    (id, email, name, role, max_establishments)
+
+    ### Access Control:
+    - Only users with partner role
+
+    ### Implementation Details:
+    - Serializer check if user exists in queryset. If not will throw an
+    exception, checks if user has admin role or superuser
+    """
+    serializer_class = PartnerLoginSerializer
+
+
+@extend_schema(tags=["Users"])
 class TokenRefreshBlockCheckView(TokenViewBase):
     """
-    checks
+    Check if user is blocked
     """
 
     serializer_class = TokenRefreshBlockCheckSerializer

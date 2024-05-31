@@ -19,12 +19,12 @@ from .views import (
     PartnerViewSetAdmin,
     ClientViewSetAdmin,
     TokenRefreshBlockCheckView,
+    PartnerLoginView,
 )
 
 TokenBlacklistView = extend_schema(tags=["Users"])(TokenBlacklistView)
 
 urlpatterns = [
-    path("auth/token/", TokenObtainView.as_view(), name="token-obtain-pair"),
     path("auth/token/refresh/", TokenRefreshBlockCheckView.as_view(), name="token-refresh"),
     path("auth/logout/", TokenBlacklistView.as_view(), name="logout"),
     path(
@@ -66,6 +66,8 @@ urlpatterns = [
     path("admin/partners/list/", PartnerListView.as_view(), name="partner-list"),
     path("admin/partners/create/", CreatePartner.as_view(), name="create-partner"),
     path("admin/clients/list/", ClientListView.as_view(), name="client-list"),
+    path("partner/auth/token/", PartnerLoginView.as_view(), name="partner-login"),
+    path("client/auth/token/", TokenObtainView.as_view(), name="client-login"),
     path("client/register/", ClientRegisterView.as_view(), name="client-register"),
     path(
         "client/password/forgot/",
