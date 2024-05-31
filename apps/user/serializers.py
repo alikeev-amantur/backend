@@ -12,7 +12,6 @@ from apps.user.schema_definitions import (
     partner_creation_schema,
     user_profile_schema,
     client_profile_retrieval_schema,
-    client_partner_login,
     admin_login_schema,
     admin_block_user_schema,
     user_password_forgot_schema,
@@ -22,6 +21,8 @@ from apps.user.schema_definitions import (
     partner_list_schema,
     client_existence_schema,
     partner_profile_schema,
+    client_login_schema,
+    partner_login_schema,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -49,7 +50,7 @@ class BaseTokenObtainSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError("User does not exist")
 
 
-@client_partner_login
+@client_login_schema
 class TokenObtainSerializer(BaseTokenObtainSerializer):
     """
     Token Obtaining Serializer
@@ -58,11 +59,28 @@ class TokenObtainSerializer(BaseTokenObtainSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         user = User.objects.get(email=data.get("email"))
-        if not user.is_blocked and user.role in ("client", "partner"):
+        if not user.is_blocked and user.role == "client":
             user_data = {
                 "name": user.name,
                 "role": user.role,
-                "max_establishments": user.max_establishments
+            }
+            data.update(user_data)
+            return data
+        raise serializers.ValidationError("busta straight busta")
+
+
+@partner_login_schema
+class PartnerLoginSerializer(BaseTokenObtainSerializer):
+    """
+    Token Obtaining Serializer for partner
+    """
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = User.objects.get(email=data.get("email"))
+        if not user.is_blocked and user.role == "partner":
+            user_data = {
+                "max_establishments": user.max_establishments,
             }
             data.update(user_data)
             return data
