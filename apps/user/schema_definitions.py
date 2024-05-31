@@ -207,36 +207,10 @@ client_profile_retrieval_schema = extend_schema_serializer(
     ]
 )
 
-client_existence_schema = extend_schema_serializer(
+client_login_schema = extend_schema_serializer(
     examples=[
         OpenApiExample(
-            name="Client Existence Success",
-            description="Client Existence Success",
-            value={
-                "id": 10,
-                "email": "user@example.com",
-                "name": "string",
-                "date_of_birth": None,
-                "avatar": None
-            }
-            ,
-            response_only=True,
-        ),
-        OpenApiExample(
-            name="Client Existence Error",
-            description="Client Existence Error",
-            value={
-                "detail": "No User matches the given query."
-            },
-            response_only=True,
-        ),
-    ]
-)
-
-client_partner_login = extend_schema_serializer(
-    examples=[
-        OpenApiExample(
-            name="Client/Partner User Login",
+            name="Client User Login",
             description="Successful Client Login",
             value={
                 "refresh": "supersecretrefreshtoken",
@@ -245,19 +219,49 @@ client_partner_login = extend_schema_serializer(
                 "email": "customer@mail.com",
                 "name": "null",
                 "role": "client",
+            },
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Client User Login Error",
+            description="Failed Client Login",
+            value={"detail": "No active account found with the given credentials"},
+            response_only=True,
+        ),
+        OpenApiExample(
+            name="Client User Login Error",
+            description="Failed Client Login (blocked)",
+            value={"non_field_errors": ["busta straight busta"]},
+            response_only=True,
+        ),
+    ]
+)
+
+partner_login_schema = extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            name="Partner User Login",
+            description="Successful Partner Login",
+            value={
+                "refresh": "supersecretrefreshtoken",
+                "access": "supersecretaccesstoken",
+                "id": 1,
+                "email": "partner@mail.com",
+                "name": "null",
+                "role": "partner",
                 "max_establishments": 1,
             },
             response_only=True,
         ),
         OpenApiExample(
-            name="Client/Partner User Login Error",
-            description="Failed Client/Partner Login",
+            name="Partner User Login Error",
+            description="Failed Partner Login",
             value={"detail": "No active account found with the given credentials"},
             response_only=True,
         ),
         OpenApiExample(
-            name="Client/Partner User Login Error",
-            description="Failed Client/Partner Login (blocked)",
+            name="Partner User Login Error",
+            description="Failed Partner Login (blocked)",
             value={"non_field_errors": ["busta straight busta"]},
             response_only=True,
         ),

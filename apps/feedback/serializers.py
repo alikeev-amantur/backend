@@ -38,7 +38,7 @@ class FeedbackSerializer(SerializerRepresentationService):
             "answers",
         )
 
-    def get_answers(self, obj):
+    def get_answers(self, obj) -> bool:
         answers = FeedbackAnswer.objects.filter(feedback=obj).exists()
         return answers
 
