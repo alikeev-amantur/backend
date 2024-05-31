@@ -15,6 +15,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 @beverage_serializer_schema
 class BeverageSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Beverage
         fields = [
@@ -25,12 +27,14 @@ class BeverageSerializer(serializers.ModelSerializer):
             "availability_status",
             "establishment",
             "category",
+            "category_id",
         ]
 
     def to_representation(self, instance):
         """Modify the output of the GET method to show names instead of IDs."""
         ret = super().to_representation(instance)
         ret["category"] = instance.category.name if instance.category else None
+        ret["category_id"] = instance.category.id
         ret["establishment"] = (
             instance.establishment.name if instance.establishment else None
         )
