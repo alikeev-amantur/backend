@@ -19,7 +19,6 @@ from apps.user.schema_definitions import (
     user_password_change_schema,
     client_list_schema,
     partner_list_schema,
-    client_existence_schema,
     partner_profile_schema,
     client_login_schema,
     partner_login_schema,
