@@ -181,6 +181,7 @@ class DeactivateSubscriptionView(APIView):
         return Response({'detail': 'Subscription deactivated successfully.'}, status=status.HTTP_200_OK)
 
 
+@extend_schema(tags=["Subscriptions"])
 class ActiveUserSubscriptionView(generics.RetrieveAPIView):
     serializer_class = SubscriptionSerializer
     permission_classes = [IsAuthenticated]
