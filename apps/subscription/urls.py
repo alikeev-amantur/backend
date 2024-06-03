@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from apps.subscription.views import CreatePaymentView, ExecutePaymentView, CancelPaymentView, FreeTrialView, \
-    SubscriptionPlanViewSet, UserSubscriptionsView, DeactivateSubscriptionView
+    SubscriptionPlanViewSet, UserSubscriptionsView, DeactivateSubscriptionView, ActiveUserSubscriptionView
 
 router = DefaultRouter()
 router.register(r'subscription-plans', SubscriptionPlanViewSet, basename='subscriptionplan')
@@ -14,5 +14,6 @@ urlpatterns = [
     path('free-trial/', FreeTrialView.as_view(), name='free-trial'),
     path('', include(router.urls)),
     path('<int:user_id>/subscriptions/', UserSubscriptionsView.as_view(), name='user-subscriptions'),
-    path('deactivate/<int:pk>/', DeactivateSubscriptionView.as_view(), name='deactivate-subscription')
+    path('deactivate/<int:pk>/', DeactivateSubscriptionView.as_view(), name='deactivate-subscription'),
+    path('subscriptions/', ActiveUserSubscriptionView.as_view(), name='active-subscription')
 ]
