@@ -179,3 +179,17 @@ class DeactivateSubscriptionView(APIView):
         instance.save()
 
         return Response({'detail': 'Subscription deactivated successfully.'}, status=status.HTTP_200_OK)
+
+
+class ActiveUserSubscriptionView(generics.RetrieveAPIView):
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        user = self.request.user
+        subscriptions = Subscription.objects.filter(user=user)
+        for subscription in subscriptions:
+            subscription.deactivate()
+
+        active_subscription = get_object_or_404(Subscription, user=user, is_active=True)
+        return active_subscription
