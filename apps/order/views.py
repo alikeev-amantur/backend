@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics
@@ -142,9 +142,11 @@ class OrderStatisticsView(generics.ListAPIView):
 
         total_orders = self.get_total_orders(queryset)
         orders_by_category = self.get_orders_by_category(queryset)
+        total_sum_prices = self.get_total_sum_prices(queryset)
 
         data = {
             'total_orders': total_orders,
+            'total_sum_prices': total_sum_prices,
             'orders_by_category': orders_by_category,
         }
 
@@ -153,6 +155,9 @@ class OrderStatisticsView(generics.ListAPIView):
     def get_total_orders(self, queryset):
         total_orders = queryset.count()
         return total_orders
+
+    def get_total_sum_prices(self, queryset):
+        return queryset.aggregate(total_sum=Sum('beverage__price'))['total_sum']
 
     def get_orders_by_category(self, queryset):
         orders_by_category = (
