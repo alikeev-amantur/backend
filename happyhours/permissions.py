@@ -85,3 +85,12 @@ class IsAuthenticatedAndNotBlocked(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return bool(request.user.is_authenticated and not request.user.is_blocked)
+
+
+class IsFeedbackAnswerOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return bool(
+            (obj.user == request.user or request.user.is_superuser or
+             obj.feedback.establishment.owner == request.user)
+            and not request.user.is_blocked
+        )
