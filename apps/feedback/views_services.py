@@ -7,6 +7,7 @@ from rest_framework.viewsets import ViewSetMixin
 from happyhours.permissions import (
     IsUserObjectOwner,
     IsAdmin,
+    IsFeedbackAnswerOwner,
 )
 
 
@@ -21,7 +22,19 @@ class FeedbackPermissions:
         return [permission() for permission in permissions]
 
 
+class FeedbackAnswerPermissions:
+
+    def get_permissions(self):
+        if self.action == "retrieve":
+            permissions = []
+        elif self.action in ("update", "destroy"):
+            permissions = [IsFeedbackAnswerOwner]
+        else:
+            permissions = [IsAdmin]
+        return [permission() for permission in permissions]
+
+
 class FeedbackViewSetService(
-    FeedbackPermissions, ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+    ViewSetMixin, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 ):
     pass
