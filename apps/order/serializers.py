@@ -54,6 +54,7 @@ class OrderHistorySerializer(serializers.ModelSerializer):
         source="establishment.name", read_only=True
     )
     beverage_name = serializers.CharField(source="beverage.name", read_only=True)
+    client = serializers.CharField(source="client.name", read_only=True)
     client_details = serializers.HyperlinkedRelatedField(
         view_name='v1:clients-profile-admin',
         read_only=True
@@ -71,4 +72,3 @@ class IncomingOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ["id", "order_date", "establishment", "beverage_name", "client", "status"]
-    

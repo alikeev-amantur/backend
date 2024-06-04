@@ -19,11 +19,18 @@ from apps.user.models import User
 from happyhours.permissions import IsAdmin
 
 
-# Create your views here.
 @extend_schema(tags=["Subscriptions"])
 class CreatePaymentView(APIView):
     def post(self, request, plan_id):
         plan = SubscriptionPlan.objects.get(id=plan_id)
+        user = request.user
+        active_subscriptions = Subscription.objects.filter(user=user, is_active=True, is_trial=False)
+        if active_subscriptions.exists():
+            active_subscription = active_subscriptions.first()
+            if active_subscription.plan.id == plan.id:
+                return Response({'error': 'You already have an active subscription for this plan.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
         access_token = request.auth.token
         base_url = request.build_absolute_uri('/')
         return_url = f"{base_url}api/v1/subscription/execute-payment/?access_token={access_token}"
@@ -91,15 +98,11 @@ class ExecutePaymentView(APIView):
 
     def authenticate_token(self, token):
         try:
-            # Strip the 'b' prefix and quotes from the token if present
             if token.startswith("b'") and token.endswith("'"):
                 token = token[2:-1]
 
-            # Decode the token
             UntypedToken(token)
-            # Retrieve the token's data
             data = token_backend.decode(token, verify=True)
-            # Get the user based on the user_id
             user_id = data.get('user_id')
             user = User.objects.get(id=user_id)
             return user
