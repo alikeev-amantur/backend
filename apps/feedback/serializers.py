@@ -7,6 +7,7 @@ from .schema_definitions import feedback_schema, feedback_answer_schema
 
 @feedback_answer_schema
 class FeedbackAnswerSerializer(SerializerRepresentationService):
+    feedback = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = FeedbackAnswer
@@ -23,6 +24,7 @@ class FeedbackAnswerSerializer(SerializerRepresentationService):
 
 @feedback_schema
 class FeedbackSerializer(SerializerRepresentationService):
+    establishment = serializers.PrimaryKeyRelatedField(read_only=True)
     answers = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -39,7 +41,7 @@ class FeedbackSerializer(SerializerRepresentationService):
         )
 
     def get_answers(self, obj) -> bool:
-        answers = FeedbackAnswer.objects.filter(feedback=obj).exists()
+        answers = FeedbackAnswer.objects.filter(feedback=obj).count()
         return answers
 
 

@@ -65,6 +65,7 @@ statistic_response = {
             name='OrderStatisticsResponse',
             fields={
                 'total_orders': serializers.IntegerField(),
+                'total_sum_prices': serializers.DecimalField(max_digits=10, decimal_places=2),
                 'orders_by_category': serializers.ListField(
                     child=inline_serializer(
                         name='OrderByCategory',

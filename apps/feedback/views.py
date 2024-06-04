@@ -17,7 +17,11 @@ from .serializers import (
     FeedbackCreateUpdateSerializer,
     FeedbackAnswerCreateUpdateSerializer,
 )
-from .views_services import FeedbackViewSetService
+from .views_services import (
+    FeedbackViewSetService,
+    FeedbackPermissions,
+    FeedbackAnswerPermissions
+)
 
 
 @extend_schema(tags=["Feedbacks"])
@@ -94,7 +98,10 @@ class FeedbackCreateView(CreateAPIView):
 
 
 @extend_schema(tags=["Feedbacks"])
-class FeedbackViewSet(FeedbackViewSetService):
+class FeedbackViewSet(
+    FeedbackPermissions,
+    FeedbackViewSetService
+):
     """
     Feedback's CRUD
 
@@ -136,7 +143,10 @@ class FeedbackAnswerCreate(CreateAPIView):
 
 
 @extend_schema(tags=["Feedbacks"])
-class FeedbackAnswerViewSet(FeedbackViewSetService):
+class FeedbackAnswerViewSet(
+    FeedbackAnswerPermissions,
+    FeedbackViewSetService
+):
     """
     Feedback's answers' CRUD
 
