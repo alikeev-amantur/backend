@@ -57,4 +57,5 @@ class Subscription(models.Model):
             self.save()
 
     def __str__(self):
-        return f"{self.user.email} - {self.plan.name} {'(Trial)' if self.is_trial else ''}"
+        plan_name = self.plan.name if self.plan else 'None'
+        return f"{self.user.email} - {plan_name} {'(Trial)' if self.is_trial else ''}"
