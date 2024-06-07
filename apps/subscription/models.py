@@ -36,6 +36,8 @@ class Subscription(models.Model):
     is_trial = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        if not self.pk:
+            super(Subscription, self).save(*args, **kwargs)
         if not self.end_date:
             if self.is_trial and self.plan.free_trial_days:
                 self.end_date = self.start_date + timedelta(days=self.plan.free_trial_days)
