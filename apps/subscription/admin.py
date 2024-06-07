@@ -18,4 +18,4 @@ class SubscriptionAdmin(admin.ModelAdmin):
         return formfield
 
 
-admin.site.register(SubscriptionPlan)
+
