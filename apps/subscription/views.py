@@ -89,8 +89,7 @@ class ExecutePaymentView(APIView):
             plan = SubscriptionPlan.objects.get(id=plan_id)
             Subscription.objects.create(
                 user=user,
-                plan=plan,
-                start_date=datetime.now()
+                plan=plan
             )
             return Response({'status': 'Payment executed successfully'}, status=status.HTTP_200_OK)
         else:
