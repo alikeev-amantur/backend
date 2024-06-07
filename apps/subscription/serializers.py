@@ -68,9 +68,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         if instance.start_date:
-            ret['start_date'] = instance.start_date.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
-            ret['start_date'] = ret['start_date'][:-2] + ':' + ret['start_date'][-2:]
+            start_date = instance.start_date.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+            start_date = start_date[:-2] + ':' + start_date[-2:]
+            ret['start_date'] = start_date
         if instance.end_date:
-            ret['end_date'] = instance.end_date.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
-            ret['end_date'] = ret['end_date'][:-2] + ':' + ret['end_date'][-2:]
+            end_date = instance.end_date.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+            end_date = end_date[:-2] + ':' + end_date[-2:]
+            ret['end_date'] = end_date
         return ret
