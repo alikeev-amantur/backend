@@ -60,9 +60,17 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     plan = SubscriptionPlanSerializer(read_only=True)
-    start_date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f%z')
-    end_date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f%z')
 
     class Meta:
         model = Subscription
         fields = ['id', 'user', 'plan', 'start_date', 'end_date', 'is_active', 'is_trial']
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if instance.start_date:
+            ret['start_date'] = instance.start_date.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+            ret['start_date'] = ret['start_date'][:-2] + ':' + ret['start_date'][-2:]
+        if instance.end_date:
+            ret['end_date'] = instance.end_date.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+            ret['end_date'] = ret['end_date'][:-2] + ':' + ret['end_date'][-2:]
+        return ret
