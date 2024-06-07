@@ -60,6 +60,8 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     plan = SubscriptionPlanSerializer(read_only=True)
+    start_date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f%z')
+    end_date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f%z')
 
     class Meta:
         model = Subscription
