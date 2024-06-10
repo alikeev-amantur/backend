@@ -156,6 +156,7 @@ class ClientRegisterView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         token = RefreshToken.for_user(user)
+        token["email"] = user.email
         data = serializer.data
         data["tokens"] = {"refresh": str(token), "access": str(token.access_token)}
         headers = self.get_success_headers(serializer.data)
