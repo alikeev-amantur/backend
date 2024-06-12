@@ -1,4 +1,6 @@
-from drf_spectacular.utils import OpenApiResponse, inline_serializer
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiResponse, inline_serializer, \
+    OpenApiParameter
 from rest_framework import serializers
 
 # Custom response definitions
@@ -38,3 +40,35 @@ free_trial_request_body = inline_serializer(
         'plan_id': serializers.IntegerField()
     }
 )
+
+subscription_statistics_parameters = [
+    OpenApiParameter(
+        name='start_from',
+        description='Filter for subscription statistic. Greater than or equal',
+        required=False,
+        type=OpenApiTypes.DATE,
+        location=OpenApiParameter.QUERY
+    ),
+    OpenApiParameter(
+        name='start_to',
+        description='Filter for subscription statistic. Less than or equal',
+        required=False,
+        type=OpenApiTypes.DATE,
+        location=OpenApiParameter.QUERY
+    ),
+    OpenApiParameter(
+        name='end_to',
+        description='Filter for subscription statistic. Less than or equal',
+        required=False,
+        type=OpenApiTypes.DATE,
+        location=OpenApiParameter.QUERY
+    ),
+    OpenApiParameter(
+        name='end_from',
+        description='Filter for subscription statistic. Greater than or equal',
+        required=False,
+        type=OpenApiTypes.DATE,
+        location=OpenApiParameter.QUERY
+    )
+]
+
