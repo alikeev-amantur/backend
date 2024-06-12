@@ -1,6 +1,6 @@
-from datetime import datetime
-
 import paypalrestsdk
+from django.db.models import Sum, Count
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets, generics
 from rest_framework.generics import get_object_or_404
@@ -11,9 +11,10 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.state import token_backend
 from rest_framework_simplejwt.tokens import UntypedToken
 
+from apps.subscription.filters import SubscriptionFilter
 from apps.subscription.models import SubscriptionPlan, Subscription
 from apps.subscription.schema_definitions import deactivate_subscription_responses, free_trial_responses, \
-    free_trial_request_body
+    free_trial_request_body, subscription_statistics_parameters
 from apps.subscription.serializers import FreeTrialSerializer, SubscriptionPlanSerializer, SubscriptionSerializer
 from apps.user.models import User
 from happyhours.permissions import IsAdmin
@@ -196,3 +197,47 @@ class ActiveUserSubscriptionView(generics.RetrieveAPIView):
 
         active_subscription = get_object_or_404(Subscription, user=user, is_active=True)
         return active_subscription
+
+
+@extend_schema(tags=["Subscriptions"], parameters=subscription_statistics_parameters)
+class SubscriptionStatisticView(generics.ListAPIView):
+    queryset = Subscription.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = SubscriptionFilter
+    permission_classes = [IsAdmin]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.queryset)
+        data = {
+            "all_subscriptions": self.get_all_subs(queryset),
+            "active_subscriptions": self.get_active_subs(queryset),
+            "inactive_subscriptions": self.get_inactive_subs(queryset),
+            "trial_subscriptions": self.get_trial_subs(queryset),
+            "total_price": self.get_total_price(queryset),
+            "most_popular_plans": self.get_most_popular_plans(queryset),
+        }
+        return Response(data)
+
+    def get_all_subs(self, queryset):
+        return queryset.filter().count()
+
+    def get_active_subs(self, queryset):
+        return queryset.filter(is_active=True).count()
+
+    def get_inactive_subs(self, queryset):
+        return queryset.filter(is_active=False).count()
+
+    def get_trial_subs(self, queryset):
+        return queryset.filter(is_trial=True).count()
+
+    def get_total_price(self, queryset):
+        total_price = queryset.aggregate(
+            total_price=Sum('plan__price')
+        )['total_price']
+        return total_price if total_price else 0
+
+    def get_most_popular_plans(self, queryset):
+        return (
+            queryset.values('plan__name').annotate(count=Count('id'))
+            .order_by('-count')
+        )
