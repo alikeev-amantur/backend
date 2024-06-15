@@ -8,7 +8,7 @@ from happyhours.factories import (
     UserFactory,
     BeverageFactory,
     EstablishmentFactory,
-    OrderFactory, SubscriptionFactory,
+    OrderFactory, SubscriptionFactory, CategoryFactory,
 )
 
 
@@ -25,7 +25,8 @@ class TestOrderViews:
         self.order = OrderFactory(client=self.user, beverage=self.beverage)
         self.place_order_url = reverse("v1:place-order")
         self.client_order_history_url = reverse("v1:client-order-history-list")
-        self.partner_order_history_url = reverse("v1:partner-order-history-list")
+        establishment_id = self.establishment.id
+        self.partner_order_history_url = reverse("v1:partner-order-history",args=[establishment_id])
 
     def test_place_order_permissions(self):
         response = self.client.post(self.place_order_url, {})
@@ -134,3 +135,47 @@ class TestPartnerPlaceOrderView:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+@pytest.mark.django_db
+def test_order_statistics_view():
+    user = UserFactory(role='partner')
+    establishment = EstablishmentFactory(owner=user)
+    category = CategoryFactory()
+    beverage = BeverageFactory(category=category, establishment=establishment)
+    order1 = OrderFactory(establishment=establishment, beverage=beverage)
+    order2 = OrderFactory(establishment=establishment, beverage=beverage)
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    url = reverse('v1:order-statistics', kwargs={'establishment_id': establishment.id})
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data['total_orders'] == 2
+    assert response.data['total_sum_prices'] is not None
+    assert len(response.data['orders_by_category']) == 1
+    assert response.data['orders_by_category'][0]['category'] == category.name
+    assert response.data['orders_by_category'][0]['total_orders'] == 2
+
+@pytest.mark.django_db
+def test_incoming_orders_view():
+    partner_user = UserFactory(role='partner')
+    other_user = UserFactory(role='partner')
+    establishment = EstablishmentFactory(owner=partner_user)
+    beverage = BeverageFactory(establishment=establishment)
+    order1 = OrderFactory(establishment=establishment, beverage=beverage, status='pending')
+    order2 = OrderFactory(establishment=establishment, beverage=beverage, status='in_preparation')
+    order3 = OrderFactory(establishment=establishment, beverage=beverage, status='completed')
+
+    client = APIClient()
+    client.force_authenticate(user=partner_user)
+
+    url = reverse('v1:incoming-orders', kwargs={'establishment_id': establishment.id})
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
+
+    client.force_authenticate(user=other_user)
+    response = client.get(url)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
