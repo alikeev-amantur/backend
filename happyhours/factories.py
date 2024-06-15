@@ -83,7 +83,7 @@ class OrderFactory(factory.django.DjangoModelFactory):
     establishment = factory.SubFactory(EstablishmentFactory)
     beverage = factory.SubFactory(BeverageFactory)
     client = factory.SubFactory(UserFactory)
-    order_date = factory.LazyFunction(timezone.now)
+    # order_date = factory.LazyFunction(timezone.now)
 
 
 class FeedbackFactory(factory.django.DjangoModelFactory):

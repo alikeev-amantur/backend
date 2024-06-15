@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError
 
 from happyhours.factories import EstablishmentFactory, UserFactory
 from ..serializers import EstablishmentCreateUpdateSerializer, EstablishmentSerializer
+from ..utils import phone_number_validation
 
 
 @pytest.mark.django_db
@@ -34,7 +35,6 @@ class TestEstablishmentSerializer:
         with pytest.raises(ValidationError):
             serializer.validate_location(out_of_bounds_location)
 
-
     def test_validate_owner_incorrect(self):
         user = UserFactory()
         other_user = UserFactory()
@@ -61,6 +61,8 @@ class TestEstablishmentSerializer:
             pytest.fail(f"Serializer errors: {serializer.errors}")
 
 
-@pytest.fixture
-def phone_number_validation(mocker):
-    mocker.patch('path.to.phone_number_validation', return_value=True)
+@pytest.mark.django_db
+def test_phone_number_validation_invalid():
+    validated_data = {"phone_number": "998612345678"}
+    with pytest.raises(ValidationError, match="Invalid phone number. Must be kgz national format"):
+        phone_number_validation(validated_data)
