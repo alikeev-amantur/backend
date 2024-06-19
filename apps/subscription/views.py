@@ -213,6 +213,7 @@ class SubscriptionStatisticView(generics.ListAPIView):
             "active_subscriptions": self.get_active_subs(queryset),
             "inactive_subscriptions": self.get_inactive_subs(queryset),
             "trial_subscriptions": self.get_trial_subs(queryset),
+            "users_with_subs": self.get_users_with_subs(queryset),
             "total_price": self.get_total_price(queryset),
             "most_popular_plans": self.get_most_popular_plans(queryset),
         }
@@ -238,6 +239,12 @@ class SubscriptionStatisticView(generics.ListAPIView):
 
     def get_most_popular_plans(self, queryset):
         return (
-            queryset.values('plan__name').annotate(count=Count('id'))
-            .order_by('-count')
+            queryset.values('plan__name').annotate(count=Count('id')).
+            exclude(plan__name__exact=None).order_by('-count')
+        )
+
+    def get_users_with_subs(self, queryset):
+        return (
+            User.objects.annotate(subscription_count=Count('subscriptions')).
+            filter(subscription_count__gt=0).count()
         )
