@@ -123,7 +123,7 @@ def test_clients_profile_admin(client, access_token_admin, django_user_model):
 
 @pytest.mark.django_db
 def test_client_login(client, django_user_model):
-    url = reverse("v1:token-obtain-pair")
+    url = reverse("v1:client-login")
     email = "user@example.com"
     password = "somepassword1"
     role = "client"
@@ -178,7 +178,7 @@ def test_blocked_user(client, django_user_model):
     user = django_user_model.objects.create_user(
         email=email, password=password, role=role, is_blocked=is_blocked
     )
-    url = reverse("v1:token-obtain-pair")
+    url = reverse("v1:client-login")
     data = {
         "email": email,
         "password": password,

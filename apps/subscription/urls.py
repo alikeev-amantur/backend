@@ -25,5 +25,5 @@ urlpatterns = [
     path('<int:user_id>/subscriptions/', UserSubscriptionsView.as_view(), name='user-subscriptions'),
     path('deactivate/<int:pk>/', DeactivateSubscriptionView.as_view(), name='deactivate-subscription'),
     path('subscriptions/', ActiveUserSubscriptionView.as_view(), name='active-subscription'),
-    path('statistics/', SubscriptionStatisticView.as_view(), name='statistics')
+    path('statistics/', SubscriptionStatisticView.as_view(), name='subscription-statistics')
 ]
