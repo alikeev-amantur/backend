@@ -3,6 +3,11 @@ from django.contrib import admin
 from apps.beverage.models import Category, Beverage
 
 
-# Register your models here.
+class BeverageAdmin(admin.ModelAdmin):
+    list_display = (
+        "__str__", "id", "price", "availability_status", "establishment"
+    )
+
+
 admin.site.register(Category)
-admin.site.register(Beverage)
+admin.site.register(Beverage, BeverageAdmin)
