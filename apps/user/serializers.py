@@ -25,6 +25,8 @@ from apps.user.schema_definitions import (
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from happyhours.utils import CustomValidationError
+
 User = get_user_model()
 
 
@@ -46,7 +48,10 @@ class BaseTokenObtainSerializer(TokenObtainPairSerializer):
             data.update(user_data)
             return data
         except User.DoesNotExist:
-            raise serializers.ValidationError("User does not exist")
+            raise CustomValidationError(detail={
+                "error_code": 2,
+                "message": "User does not exist"
+            })
 
 
 @client_login_schema
@@ -65,7 +70,10 @@ class TokenObtainSerializer(BaseTokenObtainSerializer):
             }
             data.update(user_data)
             return data
-        raise serializers.ValidationError("busta straight busta")
+        raise CustomValidationError(detail={
+            "error_code": 1,
+            "message": "Account is blocked"
+        })
 
 
 @partner_login_schema
@@ -83,7 +91,10 @@ class PartnerLoginSerializer(BaseTokenObtainSerializer):
             }
             data.update(user_data)
             return data
-        raise serializers.ValidationError("busta straight busta")
+        raise CustomValidationError(detail={
+            "error_code": 1,
+            "message": "Account is blocked"
+        })
 
 
 @admin_login_schema
@@ -97,7 +108,10 @@ class AdminLoginSerializer(BaseTokenObtainSerializer):
         user = User.objects.get(email=data.get("email"))
         if user.role == "admin" or user.is_superuser:
             return data
-        raise serializers.ValidationError("Not admin user")
+        raise CustomValidationError(detail={
+            "error_code": 1,
+            "message": "Not admin user"
+        })
 
 
 class TokenRefreshBlockCheckSerializer(TokenRefreshSerializer):
@@ -114,7 +128,10 @@ class TokenRefreshBlockCheckSerializer(TokenRefreshSerializer):
 
             if user.is_blocked:
                 refresh.blacklist()
-                raise serializers.ValidationError("still straight busta")
+                raise CustomValidationError(detail={
+                    "error_code": 1,
+                    "message": "Account is blocked"
+                })
 
             data = {"access": str(refresh.access_token)}
             refresh.blacklist()
@@ -127,7 +144,10 @@ class TokenRefreshBlockCheckSerializer(TokenRefreshSerializer):
 
             return data
         except User.DoesNotExist:
-            raise serializers.ValidationError("User does not exist")
+            raise CustomValidationError(detail={
+                "error_code": 2,
+                "message": "Session expired"
+            })
 
 
 @admin_block_user_schema
@@ -167,8 +187,8 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
         max_length=255,
-        validators=[UniqueValidator(queryset=User.objects.all())],
     )
+    name = serializers.CharField(required=False, max_length=255)
     avatar = serializers.ImageField(
         validators=[
             FileExtensionValidator(allowed_extensions=[
@@ -196,10 +216,19 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         :param attrs:
         :return:
         """
+        email = attrs.get("email")
+        if User.objects.filter(email=email).exists():
+            raise CustomValidationError(detail={
+                "error_code": 1,
+                "message": "Unable to register"
+            })
         password = attrs.get("password")
         password_confirm = attrs.pop("password_confirm")
         if password != password_confirm:
-            raise serializers.ValidationError("Passwords do not match")
+            raise CustomValidationError(detail={
+                "error_code": 2,
+                "message": "Unable to register"
+            })
         return attrs
 
     def create(self, validated_data):
@@ -227,7 +256,10 @@ class ClientPasswordForgotPageSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if User.objects.filter(email=attrs.get("email")).exists():
             return attrs
-        raise serializers.ValidationError("User does not exist")
+        raise CustomValidationError(detail={
+            "error_code": 1,
+            "message": "User does not exist"
+        })
 
 
 @user_password_reset_schema
@@ -245,9 +277,10 @@ class ClientPasswordResetSerializer(serializers.Serializer):
         try:
             User.objects.filter(email=attrs.get("email"))
         except User.DoesNotExist as user_not_exist:
-            raise serializers.ValidationError(
-                "User does not exists"
-            ) from user_not_exist
+            raise CustomValidationError(detail={
+                "error_code": 1,
+                "message": "User does not exist"
+            }) from user_not_exist
         return attrs
 
 
@@ -274,7 +307,10 @@ class ClientPasswordChangeSerializer(serializers.ModelSerializer):
         password = attrs.get("password")
         password_confirm = attrs.get("password_confirm")
         if password != password_confirm:
-            raise serializers.ValidationError("Passwords do not match")
+            raise CustomValidationError(detail={
+                "error_code": 1,
+                "message": "Unable to register"
+            })
         return attrs
 
 
@@ -475,7 +511,10 @@ class PartnerCreateSerializer(serializers.ModelSerializer):
         password = attrs.get("password")
         password_confirm = attrs.get("password_confirm")
         if password != password_confirm:
-            raise serializers.ValidationError("Passwords do not match")
+            raise CustomValidationError(detail={
+                "error_code": 1,
+                "message": "Unable to register"
+            })
         return attrs
 
     def create(self, validated_data):

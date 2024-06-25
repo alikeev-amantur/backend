@@ -500,4 +500,19 @@ class ClientPasswordResetView(GenericAPIView):
                 return Response(
                     {"refresh": str(token), "access": str(token.access_token)}
                 )
-        return Response("Invalid code", status=status.HTTP_400_BAD_REQUEST)
+            elif (passed_time - stored_code_date).total_seconds() >= 600:
+                return Response(
+                    {
+                        "error_code": "2",
+                        "message": "Code expired",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        return Response(
+            {
+                "error_code": "1",
+                "message": "Incorrect code",
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )

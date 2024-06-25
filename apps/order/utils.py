@@ -6,6 +6,8 @@ import datetime
 
 from apps.order.models import Order
 
+from happyhours.utils import CustomValidationError
+
 User = get_user_model()
 
 
@@ -24,20 +26,42 @@ User = get_user_model()
 
 def validate_order_happyhours(establishment):
     if not establishment.is_happy_hour():
-        raise serializers.ValidationError("Order can only be placed during happy hours.")
+        """
+        Order can only be placed during happy hours
+        """
+        raise CustomValidationError(
+            detail={
+                "error_code": 1,
+                "message": "Unable to Make Order"
+            }
+        )
 
 
 def validate_order_per_hour(client):
+    """
+    Client can only place one order per hour
+    """
     one_hour_ago = timezone.localtime() - datetime.timedelta(hours=1)
     if Order.objects.filter(client=client, order_date__gte=one_hour_ago).exclude(status='cancelled').exists():
-        raise serializers.ValidationError("You can only place one order per hour.")
+        raise CustomValidationError(
+            detail={
+                "error_code": 2,
+                "message": "Unable to Make Order"
+            }
+        )
 
 
 def validate_order_per_day(client, establishment):
+    """
+    Client can only place one order per establishment per day
+    """
     today_min = datetime.datetime.combine(timezone.localtime().date(), datetime.time.min)
     today_max = datetime.datetime.combine(timezone.localtime().date(), datetime.time.max)
     if Order.objects.filter(client=client, establishment=establishment,
                             order_date__range=(today_min, today_max)).exclude(status='cancelled').exists():
-        raise serializers.ValidationError("You can only place one order per establishment per day.")
-
-
+        raise CustomValidationError(
+            detail={
+                "error_code": 3,
+                "message": "Unable to Make Order"
+            }
+        )
